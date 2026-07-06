@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Default plan markdown skeleton (frontmatter + task shape) for the plan-writing skill. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
+  "slots": []
+}

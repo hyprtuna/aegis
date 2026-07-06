@@ -1,0 +1,28 @@
+{
+  "kind": "hook",
+  "intent": "pre-compact",
+  "name": "pre-compact",
+  "description": "Capture durable session anchors (decisions, test names, task anchors) just before Claude compacts the context window, so they survive the summary.",
+  "visibility": "internal",
+  "platforms": ["claude", "opencode", "codex"],
+  "trigger": {
+    "matcher": "manual|auto"
+  },
+  "x-claude": {
+    "event": "PreCompact",
+    "matcher": "manual|auto",
+    "dispatch": "command",
+    "command": ".claude-plugin/hooks/pre-compact.sh"
+  },
+  "x-opencode": {
+    "event": "session.compacting",
+    "phase": "pre",
+    "handler": "compaction"
+  },
+  "x-codex": {
+    "event": "PreCompact",
+    "matcher": "manual|auto",
+    "dispatch": "command",
+    "command": "./hooks/pre-compact.sh"
+  }
+}

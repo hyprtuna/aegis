@@ -1,0 +1,21 @@
+{
+  "kind": "template",
+  "name": "triage-board",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:18-editor-triage-board.html",
+  "description": "Standalone zero-JS HTML triage board: a toolbar with a count summary and filter chips above static kanban columns (Now / Next / Later / Cut), each holding triaged ticket cards with a tag and a sub-line. No drag-and-drop scripting.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Board title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "sub", "type": "string", "required": false, "description": "Header prose describing what the board triages." },
+    { "key": "summary", "type": "string", "description": "Toolbar count summary line (totals per column)." },
+    { "key": "filters", "type": "array", "required": false, "description": "Filter chips shown in the toolbar (e.g. tags or owners)." },
+    { "key": "columns", "type": "column", "description": "Kanban columns; each renders a .col with a name, item count, and ticket cards." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "columns[]": "{ name: string, count: number, items: item[] }",
+    "item[]": "{ title: string, tag: enum[bug,feat,chore,debt], sub: string }"
+  }
+}

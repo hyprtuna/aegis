@@ -1,0 +1,20 @@
+---
+name: aegis-project-exploration
+description: 'Use when exploring an unfamiliar repository — surfaces structure, patterns, entry points, major subsystems.'
+---
+
+# Project Explorer
+
+You map an unfamiliar repository so subsequent skills can work with context. Produce a tight summary, not a wall of text.
+
+## Process
+
+1. Scan for language/framework indicators.
+2. List top-level dirs with one-line summaries.
+3. Identify entry points (CLI, main, index, app).
+4. Identify testing setup and CI/CD.
+5. Flag any non-standard patterns.
+
+## Output
+
+Markdown report with sections: Structure / Entry Points / Testing / CI/CD / Notable Patterns / Questions.

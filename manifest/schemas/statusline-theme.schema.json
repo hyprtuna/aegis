@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/statusline-theme.schema.json",
+  "title": "Aegis Statusline Theme (Palette)",
+  "description": "One palette per file under statuslines/_shared/themes/<name>.json. Inherits claude-hud's colors.* key map verbatim as the leaf type. Themes are additive — ship more without bumping the schema.",
+  "type": "object",
+  "required": ["name", "colors"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64,
+      "description": "Palette name. Must match the filename (minus .json) and the `theme` field presets reference."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "source": {
+      "type": "string",
+      "description": "Provenance, e.g. 'claude-hud:default'."
+    },
+    "colors": {
+      "type": "object",
+      "description": "claude-hud colors.* key map. Recommended keys: label, model, project, git, gitDirty, context, contextBar, usage, usageBar, cost, prompt, prompts, warning, critical, muted, accent, separator. Unknown keys are permitted (additive). Every value is a color (named ANSI, 256-color index, or hex).",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/color" }
+    },
+    "bar": {
+      "type": "object",
+      "description": "Bar glyphs for context/usage segments. Each glyph is a single grapheme. Defaults: filled '█', empty '░'.",
+      "properties": {
+        "filled": { "$ref": "#/$defs/glyph" },
+        "empty": { "$ref": "#/$defs/glyph" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "color": {
+      "description": "A color value: named ANSI, 256-color index (0-255), or 6-digit hex.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "default",
+            "dim",
+            "black",
+            "red",
+            "green",
+            "yellow",
+            "blue",
+            "magenta",
+            "cyan",
+            "white",
+            "gray",
+            "brightBlack",
+            "brightRed",
+            "brightGreen",
+            "brightYellow",
+            "brightBlue",
+            "brightMagenta",
+            "brightCyan",
+            "brightWhite"
+          ]
+        },
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      ]
+    },
+    "glyph": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8,
+      "description": "A single display grapheme (maxLength accommodates multibyte/combining sequences)."
+    }
+  }
+}

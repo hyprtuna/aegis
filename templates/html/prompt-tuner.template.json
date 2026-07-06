@@ -1,0 +1,20 @@
+{
+  "kind": "template",
+  "name": "prompt-tuner",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:20-editor-prompt-tuner.html",
+  "description": "Standalone HTML prompt tuner: an editable system prompt with {{variable}} slots, a sample input, a live-filled preview, and quality metrics. Interactive template — carries the AG-0011 D2 minimal-JS exception: self-contained inline JS re-renders the filled preview from the variables as the prompt is edited, with no external resources.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Prompt title; used in <title> and the h1." },
+    { "key": "systemPrompt", "type": "string", "description": "The editable system prompt; {{variable}} markers fill from the variables." },
+    { "key": "input", "type": "string", "description": "A representative input the prompt is tuned against." },
+    { "key": "previewOutput", "type": "string", "description": "The filled prompt preview region; rebuilt live by the demo from systemPrompt + variables." },
+    { "key": "variables[]", "type": "variable", "description": "One legend chip per template variable; the demo fills the preview from these. See shape." },
+    { "key": "metrics[]", "type": "string", "description": "One pill per quality metric (e.g. length, tone, reading grade)." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "variables[]": "{ name: string, value: string }"
+  }
+}

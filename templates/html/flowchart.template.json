@@ -1,0 +1,20 @@
+{
+  "kind": "template",
+  "name": "flowchart",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:13-flowchart-diagram.html",
+  "description": "Standalone zero-JS HTML flowchart: a CSS-driven vertical node spine with kind-coded shapes (process, decision, terminal, ok, bad), labelled connectors, and a full directed-edge adjacency list with legend.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Flow title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "lead", "type": "string", "required": false, "description": "One or two sentence description of what the flow charts." },
+    { "key": "nodes", "type": "node", "description": "Ordered flow nodes; render each as a .node card (class = kind) joined by .connector blocks." },
+    { "key": "edges", "type": "edge", "description": "Directed edges as .edge-row entries, including branch/loop edges off the main spine." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "nodes[]": "{ id: string, label: string, kind: enum[process,terminal,decision,ok,bad] }",
+    "edges[]": "{ from: string (node id), to: string (node id), label: string (optional) }"
+  }
+}

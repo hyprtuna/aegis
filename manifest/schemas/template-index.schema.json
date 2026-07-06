@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/template-index.schema.json",
+  "title": "Aegis Template Index",
+  "description": "Per-kind format index (manifest/template-index.json). Maps each template kind to the formats it ships and the default format. Read by the format-aware ${TEMPLATE} resolver and the Q2 user-choice prompt. Cross-checks beyond shape (path existence on disk, default present in formats, no-orphan-bodies, slot-body markers) are enforced by scripts/validate/template-index.mjs.",
+  "type": "object",
+  "required": ["kinds"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "_comment": { "type": "string" },
+    "kinds": {
+      "type": "object",
+      "description": "Map of kind name (kebab-case) to its format entry.",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "default", "formats"],
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "default": {
+            "type": "string",
+            "enum": ["html", "markdown", "json"],
+            "description": "The format used when ${TEMPLATE:<kind>} is resolved without an explicit format. MUST be a key present in `formats` (enforced by the validator)."
+          },
+          "designOnly": {
+            "type": "boolean",
+            "description": "When true, the kind ships as a design reference with no near-term producer — an expected orphan. The NAMED_ARTIFACT_TEMPLATE / producer-coverage validators do not warn that it lacks a producer. Optional; absence means a producer is expected."
+          },
+          "formats": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+              "html": { "type": "string", "pattern": "^templates/html/.+\\.html$" },
+              "markdown": { "type": "string", "pattern": "^templates/markdown/.+\\.md$" },
+              "json": { "type": "string", "pattern": "^templates/json/.+\\.json$" }
+            }
+          }
+        },
+        "allOf": [
+          { "if": { "properties": { "default": { "const": "html" } } }, "then": { "properties": { "formats": { "required": ["html"] } } } },
+          { "if": { "properties": { "default": { "const": "markdown" } } }, "then": { "properties": { "formats": { "required": ["markdown"] } } } },
+          { "if": { "properties": { "default": { "const": "json" } } }, "then": { "properties": { "formats": { "required": ["json"] } } } }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

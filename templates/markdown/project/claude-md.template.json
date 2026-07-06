@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "claude-md",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Project-init CLAUDE.md stub that @-imports AGENTS.md, consumed by the onboarding flow (codebase-onboarding). Static skeleton — no mustache-lite slots.",
+  "slots": []
+}

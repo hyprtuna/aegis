@@ -1,0 +1,14 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:08-prototype-interaction.html",
+  "description": "Markdown sibling of the prototype-interaction template: static prose describing the interaction — title, a description of the interactive region, the behaviour decisions baked in, and the open questions. The agent renders the open-questions array to a bullet list before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Prototype title; the document h1." },
+    { "key": "stage", "type": "string", "description": "Prose description of the interactive region and how the user manipulates it." },
+    { "key": "behaviorNotes", "type": "string", "description": "Behaviour decisions baked into the prototype, rendered as prose or a bullet list." },
+    { "key": "openQuestions[]", "type": "string", "description": "Unresolved interaction questions, rendered as a bullet list." }
+  ]
+}

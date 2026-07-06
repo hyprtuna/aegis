@@ -1,0 +1,22 @@
+{
+  "name": "aegis",
+  "description": "Aegis — plugin-first agentic AI dev system: skills, agents, commands, rules, and templates for software development.",
+  "owner": {
+    "name": "Aegis Contributors"
+  },
+  "plugins": [
+    {
+      "name": "aegis",
+      "source": "./",
+      "description": "Plugin-first agentic AI development system.",
+      "version": "0.3.10",
+      "category": "development",
+      "keywords": [
+        "agentic",
+        "skills",
+        "agents",
+        "anvil"
+      ]
+    }
+  ]
+}

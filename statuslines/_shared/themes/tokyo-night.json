@@ -1,0 +1,27 @@
+{
+  "name": "tokyo-night",
+  "description": "Tokyo Night truecolor palette.",
+  "source": "claude-hud:tokyo-night",
+  "colors": {
+    "label": "#7aa2f7",
+    "model": "#7aa2f7",
+    "project": "#e0af68",
+    "git": "#bb9af7",
+    "gitDirty": "#e0af68",
+    "context": "#9ece6a",
+    "contextBar": "#9ece6a",
+    "usage": "#9ece6a",
+    "usageBar": "#9ece6a",
+    "cost": "#e0af68",
+    "pr": "#7aa2f7",
+    "warning": "#e0af68",
+    "critical": "#f7768e",
+    "muted": "#565f89",
+    "accent": "#bb9af7",
+    "separator": "#565f89"
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░"
+  }
+}

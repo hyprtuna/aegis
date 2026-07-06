@@ -1,0 +1,21 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:05-design-system.html",
+  "description": "JSON sibling of the design-system template: the design tokens as machine-readable data — swatches (token, hex), a type scale (name, size), spacing tokens (label, value), and core components (name, specimen). The agent expands each exemplar array entry.",
+  "slots": [
+    { "key": "title", "type": "string", "required": false, "description": "Design-system title." },
+    { "key": "swatches", "type": "swatch", "description": "Color swatches; expand the exemplar object per token." },
+    { "key": "typeScale", "type": "typeStep", "description": "Type-scale steps; expand the exemplar object per step." },
+    { "key": "spacing", "type": "spaceToken", "description": "Spacing tokens; expand the exemplar object per token." },
+    { "key": "components", "type": "component", "description": "Core components; expand the exemplar object per component." }
+  ],
+  "shape": {
+    "swatch[]": "{ token: string, hex: string }",
+    "typeStep[]": "{ name: string, size: string }",
+    "spaceToken[]": "{ label: string, value: string }",
+    "component[]": "{ name: string, specimen: string }"
+  }
+}

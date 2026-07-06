@@ -1,0 +1,18 @@
+{
+  "kind": "hook",
+  "intent": "prompt-injection-guard",
+  "name": "prompt-injection-guard",
+  "description": "Advisory PreToolUse scanner that flags prompt-injection phrasing in tool input (Read/Bash/WebFetch). Opt-in (enabled:false), Claude-only, emits advisory context only — never blocks.",
+  "visibility": "internal",
+  "platforms": ["claude"],
+  "enabled": false,
+  "trigger": {
+    "matcher": "Read|Bash|WebFetch"
+  },
+  "x-claude": {
+    "event": "PreToolUse",
+    "matcher": "Read|Bash|WebFetch",
+    "dispatch": "command",
+    "command": ".claude-plugin/hooks/prompt-injection-guard.mjs"
+  }
+}

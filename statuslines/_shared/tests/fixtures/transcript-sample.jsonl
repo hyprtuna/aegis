@@ -1,0 +1,10 @@
+{"type":"user","timestamp":"2026-07-03T10:00:00.000Z","message":{"content":"Please refactor the auth module and add tests."}}
+{"type":"assistant","timestamp":"2026-07-03T10:00:01.000Z","message":{"content":[{"type":"tool_use","id":"tu_1","name":"Bash","input":{"command":"npm test"}}]}}
+{"type":"user","timestamp":"2026-07-03T10:00:03.000Z","message":{"content":[{"type":"tool_result","tool_use_id":"tu_1","is_error":false}]}}
+{"type":"assistant","timestamp":"2026-07-03T10:00:04.000Z","message":{"content":[{"type":"tool_use","id":"tu_2","name":"Bash","input":{"command":"npm run build"}}]}}
+{"type":"user","timestamp":"2026-07-03T10:00:06.000Z","message":{"content":[{"type":"tool_result","tool_use_id":"tu_2","is_error":true}]}}
+{"type":"assistant","timestamp":"2026-07-03T10:00:07.000Z","message":{"content":[{"type":"tool_use","id":"tu_3","name":"Task","input":{"subagent_type":"code-explorer","model":"opus","description":"map auth module call chains"}}]}}
+{"type":"user","timestamp":"2026-07-03T10:00:09.000Z","message":{"content":[{"type":"tool_result","tool_use_id":"tu_3","is_error":false}]}}
+{"type":"assistant","timestamp":"2026-07-03T10:00:10.000Z","message":{"content":[{"type":"tool_use","id":"tu_4","name":"TodoWrite","input":{"todos":[{"content":"Refactor auth module","status":"completed"},{"content":"Add tests for auth module","status":"in_progress"},{"content":"Update docs","status":"pending"}]}}]}}
+this is not valid json,,, {{{
+{"type":"user","timestamp":"2026-07-03T10:00:12.000Z","message":{"content":"Great, now update the README too."}}

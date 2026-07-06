@@ -1,0 +1,21 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:13-flowchart-diagram.html",
+  "description": "Markdown sibling of the flowchart template: a mermaid flowchart block plus an ASCII fallback and prose node/edge lists. The agent renders nodes[]/edges[] into mermaid node+edge lines before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Flow title; the h1." },
+    { "key": "lead", "type": "string", "required": false, "description": "One or two sentence description of the flow." },
+    { "key": "nodes", "type": "string", "description": "Pre-rendered mermaid node declarations, one per line (e.g. 'push([git push main])')." },
+    { "key": "edges", "type": "string", "description": "Pre-rendered mermaid edge lines, one per line (e.g. 'push --> ci')." },
+    { "key": "ascii", "type": "string", "required": false, "description": "ASCII-art fallback rendering of the same flow for plain-text contexts." },
+    { "key": "nodeList", "type": "string", "description": "Prose bullet list of nodes with id, label, and kind." },
+    { "key": "edgeList", "type": "string", "description": "Prose bullet list of directed edges with optional labels." }
+  ],
+  "shape": {
+    "nodes[]": "{ id: string, label: string, kind: enum[process,terminal,decision,ok,bad] }",
+    "edges[]": "{ from: string, to: string, label: string (optional) }"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "tasks",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Per-feature task-table skeleton (ID/File/Action/Depends/Risk) used by the onboarding and planning flows. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
+  "slots": []
+}

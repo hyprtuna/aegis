@@ -1,0 +1,74 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+dist-experimental/
+build/
+*.tsbuildinfo
+
+# Reference material (research only — not part of the project)
+/references/
+
+# Host runtime state (NOT the plugin source — `.claude-plugin/`, `.opencode/`,
+# `.codex/`, and `.codex-plugin/` are tracked because they ship as the Aegis
+# projection that hosts load).
+.claude/
+
+# Planning workspace: only the architectural canon under .aegis/specs/ ships.
+# All other planning artifacts (plans, tasks, audits, research, index) and any
+# host runtime state live outside the public snapshot.
+.aegis/*
+!.aegis/specs/
+!.aegis/specs/**
+!.aegis/AGENTS.md
+!.aegis/CLAUDE.md
+.anvil/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary
+.cache/
+tmp/
+temp/
+
+# Forge legacy output (pre-Anvil)
+forge-output/
+
+# Git worktrees (isolated development workspaces)
+.worktrees/
+
+# Compiled hooks (output of `npm run build`)
+dist-hooks/
+
+# References
+references/

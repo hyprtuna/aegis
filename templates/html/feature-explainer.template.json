@@ -1,0 +1,24 @@
+{
+  "kind": "template",
+  "name": "feature-explainer",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:14-research-feature-explainer.html",
+  "description": "Standalone HTML feature explainer for research/learning output: a sticky on-this-page nav, an overview TL;DR, prose sections (heading + body), and labeled code blocks. Zero-JS: the reference's tabbed code is rendered as stacked labeled blocks.",
+  "slots": [
+    { "key": "topic", "type": "string", "description": "Feature topic; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. area or repo." },
+    { "key": "overview", "type": "string", "description": "Short summary of what the feature does and how it flows." },
+    { "key": "sections[]", "type": "section", "description": "Prose sections; one heading + body block each (also seeds nav anchors)." },
+    { "key": "section.heading", "type": "string", "description": "Section heading." },
+    { "key": "section.body", "type": "string", "description": "Section body prose." },
+    { "key": "code[]", "type": "codeblock", "required": false, "description": "Labeled code blocks; one .codeblock each." },
+    { "key": "code.caption", "type": "string", "required": false, "description": "Code block caption, e.g. a file path or label." },
+    { "key": "code.body", "type": "string", "required": false, "description": "Code block contents." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "section[]": "{ heading: string, body: string }",
+    "code[]": "{ caption: string, body: string }"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "v0.0.9:research",
+  "description": "RESEARCH.md shape emitted by the research skill: sourced findings, 2-4 enumerated options with pros/cons, a single recommendation, and the key trade-off that drives the choice. Findings are factual and cite specific files/locations; opinions live only in the recommendation. The options block is rendered to repeated sections before substitution.",
+  "slots": [
+    { "key": "findings", "type": "string", "description": "What you found — factual, sourced to specific files/locations." },
+    { "key": "option[]", "type": "option", "description": "2-4 concrete options; rendered to repeated sections." },
+    { "key": "option.label", "type": "string", "description": "Option label, e.g. 'A', 'B'." },
+    { "key": "option.name", "type": "string", "description": "Short option name." },
+    { "key": "option.pros", "type": "string", "description": "Why this option is attractive." },
+    { "key": "option.cons", "type": "string", "description": "What this option costs or risks." },
+    { "key": "recommendation", "type": "string", "description": "The chosen option plus a one-sentence rationale." },
+    { "key": "keyTradeoff", "type": "string", "description": "What you're optimizing for vs. what you're giving up." }
+  ],
+  "shape": {
+    "option[]": "{ label: string, name: string, pros: string, cons: string }"
+  }
+}

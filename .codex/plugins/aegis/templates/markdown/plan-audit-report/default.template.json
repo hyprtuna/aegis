@@ -1,0 +1,33 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "v0.0.9:plan-verifier",
+  "description": "Plan Verification Report prose shape emitted by the plan-verifier agent: a Plan/Goal/Verdict header, requirement coverage, gaps, extras, file references, ordering issues, task-quality notes, and a verdict rationale. Empty sections render 'None' rather than being omitted. Arrays are rendered to repeated rows before substitution.",
+  "slots": [
+    { "key": "planName", "type": "string", "description": "Plan name or path." },
+    { "key": "goal", "type": "string", "description": "The plan's stated goal." },
+    { "key": "verdict", "type": "string", "description": "Binary verdict.", "enum": ["PASS", "FAIL"] },
+    { "key": "coverage[]", "type": "coverageRow", "description": "Requirement-to-task coverage rows; rendered to repeated bullets." },
+    { "key": "coverage.requirement", "type": "string", "description": "A discrete goal requirement." },
+    { "key": "coverage.status", "type": "string", "description": "Coverage status, e.g. 'Task N ✓' or 'NOT COVERED ✗'." },
+    { "key": "gap[]", "type": "string", "required": false, "description": "Gaps — what is missing and why it matters; one numbered entry each. Write 'None' if empty." },
+    { "key": "extra[]", "type": "string", "required": false, "description": "Tasks not justified by any requirement; one numbered entry each. Write 'None' if empty." },
+    { "key": "fileReference[]", "type": "fileRow", "required": false, "description": "Referenced paths and their existence status; one row each. Write 'None' if empty." },
+    { "key": "fileReference.path", "type": "string", "description": "A path referenced by the plan." },
+    { "key": "fileReference.status", "type": "string", "description": "Existence status, e.g. 'EXISTS ✓' or 'MISSING ✗'." },
+    { "key": "orderingIssue[]", "type": "string", "required": false, "description": "Ordering violations (forward references, dependency before definition); one row each. Write 'None' if empty." },
+    { "key": "taskQuality[]", "type": "string", "required": false, "description": "Task-quality problems (missing verification, placeholder language); one row each. Write 'None' if empty." },
+    { "key": "tasksComplete", "type": "string", "description": "Tasks with complete fields, e.g. 'N/M (X%)'." },
+    { "key": "verdictRationale", "type": "string", "description": "2-3 sentences; if FAIL, the most critical reason." }
+  ],
+  "shape": {
+    "coverage[]": "{ requirement: string, status: string }",
+    "fileReference[]": "{ path: string, status: string }",
+    "gap[]": "string",
+    "extra[]": "string",
+    "orderingIssue[]": "string",
+    "taskQuality[]": "string"
+  }
+}

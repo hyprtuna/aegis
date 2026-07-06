@@ -1,0 +1,15 @@
+{
+  "kind": "template",
+  "name": "prototype-interaction",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:08-prototype-interaction.html",
+  "description": "Standalone HTML interaction prototype: a throwaway interactive region (e.g. native drag-to-reorder) plus the behaviour decisions baked into it and the open questions to push back on. Interactive template — carries the AG-0011 D2 minimal-JS exception: self-contained inline JS drives the interaction, with no external resources.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Prototype title; used in <title> and the h1." },
+    { "key": "stage", "type": "string", "description": "The interactive region; the prototype markup the user manipulates (e.g. a draggable list)." },
+    { "key": "behaviorNotes", "type": "string", "description": "Behaviour-decision bullets baked into the prototype, rendered as list items." },
+    { "key": "openQuestions[]", "type": "string", "description": "One list item per unresolved interaction question." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ]
+}

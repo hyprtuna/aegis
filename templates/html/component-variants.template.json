@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "component-variants",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:06-component-variants.html",
+  "description": "Standalone zero-JS HTML component variant matrix: a grid of one named component rendered in several structural variants, each cell labeling its state, the prop combo that produces it, and a usage note. Live controls from the reference are dropped (static gallery).",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Matrix title; used in <title> and the h1." },
+    { "key": "component", "type": "string", "description": "Name of the component whose variants are shown, e.g. '<Card />'." },
+    { "key": "variants", "type": "variant", "description": "Variant cells; each renders a state label, prop combo, a rendered specimen, and a usage note." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "variants[]": "{ state: string, props: string, note: string }"
+  }
+}

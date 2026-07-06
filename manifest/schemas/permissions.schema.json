@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/permissions.schema.json",
+  "title": "Aegis Agent Permissions Manifest",
+  "description": "Single source of truth for per-agent tool permissions (AG-0008). One file at manifest/permissions.json. Carries a plugin-level cross-cutting deny block, a read-only default baseline, and a per-agent override map keyed by canonical agent name. The projector reads the concrete claude.tools and opencode.permission objects (buckets are expanded, not named) to emit Claude tools:/disallowedTools: and OpenCode agent.<name>.permission blocks. See .aegis/specs/features/ag-0008-agent-permissions/.",
+  "type": "object",
+  "required": ["schemaVersion", "plugin", "defaults", "agents"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Manifest schema version. Bump on a breaking shape change."
+    },
+    "plugin": {
+      "type": "object",
+      "description": "Plugin-level, cross-cutting rules inherited by every agent regardless of allowlist (D5). Projected into Claude .claude-plugin/plugin.json permissions.deny[] and into OpenCode global permission.read deny entries.",
+      "required": ["deny"],
+      "additionalProperties": false,
+      "properties": {
+        "deny": {
+          "type": "array",
+          "description": "Cross-cutting deny rules (secrets, destructive shell). Claude-style rule strings, e.g. Read(./.env) or Bash(rm -rf /).",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "defaults": {
+      "$ref": "#/$defs/permissionSet",
+      "description": "Read-only baseline (D2). Every agent inherits this unless its own entry overrides it. Bucket is RO: Claude [Read, Grep, Glob]; OpenCode {*: deny, read/grep/glob/list: allow}."
+    },
+    "agents": {
+      "type": "object",
+      "description": "Per-agent override map. Key is the canonical agent name (matches agents/<name>.md frontmatter name:). Every agent in agents/ MUST have an entry (validator-enforced).",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z][a-z0-9-]*$": { "$ref": "#/$defs/agentEntry" }
+      }
+    }
+  },
+  "$defs": {
+    "bucket": {
+      "type": "string",
+      "description": "Named permission bucket from the per-agent-permissions matrix. Documentation/grouping only — the projector reads the expanded claude/opencode objects, not this name.",
+      "enum": [
+        "RO",
+        "RO-web",
+        "RO-bash",
+        "RW",
+        "RW-bash",
+        "Full",
+        "Full+Task",
+        "Full+Task+Web",
+        "Task-only"
+      ]
+    },
+    "claudeTool": {
+      "description": "A Claude tool-allowlist entry. Either a bare tool name, a scoped Bash form Bash(...), or an MCP pattern mcp__server__tool / mcp__*.",
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "Read",
+            "Edit",
+            "Write",
+            "Grep",
+            "Glob",
+            "Bash",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ]
+        },
+        { "pattern": "^Bash\\(.+\\)$" },
+        { "pattern": "^mcp__[A-Za-z0-9_*]+(__[A-Za-z0-9_*]+)?$" }
+      ]
+    },
+    "claudeSet": {
+      "type": "object",
+      "description": "Claude projection target. tools[] is the positive allowlist (D3). disallowedTools[] is reserved for the rare per-agent denylist case.",
+      "required": ["tools"],
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/claudeTool" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "disallowedTools": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/claudeTool" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "opencodeRule": {
+      "description": "An OpenCode permission verdict.",
+      "type": "string",
+      "enum": ["allow", "ask", "deny"]
+    },
+    "opencodeBash": {
+      "description": "OpenCode bash permission: either a single verdict, or a map of command-glob -> verdict (scoped allowlist). The * key sets the default verdict for unmatched commands.",
+      "oneOf": [
+        { "$ref": "#/$defs/opencodeRule" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/opencodeRule" }
+        }
+      ]
+    },
+    "opencodeSet": {
+      "type": "object",
+      "description": "OpenCode agent.<name>.permission object (D4). Known keys are enumerated; the map stays open-ended for forward-compat (e.g. doom_loop, custom tool ids). The * key is the catch-all default verdict.",
+      "additionalProperties": { "$ref": "#/$defs/opencodeRule" },
+      "properties": {
+        "*": { "$ref": "#/$defs/opencodeRule" },
+        "read": { "$ref": "#/$defs/opencodeRule" },
+        "grep": { "$ref": "#/$defs/opencodeRule" },
+        "glob": { "$ref": "#/$defs/opencodeRule" },
+        "list": { "$ref": "#/$defs/opencodeRule" },
+        "edit": { "$ref": "#/$defs/opencodeRule" },
+        "write": { "$ref": "#/$defs/opencodeRule" },
+        "bash": { "$ref": "#/$defs/opencodeBash" },
+        "webfetch": { "$ref": "#/$defs/opencodeRule" },
+        "websearch": { "$ref": "#/$defs/opencodeRule" },
+        "task": { "$ref": "#/$defs/opencodeRule" },
+        "doom_loop": { "$ref": "#/$defs/opencodeRule" }
+      }
+    },
+    "permissionSet": {
+      "type": "object",
+      "description": "A concrete Claude + OpenCode permission pairing. Used by both defaults and per-agent entries.",
+      "required": ["bucket", "claude", "opencode"],
+      "additionalProperties": false,
+      "properties": {
+        "bucket": { "$ref": "#/$defs/bucket" },
+        "claude": { "$ref": "#/$defs/claudeSet" },
+        "opencode": { "$ref": "#/$defs/opencodeSet" }
+      }
+    },
+    "agentEntry": {
+      "type": "object",
+      "description": "One agent's permission declaration. bucket/claude/opencode are required (the projector reads concrete tools/permission). justification documents why; prose carries the verbatim read-only claim from the agent body for the drift-lint.",
+      "required": ["bucket", "claude", "opencode"],
+      "additionalProperties": false,
+      "properties": {
+        "bucket": { "$ref": "#/$defs/bucket" },
+        "claude": { "$ref": "#/$defs/claudeSet" },
+        "opencode": { "$ref": "#/$defs/opencodeSet" },
+        "justification": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One-line rationale for the assigned bucket / any elevation beyond the RO baseline."
+        },
+        "prose": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verbatim read-only claim quoted from the agent body. Consumed by the drift-lint (D7) to confirm declared permissions do not contradict the agent's stated posture."
+        }
+      }
+    }
+  }
+}

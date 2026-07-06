@@ -1,0 +1,29 @@
+{
+  "kind": "template",
+  "name": "pr-writeup",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:17-pr-writeup.html",
+  "description": "Markdown sibling of the pull-request writeup for reviewers: TL;DR, motivation with before/after, a file-by-file tour with code, review-focus callouts, a test plan, and a staged rollout. The agent pre-renders the before/after/changes/focus/testPlan/rollout collections into lists before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "PR title." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. 'Pull request · <org>'." },
+    { "key": "pr.number", "type": "string", "description": "PR number, woven into the h1 (e.g. '#312')." },
+    { "key": "pr.meta", "type": "string", "required": false, "description": "Pre-rendered header meta stats (file count, diff stat, branches, author) as an inline list." },
+    { "key": "prompt", "type": "string", "required": false, "description": "The request that produced this writeup." },
+    { "key": "summary", "type": "string", "description": "One-paragraph TL;DR of the change." },
+    { "key": "why", "type": "string", "required": false, "description": "Motivation prose explaining why the change is needed." },
+    { "key": "before", "type": "string", "required": false, "description": "Pre-rendered bullet list of prior behavior." },
+    { "key": "after", "type": "string", "required": false, "description": "Pre-rendered bullet list of new behavior." },
+    { "key": "changes", "type": "string", "description": "Pre-rendered file-by-file tour: one heading per changed file with badge, diff stat, rationale, and an optional code fence." },
+    { "key": "focus", "type": "string", "required": false, "description": "Pre-rendered numbered list of reviewer-attention callouts." },
+    { "key": "testPlan", "type": "string", "description": "Pre-rendered test-plan checklist; check verified rows." },
+    { "key": "rolloutIntro", "type": "string", "required": false, "description": "One-line framing of the rollout plan." },
+    { "key": "rollout", "type": "string", "required": false, "description": "Pre-rendered list of staged ramp steps." }
+  ],
+  "shape": {
+    "changes[]": "{ file: string, badge: enum[new,mod,del], lines: string (diff stat), why: string, code: string (optional snippet) }",
+    "testPlan[]": "{ step: string (label), expectation: string (note), done: boolean }",
+    "rollout[]": "{ when: string, pct: string, d: string }"
+  }
+}

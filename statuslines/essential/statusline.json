@@ -1,0 +1,13 @@
+{
+  "kind": "statusline",
+  "name": "essential",
+  "description": "Activity-focused default — model, git, context, and live tool/agent/todo activity.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "default",
+  "segments": [
+    ["model", "project", "git"],
+    ["context"],
+    ["tools", "agents", "todos"]
+  ]
+}

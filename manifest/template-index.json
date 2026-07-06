@@ -1,0 +1,253 @@
+{
+  "$schema": "./schemas/template-index.schema.json",
+  "_comment": "Per-kind format index (AG-0011 / AG-0132). Authoritative answer to 'which formats does kind X ship, and which is the default?'. Read by the format-aware ${TEMPLATE} resolver (scripts/project.mjs) and the widened Q2 user-choice prompt (rules/user-choice-discipline.md). Index keys are KINDS; each format points at the kind's DEFAULT variant body. Sibling variants (e.g. markdown/plans/minimal.md, markdown/decisions/opencode.md, json/decisions/claude-code.json, the project/ family) are NOT separate index entries — they are resolved by skills directly, not through this index.",
+  "kinds": {
+    "plans": {
+      "description": "Implementation/release plan skeleton — frontmatter header plus task shape.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/plans/default.md"
+      }
+    },
+    "specs": {
+      "description": "Feature spec skeleton — problem, constraints, acceptance.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/specs/default.md"
+      }
+    },
+    "decisions": {
+      "description": "Four-part decision record (D-NN) shape consumed by design-exploration, ADR, framework-selection, and implementation-planner.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/decisions/default.md"
+      }
+    },
+    "changelogs": {
+      "description": "Keep-a-Changelog style release notes skeleton.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/changelogs/default.md"
+      }
+    },
+    "tickets": {
+      "description": "Work-ticket skeleton — summary, acceptance criteria, dependencies.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/tickets/default.md"
+      }
+    },
+    "releases": {
+      "description": "Release checklist / cut skeleton.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/releases/default.md"
+      }
+    },
+    "prompts": {
+      "description": "One-shot agent-prompt skeleton.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/prompts/default.md"
+      }
+    },
+    "code-review": {
+      "description": "Code-review writeup — severity-graded findings, coverage notes, reviewer sign-off. Markdown skeleton for inline review; HTML for a standalone stakeholder deliverable; JSON for machine-consumed findings.",
+      "default": "markdown",
+      "formats": {
+        "markdown": "templates/markdown/code-review/default.md",
+        "html": "templates/html/code-review.html",
+        "json": "templates/json/code-review/default.json"
+      }
+    },
+    "implementation-plan": {
+      "description": "Implementation-plan deliverable — phased plan with status pill and validation evidence. HTML deliverable; markdown working doc; JSON task graph.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/implementation-plan.html",
+        "markdown": "templates/markdown/implementation-plan/default.md",
+        "json": "templates/json/implementation-plan/default.json"
+      }
+    },
+    "status-report": {
+      "designOnly": true,
+      "description": "Status report — highlights, in-progress, blockers, metrics, next-up. HTML deliverable; markdown update; JSON metrics/tasks.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/status-report.html",
+        "markdown": "templates/markdown/status-report/default.md",
+        "json": "templates/json/status-report/default.json"
+      }
+    },
+    "incident-report": {
+      "designOnly": true,
+      "description": "Incident report — timeline, impact, root cause, follow-ups. HTML deliverable; markdown postmortem; JSON timeline/metrics.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/incident-report.html",
+        "markdown": "templates/markdown/incident-report/default.md",
+        "json": "templates/json/incident-report/default.json"
+      }
+    },
+    "pr-writeup": {
+      "description": "PR writeup — motivation, per-file changes, before/after, test plan, rollout. HTML deliverable; markdown PR description.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/pr-writeup.html",
+        "markdown": "templates/markdown/pr-writeup/default.md"
+      }
+    },
+    "plan-audit-report": {
+      "description": "Plan verification report — verdict, requirement coverage, gaps, extras, file references, ordering issues, task-quality notes. Markdown working report; JSON PlanAuditReport data; HTML on request.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/plan-audit-report.html",
+        "markdown": "templates/markdown/plan-audit-report/default.md",
+        "json": "templates/json/plan-audit-report/default.json"
+      }
+    },
+    "research-report": {
+      "description": "Research report — sourced findings, enumerated options with trade-offs, and a recommendation. Markdown working report; JSON summary data; HTML on request.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/research-report.html",
+        "markdown": "templates/markdown/research-report/default.md",
+        "json": "templates/json/research-report/default.json"
+      }
+    },
+    "code-approaches": {
+      "description": "Side-by-side implementation approaches — context, per-approach pros/cons/code, recommendation.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/code-approaches.html",
+        "markdown": "templates/markdown/code-approaches/default.md",
+        "json": "templates/json/code-approaches/default.json"
+      }
+    },
+    "code-understanding": {
+      "description": "Codebase walkthrough — components, call sequence, references answering a question.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/code-understanding.html",
+        "markdown": "templates/markdown/code-understanding/default.md",
+        "json": "templates/json/code-understanding/default.json"
+      }
+    },
+    "feature-explainer": {
+      "description": "Feature explainer — overview, sections, code; how a feature works.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/feature-explainer.html",
+        "markdown": "templates/markdown/feature-explainer/default.md",
+        "json": "templates/json/feature-explainer/default.json"
+      }
+    },
+    "concept-explainer": {
+      "description": "Concept explainer — intuition, mechanics, worked example, further reading.",
+      "default": "markdown",
+      "formats": {
+        "html": "templates/html/concept-explainer.html",
+        "markdown": "templates/markdown/concept-explainer/default.md",
+        "json": "templates/json/concept-explainer/default.json"
+      }
+    },
+    "flowchart": {
+      "description": "Flowchart / pipeline diagram — nodes and directed edges. HTML CSS-spine; markdown mermaid/ASCII; JSON graph data.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/flowchart.html",
+        "markdown": "templates/markdown/flowchart/default.md",
+        "json": "templates/json/flowchart/default.json"
+      }
+    },
+    "slide-deck": {
+      "designOnly": true,
+      "description": "Static print-friendly slide deck — title plus stacked slides. HTML deck; markdown outline; JSON slide metadata.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/slide-deck.html",
+        "markdown": "templates/markdown/slide-deck/default.md",
+        "json": "templates/json/slide-deck/default.json"
+      }
+    },
+    "triage-board": {
+      "designOnly": true,
+      "description": "Static kanban triage board — columns of issues. HTML board; JSON issue/column data.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/triage-board.html",
+        "json": "templates/json/triage-board/default.json"
+      }
+    },
+    "feature-flags": {
+      "designOnly": true,
+      "description": "Feature-flag config view — flag groups, rollout, diff. HTML viewer; JSON flag config.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/feature-flags.html",
+        "json": "templates/json/feature-flags/default.json"
+      }
+    },
+    "design-system": {
+      "description": "Design-system reference — colour swatches, type scale, spacing, components. HTML reference; JSON tokens.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/design-system.html",
+        "json": "templates/json/design-system/default.json"
+      }
+    },
+    "component-variants": {
+      "designOnly": true,
+      "description": "Component variant matrix — one component across its states/props. HTML grid; JSON variant data.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/component-variants.html",
+        "json": "templates/json/component-variants/default.json"
+      }
+    },
+    "visual-exploration": {
+      "description": "Visual design exploration — labeled direction cards. HTML mockups; markdown exploration notes.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/visual-exploration.html",
+        "markdown": "templates/markdown/visual-exploration/default.md",
+        "json": "templates/json/visual-exploration/default.json"
+      }
+    },
+    "svg-illustrations": {
+      "designOnly": true,
+      "description": "Captioned inline-SVG illustrations. HTML only (purely visual — no MD/JSON sibling, D4).",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/svg-illustrations.html"
+      }
+    },
+    "prototype-animation": {
+      "designOnly": true,
+      "description": "Animation/easing prototype — replayable demo + easing switcher + copy-paste CSS. Interactive template (minimal self-contained JS, AG-0011 D2). HTML only.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/prototype-animation.html"
+      }
+    },
+    "prototype-interaction": {
+      "designOnly": true,
+      "description": "Interaction prototype — e.g. drag-to-reorder. Interactive template (minimal self-contained JS, AG-0011 D2). HTML demo; markdown behavior notes.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/prototype-interaction.html",
+        "markdown": "templates/markdown/prototype-interaction/default.md"
+      }
+    },
+    "prompt-tuner": {
+      "designOnly": true,
+      "description": "Prompt-tuning workbench — editable system prompt with live-filled preview. Interactive template (minimal self-contained JS, AG-0011 D2). HTML workbench; markdown prompt+legend; JSON prompt config.",
+      "default": "html",
+      "formats": {
+        "html": "templates/html/prompt-tuner.html",
+        "markdown": "templates/markdown/prompt-tuner/default.md",
+        "json": "templates/json/prompt-tuner/default.json"
+      }
+    }
+  }
+}

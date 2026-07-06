@@ -1,0 +1,16 @@
+{
+  "kind": "template",
+  "name": "agents-md",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Project-init starter for a repo AGENTS.md, consumed by the onboarding flow (codebase-onboarding). Exposes one mustache-lite slot for the project name; remaining sections are angle-bracket prose the agent fills in.",
+  "slots": [
+    {
+      "key": "projectName",
+      "type": "string",
+      "required": true,
+      "description": "Repository/project name rendered into the AGENTS.md H1 heading."
+    }
+  ]
+}

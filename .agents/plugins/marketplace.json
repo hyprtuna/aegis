@@ -1,0 +1,27 @@
+{
+  "name": "aegis",
+  "owner": {
+    "name": "Aegis Contributors"
+  },
+  "plugins": [
+    {
+      "name": "aegis",
+      "source": {
+        "source": "local",
+        "path": "./.codex/plugins/aegis"
+      },
+      "description": "Plugin-first agentic AI development system.",
+      "version": "0.3.10",
+      "category": "development",
+      "keywords": [
+        "agentic",
+        "skills",
+        "agents",
+        "anvil"
+      ],
+      "policy": {
+        "installation": "AVAILABLE"
+      }
+    }
+  ]
+}

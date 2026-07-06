@@ -1,0 +1,20 @@
+{
+  "kind": "statusline",
+  "name": "git-forward",
+  "description": "The dev statusline — branch, ahead/behind, dirty count, and PR badge front and centre.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "default",
+  "segments": [
+    ["model", "project", "git", "pr"],
+    ["context"],
+    ["tools"]
+  ],
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 10
+}

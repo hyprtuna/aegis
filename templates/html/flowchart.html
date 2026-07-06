@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Flowchart</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --rust:     #B04A3F;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+
+      --radius: 12px;
+      --border: 1.5px solid var(--gray-300);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--gray-700);
+      line-height: 1.55;
+      padding: 56px 24px 96px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page { max-width: 880px; margin: 0 auto; }
+
+    header.page-head { margin-bottom: 40px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 34px;
+      line-height: 1.15;
+      color: var(--slate);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .lead { font-size: 14.5px; color: var(--gray-700); max-width: 640px; }
+    .lead code {
+      font-family: var(--mono);
+      font-size: 0.9em;
+      background: var(--gray-150);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--slate);
+    }
+
+    /* ---------- Flow ---------- */
+    .flow {
+      background: var(--white);
+      border: var(--border);
+      border-radius: 14px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* node card */
+    .node {
+      position: relative;
+      background: var(--white);
+      border: var(--border);
+      border-radius: 10px;
+      padding: 14px 22px;
+      min-width: 240px;
+      max-width: 460px;
+      text-align: center;
+      color: var(--slate);
+    }
+    .node .label { font-size: 15px; font-weight: 600; }
+    .node .id {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      margin-bottom: 3px;
+    }
+
+    /* kind variants */
+    .node.terminal { border-radius: 999px; background: var(--gray-150); }
+    .node.decision {
+      border-radius: 10px;
+      background: var(--white);
+      border-style: dashed;
+    }
+    .node.decision .label::before { content: "◆ "; color: var(--gray-500); }
+    .node.ok  { background: rgba(120,140,93,0.12); border-color: var(--olive); }
+    .node.bad { background: rgba(176,74,63,0.10); border-color: var(--rust); }
+
+    /* connector between stacked nodes */
+    .connector {
+      width: 1.5px;
+      height: 28px;
+      background: var(--gray-500);
+      position: relative;
+    }
+    .connector::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translate(-50%, 0);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid var(--gray-500);
+    }
+    .connector .edge-label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+    .connector.yes  { background: var(--olive); }
+    .connector.yes::after { border-top-color: var(--olive); }
+    .connector.yes .edge-label { color: var(--olive); }
+    .connector.no   { background: var(--rust); }
+    .connector.no::after { border-top-color: var(--rust); }
+    .connector.no .edge-label { color: var(--rust); }
+
+    /* ---------- Edge list (full adjacency, incl. branches) ---------- */
+    section.edges { margin-top: 44px; }
+    h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 22px;
+      color: var(--slate);
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .edge-rows {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .edge-row {
+      display: grid;
+      grid-template-columns: 1fr 28px 1fr 1fr;
+      gap: 0;
+      align-items: center;
+      font-size: 13.5px;
+    }
+    .edge-row + .edge-row { border-top: var(--border); }
+    .edge-row .cell { padding: 11px 16px; }
+    .edge-row .from, .edge-row .to {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--slate);
+    }
+    .edge-row .arrow { text-align: center; color: var(--gray-500); }
+    .edge-row .edge-cap { color: var(--gray-500); font-size: 12.5px; }
+
+    /* ---------- Legend ---------- */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 22px;
+      font-size: 12.5px;
+      color: var(--gray-700);
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .chip { width: 22px; height: 14px; border: var(--border); border-radius: 4px; background: var(--white); }
+    .chip.term { border-radius: 999px; background: var(--gray-150); }
+    .chip.decision { border-style: dashed; }
+    .chip.ok  { background: rgba(120,140,93,0.12); border-color: var(--olive); }
+    .chip.bad { background: rgba(176,74,63,0.10); border-color: var(--rust); }
+
+    footer.provenance {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="page-head">
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Flowchart</div>
+      <h1><!-- SLOT: title -->Process or pipeline name</h1>
+      <p class="lead"><!-- SLOT: lead -->One or two sentences describing what this flow charts and where the steps come from, e.g. <code>.github/workflows/</code>.</p>
+    </header>
+
+    <!-- ====================== FLOW ====================== -->
+    <div class="flow">
+      <!-- SLOT: nodes (repeat .node blocks in flow order; class = kind: process | terminal | decision | ok | bad. Separate consecutive nodes with a .connector block; add class yes|no and an .edge-label span for labelled branches) -->
+      <div class="node terminal">
+        <div class="id">push</div>
+        <div class="label">git push main</div>
+      </div>
+      <div class="connector"></div>
+      <div class="node">
+        <div class="id">ci</div>
+        <div class="label">CI · lint + typecheck</div>
+      </div>
+      <div class="connector"></div>
+      <div class="node decision">
+        <div class="id">gate-tests</div>
+        <div class="label">tests pass?</div>
+      </div>
+      <div class="connector yes"><span class="edge-label">pass</span></div>
+      <div class="node">
+        <div class="id">build</div>
+        <div class="label">Build + push image</div>
+      </div>
+      <div class="connector"></div>
+      <div class="node ok terminal">
+        <div class="id">done</div>
+        <div class="label">Deploy complete</div>
+      </div>
+    </div>
+
+    <!-- ====================== EDGES ====================== -->
+    <section class="edges">
+      <h2>Edges</h2>
+      <div class="edge-rows">
+        <!-- SLOT: edges (repeat .edge-row per directed edge incl. branch/loop edges not on the main spine) -->
+        <div class="edge-row">
+          <div class="cell from">push</div>
+          <div class="cell arrow">&rarr;</div>
+          <div class="cell to">ci</div>
+          <div class="cell edge-cap"></div>
+        </div>
+        <div class="edge-row">
+          <div class="cell from">gate-tests</div>
+          <div class="cell arrow">&rarr;</div>
+          <div class="cell to">status</div>
+          <div class="cell edge-cap">fail</div>
+        </div>
+        <div class="edge-row">
+          <div class="cell from">gate-tests</div>
+          <div class="cell arrow">&rarr;</div>
+          <div class="cell to">build</div>
+          <div class="cell edge-cap">pass</div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><i class="chip"></i> process step</span>
+        <span><i class="chip decision"></i> decision</span>
+        <span><i class="chip term"></i> terminal</span>
+        <span><i class="chip ok"></i> success</span>
+        <span><i class="chip bad"></i> failure path</span>
+      </div>
+    </section>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+</body>
+</html>

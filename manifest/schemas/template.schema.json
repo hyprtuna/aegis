@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/template.schema.json",
+  "title": "Aegis Template Slot Manifest",
+  "description": "Sibling <name>.template.json next to every template file under templates/{html,markdown,json}/. One shared schema across families; the `family` discriminator and `slots[].type` express family differences.",
+  "type": "object",
+  "required": ["kind", "name", "family", "version", "description", "slots"],
+  "properties": {
+    "kind": {
+      "const": "template"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64,
+      "description": "Template name. Matches the sibling template file basename (minus extension)."
+    },
+    "family": {
+      "type": "string",
+      "enum": ["html", "markdown", "json"],
+      "description": "Output family. HTML: <!-- SLOT: key --> annotations. Markdown: {{ slot.key }} mustache-lite. JSON: __SLOT__key placeholder strings."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver. Major = breaking slot change; minor = additive optional slot; patch = wording. First stable ships at 0.1.0; 1.0.0 reserved for the v0.1.0 HTML-coverage milestone."
+    },
+    "source": {
+      "type": "string",
+      "description": "Provenance, e.g. 'html-effectiveness:17-pr-writeup.html' or 'hand-authored'."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1536
+    },
+    "slots": {
+      "type": "array",
+      "description": "Every slot the template exposes. May be empty for a static skeleton.",
+      "items": {
+        "type": "object",
+        "required": ["key", "type"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_.\\[\\]-]*$",
+            "description": "Slot identifier as it appears in the template (e.g. 'title', 'pr.number', 'findings[]')."
+          },
+          "type": {
+            "type": "string",
+            "description": "Slot value type: a primitive (string|number|boolean), array, object, or a named shape defined in `shape`.",
+            "examples": ["string", "number", "boolean", "array", "object"]
+          },
+          "required": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the rendering agent must supply this slot. Default true."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "enum": {
+            "type": "array",
+            "description": "Closed value set for the slot (e.g. severity: [high, medium, low]).",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "shape": {
+      "type": "object",
+      "description": "Optional named object/array shape definitions referenced by slots[].type. Each value documents the fields of a complex slot (e.g. findings[]{severity,file,line,description}).",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

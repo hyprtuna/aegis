@@ -1,0 +1,27 @@
+{
+  "name": "mono",
+  "description": "No color. Only the label key is dimmed; everything else renders plain.",
+  "source": "claude-hud:mono",
+  "colors": {
+    "label": "dim",
+    "model": "default",
+    "project": "default",
+    "git": "default",
+    "gitDirty": "default",
+    "context": "default",
+    "contextBar": "default",
+    "usage": "default",
+    "usageBar": "default",
+    "cost": "default",
+    "pr": "default",
+    "warning": "default",
+    "critical": "default",
+    "muted": "default",
+    "accent": "default",
+    "separator": "default"
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░"
+  }
+}

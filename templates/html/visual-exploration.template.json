@@ -1,0 +1,18 @@
+{
+  "kind": "template",
+  "name": "visual-exploration",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:02-exploration-visual-designs.html",
+  "description": "Standalone zero-JS HTML visual-exploration board: a context/prompt header above a grid of labeled artboards, each presenting one design direction as a static mockup card with a rationale. The reference's live light/dark toggle is dropped (static directions).",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "directions", "type": "direction", "description": "Design directions; each renders a labeled artboard with a static mockup and a rationale note." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "directions[]": "{ name: string, notes: string }"
+  }
+}

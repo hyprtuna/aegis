@@ -1,0 +1,25 @@
+{
+  "kind": "statusline",
+  "name": "token-budget",
+  "description": "Context-window transparency — always-on token breakdown, subscription usage bars, and cache TTL.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "default",
+  "segments": [
+    ["model", "project"],
+    ["context-detailed"],
+    ["usage"],
+    ["prompt-cache"]
+  ],
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ],
+    "usage": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 20
+}

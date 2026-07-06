@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "opencode",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "OpenCode-flavoured decision skeleton (blockquote question + bulleted options). Static skeleton — no mustache-lite slots; the agent fills the D-NN block directly.",
+  "slots": []
+}

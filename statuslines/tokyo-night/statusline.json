@@ -1,0 +1,24 @@
+{
+  "kind": "statusline",
+  "name": "tokyo-night",
+  "description": "Tokyo Night palette across all segments (truecolor).",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "tokyo-night",
+  "segments": [
+    ["model", "project", "git"],
+    ["context", "usage"],
+    ["tools", "todos"]
+  ],
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ],
+    "usage": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 30
+}

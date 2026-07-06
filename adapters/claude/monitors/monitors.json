@@ -1,0 +1,7 @@
+[
+  {
+    "name": "aegis-cost",
+    "command": "bash \"${CLAUDE_PLUGIN_ROOT}/adapters/claude/monitors/cost-watcher.sh\"",
+    "description": "Warns when estimated session cost crosses budget bands (50/75/90%)"
+  }
+]

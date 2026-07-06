@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Release-notes skeleton (status, tickets table, highlights, risks, notes) for the release flow. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
+  "slots": []
+}

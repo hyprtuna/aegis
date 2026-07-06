@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Triage Board</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --clay-d:   #B85C3E;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ivory);
+      color: var(--slate);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 48px 32px 64px; }
+
+    /* ---------- header ---------- */
+    header { margin-bottom: 18px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 30px;
+      letter-spacing: -0.01em;
+      margin: 6px 0 4px;
+      color: var(--slate);
+    }
+    .sub { color: var(--gray-500); max-width: 640px; }
+
+    /* ---------- toolbar ---------- */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0 12px;
+      margin-bottom: 16px;
+      border-bottom: 1.5px solid var(--gray-300);
+      flex-wrap: wrap;
+    }
+    .summary {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--gray-700);
+    }
+    .summary b { color: var(--slate); font-weight: 600; }
+    .spacer { flex: 1; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-700);
+      background: var(--gray-150);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 999px;
+      padding: 4px 11px;
+    }
+
+    /* ---------- board ---------- */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 920px) { .board { grid-template-columns: repeat(2, 1fr); } }
+    .col {
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+      border-top: 3px solid var(--clay);
+    }
+    .col-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 14px 14px 10px;
+      border-bottom: 1.5px solid var(--gray-150);
+    }
+    .col-head h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 17px;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .col-head .count {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+      background: var(--gray-150);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 999px;
+      padding: 1px 8px;
+      min-width: 26px;
+      text-align: center;
+    }
+    .col-body {
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    /* ---------- ticket card ---------- */
+    .ticket {
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 10px 11px 9px;
+    }
+    .ticket-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      padding: 1px 7px 2px;
+      border: 1px solid var(--gray-300);
+      background: var(--gray-150);
+      color: var(--gray-700);
+    }
+    .tag.tag-bug   { background: #F5E2D8; color: var(--clay-d); border-color: #E8C9BA; }
+    .tag.tag-feat  { background: #E8EDE0; color: #5C6F44; border-color: #CFDAC0; }
+    .tag.tag-chore { background: var(--gray-150); color: var(--gray-700); border-color: var(--gray-300); }
+    .tag.tag-debt  { background: var(--oat); color: var(--gray-700); border-color: var(--gray-300); }
+    .ttitle {
+      font-size: 13px;
+      line-height: 1.35;
+      color: var(--slate);
+    }
+    .tsub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+      margin-top: 6px;
+    }
+
+    footer.provenance {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Triage</div>
+      <h1><!-- SLOT: title -->Triage board title</h1>
+      <p class="sub"><!-- SLOT: sub -->What this board triages and how the columns are meant to be read.</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="summary">
+        <!-- SLOT: summary -->
+        <b>24</b> open &middot; <b>5</b> now &middot; <b>12</b> next &middot; <b>7</b> later
+      </div>
+      <div class="spacer"></div>
+      <div class="filters">
+        <!-- SLOT: filters (repeat .filter chips; e.g. by tag or owner) -->
+        <span class="filter">bug</span>
+        <span class="filter">feat</span>
+        <span class="filter">chore</span>
+      </div>
+    </div>
+
+    <!-- ====================== BOARD ====================== -->
+    <div class="board">
+      <!-- SLOT: columns (repeat one .col per column; fill .col-head h2 with name, .count with item count, .col-body with item[] .ticket cards) -->
+      <section class="col">
+        <div class="col-head">
+          <h2>Now</h2>
+          <span class="count">2</span>
+        </div>
+        <div class="col-body">
+          <article class="ticket">
+            <div class="ticket-top">
+              <span class="tag tag-bug">bug</span>
+            </div>
+            <div class="ttitle">Fix sync conflict toast firing twice on reconnect</div>
+            <div class="tsub">BIR-241 &middot; @AK</div>
+          </article>
+          <article class="ticket">
+            <div class="ticket-top">
+              <span class="tag tag-debt">debt</span>
+            </div>
+            <div class="ttitle">Migrate workspace permissions to new ACL table</div>
+            <div class="tsub">BIR-219 &middot; @AK</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="col">
+        <div class="col-head">
+          <h2>Next</h2>
+          <span class="count">1</span>
+        </div>
+        <div class="col-body">
+          <article class="ticket">
+            <div class="ticket-top">
+              <span class="tag tag-feat">feat</span>
+            </div>
+            <div class="ttitle">Inline @-mention picker in doc comments</div>
+            <div class="tsub">BIR-244 &middot; @JM</div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+</body>
+</html>

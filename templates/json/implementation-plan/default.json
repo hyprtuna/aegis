@@ -1,0 +1,27 @@
+{
+  "title": "__SLOT__title",
+  "eyebrow": "__SLOT__eyebrow",
+  "subtitle": "__SLOT__subtitle",
+  "status": "__SLOT__status",
+  "metaPills": ["__SLOT__metaPills"],
+  "goal": "__SLOT__goal",
+  "architecture": "__SLOT__architecture",
+  "phases": [
+    {
+      "when": "__SLOT__phaseWhen",
+      "name": "__SLOT__phaseName",
+      "description": "__SLOT__phaseDescription",
+      "tasks": [
+        { "text": "__SLOT__phaseTaskText", "done": "__SLOT__phaseTaskDone" }
+      ],
+      "tags": ["__SLOT__phaseTags"]
+    }
+  ],
+  "acceptanceCriteria": [
+    { "text": "__SLOT__acceptanceText", "met": "__SLOT__acceptanceMet" }
+  ],
+  "validationEvidence": [
+    { "label": "__SLOT__validationLabel", "value": "__SLOT__validationValue" }
+  ],
+  "provenance": "__SLOT__provenance"
+}

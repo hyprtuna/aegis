@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "name": "aegis",
+  "version": "0.3.10",
+  "description": "Plugin-first agentic AI development system. Native projections for 3 active hosts (Claude Code, OpenCode, Codex); Cursor + Zed deferred (~v0.5.0).",
+  "canonicalSurfaces": [
+    "skills",
+    "abilities",
+    "agents",
+    "commands",
+    "rules",
+    "hooks",
+    "templates",
+    "statuslines"
+  ],
+  "schemas": {
+    "surface": "schemas/aegis-surface.schema.json",
+    "statusline": "schemas/statusline.schema.json",
+    "statuslineTheme": "schemas/statusline-theme.schema.json",
+    "template": "schemas/template.schema.json",
+    "capability": "schemas/capability.schema.json",
+    "permissions": "schemas/permissions.schema.json",
+    "hookIntent": "schemas/hook-intent.schema.json"
+  },
+  "matrices": {
+    "capabilities": "capabilities.json",
+    "models": "models.json",
+    "permissions": "permissions.json"
+  },
+  "supportedHosts": [
+    "claude",
+    "opencode",
+    "codex",
+    "cursor",
+    "zed"
+  ],
+  "hostStatus": {
+    "claude": "v0.0.1",
+    "opencode": "v0.0.2 (shipped)",
+    "codex": "v0.0.3 (shipped)",
+    "cursor": "deferred (~v0.5.0)",
+    "zed": "deferred (~v0.5.0)"
+  },
+  "outputFormats": [
+    "markdown",
+    "json",
+    "html"
+  ],
+  "guidanceFolders": [
+    ".",
+    ".aegis",
+    "adapters",
+    "docs",
+    "hooks",
+    "manifest",
+    "rules",
+    "scripts",
+    "skills",
+    "statuslines",
+    "templates"
+  ]
+}

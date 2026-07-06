@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:09-slide-deck.html",
+  "description": "Markdown sibling of the slide-deck template: a speaker-ready outline. The agent renders slides[] into a heading-per-slide outline with nested bullets and italicised notes before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Deck title; the h1." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-line framing blockquote." },
+    { "key": "byline", "type": "string", "required": false, "description": "Presenter / date / duration line." },
+    { "key": "slides", "type": "string", "description": "Pre-rendered outline: one '### heading' per slide with nested '-' bullets and an optional italic note line." }
+  ],
+  "shape": {
+    "slides[]": "{ heading: string, bullets: string[], note: string (optional) }"
+  }
+}

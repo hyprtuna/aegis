@@ -1,0 +1,21 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:14-research-feature-explainer.html",
+  "description": "Markdown sibling of the feature explainer: a topic h1, an overview, prose sections (heading + body), and labeled code blocks. Sections and code blocks are rendered to repeated blocks before substitution.",
+  "slots": [
+    { "key": "topic", "type": "string", "description": "Feature topic; the document h1." },
+    { "key": "overview", "type": "string", "description": "Short summary of what the feature does and how it flows." },
+    { "key": "section.heading", "type": "string", "description": "Section heading. Repeat the heading + body block once per entry in the sections array (see shape)." },
+    { "key": "section.body", "type": "string", "description": "Section body prose." },
+    { "key": "code[]", "type": "codeblock", "required": false, "description": "Labeled code blocks." },
+    { "key": "code.caption", "type": "string", "required": false, "description": "Code block caption, e.g. a file path or label." },
+    { "key": "code.body", "type": "string", "required": false, "description": "Code block contents." }
+  ],
+  "shape": {
+    "section[]": "{ heading: string, body: string }",
+    "code[]": "{ caption: string, body: string }"
+  }
+}

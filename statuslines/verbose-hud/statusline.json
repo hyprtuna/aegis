@@ -1,0 +1,30 @@
+{
+  "kind": "statusline",
+  "name": "verbose-hud",
+  "description": "The reference full HUD — model/dir/git/session banner, threshold-colored context + usage bars with reset timers, CLAUDE.md count, and live tool/agent/todo activity.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "hud",
+  "segments": [
+    ["model", "project", "git", "worktree", "session-time"],
+    ["context", "usage"],
+    ["claude-md"],
+    ["tools"],
+    ["agents"],
+    ["todos"]
+  ],
+  "separator": "|",
+  "mergeGroups": [["project", "git"]],
+  "mergeSeparator": " ",
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ],
+    "usage": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 15
+}

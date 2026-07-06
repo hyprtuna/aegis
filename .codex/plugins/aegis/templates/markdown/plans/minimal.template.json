@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "minimal",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Minimal plan markdown skeleton (must_haves frontmatter + phase shape) for the plan-writing skill. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
+  "slots": []
+}

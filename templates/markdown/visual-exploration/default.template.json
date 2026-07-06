@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:02-exploration-visual-designs.html",
+  "description": "Markdown sibling of the visual-exploration board: a title, the motivating context, and a repeated direction block (name heading + rationale notes). The agent renders the directions array to repeated sections before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title; the document h1." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "direction.name", "type": "string", "description": "Direction name; the section heading. Repeat the direction block once per entry in the directions array (see shape)." },
+    { "key": "direction.notes", "type": "string", "description": "Rationale notes for the direction: when it fits and the trade-offs." }
+  ],
+  "shape": {
+    "direction[]": "{ name: string, notes: string }"
+  }
+}

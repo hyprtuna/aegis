@@ -1,0 +1,146 @@
+{
+  "name": "aegis",
+  "displayName": "Aegis",
+  "version": "0.3.10",
+  "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
+  "author": {
+    "name": "Aegis Contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agentic",
+    "skills",
+    "agents",
+    "development",
+    "anvil"
+  ],
+  "skills": [
+    "./adapters/claude/skills/core/",
+    "./adapters/claude/skills/languages/",
+    "./adapters/claude/skills/workflows/"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/pre-tool-use-deny.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/pre-compact.sh"
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/post-compact.sh"
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/instructions-loaded.sh"
+          }
+        ]
+      }
+    ],
+    "FileChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/file-changed.sh"
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/cwd-changed.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "agents": [
+    "./adapters/claude/agents/build-error-resolver.md",
+    "./adapters/claude/agents/code-architect.md",
+    "./adapters/claude/agents/code-explorer.md",
+    "./adapters/claude/agents/code-quality-reviewer.md",
+    "./adapters/claude/agents/code-reviewer.md",
+    "./adapters/claude/agents/code-simplifier.md",
+    "./adapters/claude/agents/doc-verifier.md",
+    "./adapters/claude/agents/framework-selector.md",
+    "./adapters/claude/agents/mcp-builder.md",
+    "./adapters/claude/agents/orchestrator.md",
+    "./adapters/claude/agents/plan-verifier.md",
+    "./adapters/claude/agents/researcher.md",
+    "./adapters/claude/agents/silent-failure-hunter.md",
+    "./adapters/claude/agents/spec-reviewer.md",
+    "./adapters/claude/agents/subagent-executor.md",
+    "./adapters/claude/agents/test-analyzer.md",
+    "./adapters/claude/agents/ultra-worker.md"
+  ],
+  "userConfig": {
+    "preferredLanguageOverlay": {
+      "type": "string",
+      "title": "Preferred language overlay",
+      "description": "Default language overlay skill to bias toward (e.g. python-developer). Empty for none.",
+      "default": ""
+    },
+    "telemetryOptIn": {
+      "type": "boolean",
+      "title": "Telemetry opt-in",
+      "description": "Allow Aegis to collect anonymous usage telemetry.",
+      "default": false
+    },
+    "promptInjectionScanner": {
+      "type": "boolean",
+      "title": "Prompt-injection scanner",
+      "description": "Enable the advisory prompt-injection scanner hook (opt-in, never blocks).",
+      "default": false
+    }
+  },
+  "dependencies": [],
+  "commands": [
+    "./adapters/claude/commands/pr.md",
+    "./adapters/claude/commands/skill.md",
+    "./adapters/claude/commands/skill-pin.md",
+    "./adapters/claude/commands/skill-search.md",
+    "./adapters/claude/commands/skill-unpin.md",
+    "./adapters/claude/commands/statusline.md"
+  ]
+}

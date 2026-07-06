@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:02-exploration-visual-designs.html",
+  "description": "Machine-readable sibling of the visual-exploration board: a title, a context/prompt statement, and a directions array (name, notes). Placeholder strings keep the file parseable; the agent expands the single directions element into one entry per design direction.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "directionName", "type": "string", "description": "Design direction name. The directions array (see shape) carries one example element to clone per direction." },
+    { "key": "directionNotes", "type": "string", "description": "Rationale note for the direction." }
+  ],
+  "shape": {
+    "direction[]": "{ name: string, notes: string }"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "question": "__SLOT__question",
+  "findings": [
+    {
+      "claim": "__SLOT__findingClaim",
+      "evidence": "__SLOT__findingEvidence"
+    }
+  ],
+  "options": [
+    {
+      "label": "__SLOT__optionLabel",
+      "name": "__SLOT__optionName",
+      "pros": "__SLOT__optionPros",
+      "cons": "__SLOT__optionCons"
+    }
+  ],
+  "recommendation": {
+    "option": "__SLOT__recommendationOption",
+    "rationale": "__SLOT__recommendationRationale",
+    "key_tradeoff": "__SLOT__keyTradeoff"
+  }
+}

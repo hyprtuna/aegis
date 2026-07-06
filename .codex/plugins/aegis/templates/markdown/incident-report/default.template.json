@@ -1,0 +1,26 @@
+{
+  "kind": "template",
+  "name": "incident-report",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:12-incident-report.html",
+  "description": "Markdown sibling of the incident / postmortem report: header with severity and status, TL;DR summary, an ordered timeline, root-cause prose, an impact list, and owned action items. The agent pre-renders the timeline/impact/followups collections into lists before substitution.",
+  "slots": [
+    { "key": "id", "type": "string", "description": "Incident identifier, e.g. 'INC-2025-0412'." },
+    { "key": "title", "type": "string", "description": "Incident title." },
+    { "key": "severity", "type": "string", "description": "Severity label.", "enum": ["sev1", "sev2", "sev3"] },
+    { "key": "status", "type": "string", "required": false, "description": "Resolution status, e.g. Resolved | Mitigating | Investigating." },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Pre-rendered extra meta (duration, detected time, owner) as an inline list." },
+    { "key": "summary", "type": "string", "description": "One-paragraph TL;DR of the incident." },
+    { "key": "timeline", "type": "string", "description": "Pre-rendered ordered list of timeline events; prefix each with its time and dot variant." },
+    { "key": "rootCause", "type": "string", "description": "Root-cause prose; may include an inline fenced diff." },
+    { "key": "impact", "type": "string", "description": "Pre-rendered list of key/value rows quantifying blast radius." },
+    { "key": "followups", "type": "string", "description": "Pre-rendered checklist of owned action items with owner and due date." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance / authorship line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "timeline[]": "{ time: string, event: string, dot: enum[default,impact,mitigated] }",
+    "impact[]": "{ label: string, value: string }",
+    "followups[]": "{ owner: string, action: string, due: string, done: boolean }"
+  }
+}

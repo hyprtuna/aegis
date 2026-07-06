@@ -1,0 +1,20 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:01-exploration-code-approaches.html",
+  "description": "Markdown sibling of the code-approaches exploration: title, context, a repeated approach block (name, code, pros, cons), and a recommendation. The agent renders the approaches array to repeated sections before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title; the document h1." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "approach.name", "type": "string", "description": "Approach name; the section heading. Repeat the approach block once per entry in the approaches array (see shape)." },
+    { "key": "approach.code", "type": "string", "description": "Representative code sketch for the approach." },
+    { "key": "approach.pros[]", "type": "string", "description": "Advantages of the approach, as a bullet list." },
+    { "key": "approach.cons[]", "type": "string", "description": "Drawbacks of the approach, as a bullet list." },
+    { "key": "recommendation", "type": "string", "description": "Which approach to take and why." }
+  ],
+  "shape": {
+    "approach[]": "{ name: string, code: string, pros: string[], cons: string[] }"
+  }
+}

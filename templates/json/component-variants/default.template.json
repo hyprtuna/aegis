@@ -1,0 +1,16 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:06-component-variants.html",
+  "description": "JSON sibling of the component-variants template: the variant matrix as machine-readable data — the component name plus a variants array (state, props, note). The agent expands the variants[] exemplar object per variant.",
+  "slots": [
+    { "key": "title", "type": "string", "required": false, "description": "Matrix title." },
+    { "key": "component", "type": "string", "description": "Name of the component whose variants are shown." },
+    { "key": "variants", "type": "variant", "description": "Variant entries; expand the exemplar object per variant." }
+  ],
+  "shape": {
+    "variant[]": "{ state: string, props: string, note: string }"
+  }
+}

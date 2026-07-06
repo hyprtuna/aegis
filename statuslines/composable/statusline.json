@@ -1,0 +1,29 @@
+{
+  "kind": "statusline",
+  "name": "composable",
+  "description": "Reference preset demonstrating the v0.0.14 composability features — explicit segment ordering, a merged git/pr group, context threshold escalation, and localizable labels.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "default",
+  "segments": [
+    ["project", "model", "git", "pr"],
+    ["context", "cost"]
+  ],
+  "order": ["model", "project", "git", "pr"],
+  "mergeGroups": [["git", "pr"]],
+  "mergeSeparator": "/",
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "i18n": {
+    "locale": "en",
+    "labels": {
+      "ctx": "context",
+      "cost": "spend"
+    }
+  },
+  "refreshIntervalSeconds": 10
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "description": "Maps model aliases to per-host model IDs. Consumed by scripts/project.mjs to resolve a skill/agent `model: <alias>` into host-native IDs at projection time. Cursor and Zed have no per-skill model-override surface (they read rules, not skill frontmatter), so only claude/opencode/codex IDs are resolved. Unknown aliases hard-fail.",
+  "unknownAliasPolicy": "hard-fail",
+  "aliases": {
+    "opus": {
+      "claude": "claude-opus-4-8",
+      "opencode": "anthropic/claude-opus-4-8",
+      "codex": "anthropic/claude-opus-4-8"
+    },
+    "sonnet": {
+      "claude": "claude-sonnet-4-6",
+      "opencode": "anthropic/claude-sonnet-4-6",
+      "codex": "anthropic/claude-sonnet-4-6"
+    },
+    "haiku": {
+      "claude": "claude-haiku-4-5",
+      "opencode": "anthropic/claude-haiku-4-5",
+      "codex": "anthropic/claude-haiku-4-5"
+    },
+    "fable": {
+      "claude": "claude-fable-5",
+      "opencode": "anthropic/claude-fable-5",
+      "codex": "anthropic/claude-fable-5"
+    },
+    "inherit": {
+      "claude": "inherit",
+      "opencode": "inherit",
+      "codex": "inherit"
+    }
+  },
+  "aliasOf": {
+    "opus-4.8": "opus",
+    "claude-opus-4-8": "opus",
+    "sonnet-4.6": "sonnet",
+    "claude-sonnet-4-6": "sonnet",
+    "haiku-4.5": "haiku",
+    "claude-haiku-4-5": "haiku",
+    "fable-5": "fable",
+    "claude-fable-5": "fable",
+    "best": "opus",
+    "default": "inherit"
+  }
+}

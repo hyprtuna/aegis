@@ -1,0 +1,23 @@
+{
+  "kind": "hook",
+  "intent": "pre-tool-use-deny",
+  "name": "pre-tool-use-deny",
+  "description": "Block reads, edits, and Bash invocations that touch secret material or run destructive commands before the tool call executes.",
+  "visibility": "internal",
+  "platforms": ["claude", "codex"],
+  "trigger": {
+    "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash"
+  },
+  "x-claude": {
+    "event": "PreToolUse",
+    "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash",
+    "dispatch": "command",
+    "command": ".claude-plugin/hooks/pre-tool-use-deny.sh"
+  },
+  "x-codex": {
+    "event": "PreToolUse",
+    "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash",
+    "dispatch": "command",
+    "command": "./hooks/pre-tool-use-deny.sh"
+  }
+}

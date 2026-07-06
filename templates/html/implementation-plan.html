@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Implementation Plan</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --rust:     #B04A3F;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+
+      --radius: 12px;
+      --border: 1.5px solid var(--gray-300);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--gray-700);
+      line-height: 1.55;
+      padding: 56px 32px 96px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page { max-width: 1080px; margin: 0 auto; }
+
+    /* ---------- Header ---------- */
+    header.page-head { margin-bottom: 40px; max-width: 820px; }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 38px;
+      line-height: 1.15;
+      color: var(--slate);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: var(--gray-500);
+      margin-bottom: 18px;
+      max-width: 700px;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: var(--border);
+      background: var(--gray-150);
+      color: var(--gray-700);
+      white-space: nowrap;
+    }
+    .pill.status-draft    { background: var(--gray-150); color: var(--gray-700); }
+    .pill.status-active   { background: var(--oat); color: var(--slate); border-color: var(--oat); }
+    .pill.status-shipped  { background: #E4E9DC; color: #4B5C39; border-color: #C7D3B6; }
+    .pill.status-blocked  { background: #F3D9CC; color: #8A3B1E; border-color: #E8B7A1; }
+
+    /* ---------- Sections ---------- */
+    section { margin-bottom: 56px; scroll-margin-top: 24px; }
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 10px;
+      scroll-margin-top: 24px;
+    }
+    /* Accent border on the evidence block — anchors the eye to the proof. */
+    details.evidence-wrap .evidence { border-left: 4px solid var(--clay); }
+    details.evidence-wrap > summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    details.evidence-wrap > summary::-webkit-details-marker { display: none; }
+    details.evidence-wrap > summary .sec-head { margin-bottom: 0; }
+    details.evidence-wrap > summary::before { content: "▾ "; color: var(--gray-500); }
+    details.evidence-wrap:not([open]) > summary::before { content: "▸ "; }
+    .sec-head .num {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--oat);
+      color: var(--slate);
+      padding: 3px 9px;
+      border-radius: 8px;
+    }
+    .sec-head h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 26px;
+      color: var(--slate);
+      letter-spacing: -0.01em;
+    }
+    .sec-intro {
+      font-size: 14.5px;
+      color: var(--gray-500);
+      max-width: 720px;
+      margin-bottom: 24px;
+    }
+
+    /* ---------- Goal & summary panels ---------- */
+    .panel {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 22px 26px;
+      font-size: 15px;
+      color: var(--gray-700);
+    }
+    .panel p + p { margin-top: 10px; }
+    .panel code,
+    code {
+      font-family: var(--mono);
+      font-size: 0.92em;
+      background: var(--gray-150);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--slate);
+    }
+
+    /* ---------- Phases (timeline) ---------- */
+    .phases { display: flex; flex-direction: column; }
+    .phase {
+      display: grid;
+      grid-template-columns: 130px 28px 1fr;
+      gap: 0 18px;
+    }
+    .phase .when {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--gray-500);
+      padding-top: 4px;
+    }
+    .phase .dot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .phase .dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--clay);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    .phase .dot.done { background: var(--olive); border-color: var(--olive); }
+    .phase .line {
+      width: 2px;
+      flex: 1;
+      background: var(--gray-300);
+      margin: 4px 0;
+    }
+    .phase:last-child .line { display: none; }
+    .phase .body { padding-bottom: 32px; }
+    .phase .body h3 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 19px;
+      color: var(--slate);
+      margin-bottom: 6px;
+    }
+    .phase .body p.desc {
+      font-size: 14px;
+      color: var(--gray-500);
+      max-width: 640px;
+      margin-bottom: 12px;
+    }
+    .phase ul.tasks {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .phase ul.tasks li {
+      font-size: 14px;
+      color: var(--gray-700);
+      padding-left: 22px;
+      position: relative;
+    }
+    .phase ul.tasks li::before {
+      content: "";
+      position: absolute;
+      left: 6px; top: 9px;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gray-300);
+    }
+    .phase ul.tasks li.done::before { background: var(--olive); }
+    .phase ul.tasks li.done { color: var(--gray-500); text-decoration: line-through; }
+    .phase .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .phase .tag {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      background: var(--gray-150);
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      padding: 3px 8px;
+      color: var(--gray-700);
+    }
+
+    /* ---------- Acceptance criteria ---------- */
+    .ac-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ac-list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+      background: var(--white);
+      border: var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14.5px;
+    }
+    .ac-list li .check {
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      border: 1.5px solid var(--gray-300);
+      background: var(--white);
+      margin-top: 2px;
+    }
+    .ac-list li.met .check {
+      background: var(--olive);
+      border-color: var(--olive);
+      position: relative;
+    }
+    .ac-list li.met .check::after {
+      content: "";
+      position: absolute;
+      left: 5px; top: 2px;
+      width: 6px; height: 11px;
+      border: solid var(--white);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* ---------- Validation evidence ---------- */
+    .evidence {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .evidence .row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0;
+    }
+    @media (max-width: 720px) { .evidence .row { grid-template-columns: 1fr; } }
+    .evidence .row + .row { border-top: var(--border); }
+    .evidence .cell { padding: 14px 18px; font-size: 14px; }
+    .evidence .cell.k {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      background: var(--gray-150);
+      border-right: var(--border);
+    }
+    @media (max-width: 720px) { .evidence .cell.k { border-right: none; border-bottom: 1px dashed var(--gray-300); } }
+    .evidence .cell.v { color: var(--gray-700); }
+    .evidence pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--gray-700);
+      background: var(--gray-150);
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      margin-top: 6px;
+    }
+
+    /* ---------- Footer ---------- */
+    footer.provenance {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="page-head">
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Implementation plan</div>
+      <h1><!-- SLOT: title -->Plan title goes here</h1>
+      <p class="subtitle"><!-- SLOT: subtitle -->One-sentence framing of what this plan delivers and why it matters.</p>
+      <div class="meta-row">
+        <!-- SLOT: statusPill (use one class: status-draft | status-active | status-shipped | status-blocked) -->
+        <span class="pill status-draft">Draft</span>
+        <!-- SLOT: metaPills (zero or more extra pills: owner, target date, branch, etc.) -->
+        <span class="pill">Owner: name</span>
+        <span class="pill">Target: YYYY-MM-DD</span>
+      </div>
+    </header>
+
+    <!-- ====================== GOAL ====================== -->
+    <section>
+      <div class="sec-head"><span class="num">01</span><h2>Goal</h2></div>
+      <div class="panel">
+        <!-- SLOT: goal -->
+        <p>Describe the concrete outcome this plan produces. Prefer one paragraph plus, optionally, a short list of non-goals to keep scope honest.</p>
+      </div>
+    </section>
+
+    <!-- ====================== ARCHITECTURE ====================== -->
+    <section>
+      <div class="sec-head"><span class="num">02</span><h2>Architecture summary</h2></div>
+      <p class="sec-intro">How the pieces fit together. Components touched, new modules, key data flows. Keep it skim-friendly.</p>
+      <div class="panel">
+        <!-- SLOT: architecture -->
+        <p>Replace this with the architecture summary. Mention the surfaces touched (e.g. <code>packages/api</code>, <code>apps/web</code>), any new tables or services, and the most important contract changes.</p>
+      </div>
+    </section>
+
+    <!-- ====================== PHASES ====================== -->
+    <section>
+      <div class="sec-head"><span class="num">03</span><h2>Phases</h2></div>
+      <p class="sec-intro">Each phase is independently reviewable and leaves the codebase in a valid state.</p>
+
+      <div class="phases">
+        <!-- SLOT: phases (repeat this .phase block once per phase) -->
+        <div class="phase">
+          <div class="when"><!-- SLOT: phase.when -->Week 1 · Mon–Tue</div>
+          <div class="dot-col"><span class="dot done"></span><span class="line"></span></div>
+          <div class="body">
+            <h3><!-- SLOT: phase.name -->Phase 1 — Schema &amp; API contract</h3>
+            <p class="desc"><!-- SLOT: phase.description -->Short paragraph describing what this phase delivers and how to know it landed.</p>
+            <ul class="tasks">
+              <!-- SLOT: phase.tasks (one <li> per task; add class "done" when complete) -->
+              <li class="done">Migration written and reviewed</li>
+              <li>tRPC router stubs in place</li>
+              <li>Contract doc updated</li>
+            </ul>
+            <div class="tags">
+              <!-- SLOT: phase.tags -->
+              <span class="tag">packages/db</span>
+              <span class="tag">packages/api</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="when">Week 1 · Wed–Fri</div>
+          <div class="dot-col"><span class="dot"></span><span class="line"></span></div>
+          <div class="body">
+            <h3>Phase 2 — Component scaffolding</h3>
+            <p class="desc">Static UI from fixtures, before any live data wiring.</p>
+            <ul class="tasks">
+              <li>Component renders from fixtures</li>
+              <li>Storybook entry added</li>
+            </ul>
+            <div class="tags">
+              <span class="tag">apps/web</span>
+              <span class="tag">storybook</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="when">Week 2 · Mon–Wed</div>
+          <div class="dot-col"><span class="dot"></span></div>
+          <div class="body">
+            <h3>Phase 3 — Wire-up &amp; rollout</h3>
+            <p class="desc">Connect the live data path, gate behind a flag, ramp to 100%.</p>
+            <ul class="tasks">
+              <li>Live mutation path wired</li>
+              <li>Feature flag created and ramped</li>
+              <li>Docs &amp; rollback notes published</li>
+            </ul>
+            <div class="tags">
+              <span class="tag">flag: example_v1</span>
+            </div>
+          </div>
+        </div>
+        <!-- /SLOT: phases -->
+      </div>
+    </section>
+
+    <!-- ====================== ACCEPTANCE CRITERIA ====================== -->
+    <section>
+      <div class="sec-head"><span class="num">04</span><h2>Acceptance criteria</h2></div>
+      <p class="sec-intro">The plan is done when every box below is checked.</p>
+      <ul class="ac-list">
+        <!-- SLOT: acceptanceCriteria (one <li> per criterion; add class "met" when satisfied) -->
+        <li class="met"><span class="check"></span><span>All listed phases land behind their respective feature flags.</span></li>
+        <li><span class="check"></span><span>End-to-end test covering the happy path is green in CI.</span></li>
+        <li><span class="check"></span><span>Rollback procedure is documented and dry-run verified.</span></li>
+        <li><span class="check"></span><span>Affected dashboards show no regression for 48 hours post-ramp.</span></li>
+      </ul>
+    </section>
+
+    <!-- ====================== VALIDATION EVIDENCE ====================== -->
+    <section id="validation-evidence">
+      <details class="evidence-wrap" open>
+      <summary><div class="sec-head"><span class="num">05</span><h2>Validation evidence</h2></div></summary>
+      <p class="sec-intro">Commands run, results captured, links to artifacts. Filled in as the plan executes.</p>
+      <div class="evidence">
+        <!-- SLOT: validationEvidence (repeat .row blocks for each piece of evidence) -->
+        <div class="row">
+          <div class="cell k">Typecheck</div>
+          <div class="cell v"><code>npm run typecheck</code> &mdash; passing<pre>0 errors, 0 warnings</pre></div>
+        </div>
+        <div class="row">
+          <div class="cell k">Unit tests</div>
+          <div class="cell v"><code>bun test</code> &mdash; 124 / 124 passing</div>
+        </div>
+        <div class="row">
+          <div class="cell k">Manual QA</div>
+          <div class="cell v">Smoke-tested on staging, link in PR description.</div>
+        </div>
+        <div class="row">
+          <div class="cell k">Observability</div>
+          <div class="cell v">Dashboards reviewed at T+24h; no anomalies.</div>
+        </div>
+      </div>
+      </details>
+    </section>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+</body>
+</html>

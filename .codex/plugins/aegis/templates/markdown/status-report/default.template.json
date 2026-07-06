@@ -1,0 +1,26 @@
+{
+  "kind": "template",
+  "name": "status-report",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:11-status-report.html",
+  "description": "Markdown sibling of the status report: highlights, in-progress work, blockers, steering metrics, and next-up items for a reporting period. The agent pre-renders each collection (highlights/inProgress/blockers/metrics/nextUp) into a bullet list before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Report title; the document h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "dateRange", "type": "string", "description": "Reporting period, e.g. 'Week of YYYY-MM-DD — YYYY-MM-DD'." },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Pre-rendered extra header meta (cadence, author) as an inline list." },
+    { "key": "highlights", "type": "string", "description": "Pre-rendered bullet list of the few things worth knowing; prefix each with its marker variant (default/warn/alert) as appropriate." },
+    { "key": "inProgress", "type": "string", "description": "Pre-rendered bullet list of active tasks with name, sub-note, progress percent, and owner." },
+    { "key": "blockers", "type": "string", "required": false, "description": "Pre-rendered bullet list of items needing help or a decision, with owner and severity." },
+    { "key": "metrics", "type": "string", "required": false, "description": "Pre-rendered list of KPI rows: label, value, and optional week-over-week delta." },
+    { "key": "nextUp", "type": "string", "required": false, "description": "Pre-rendered bullet list of planned tasks for the upcoming period with owner." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "highlights[]": "{ marker: enum[default,warn,alert], text: string }",
+    "inProgress[]": "{ name: string, sub: string, progress: string|number, owner: string }",
+    "blockers[]": "{ variant: enum[default,warn], title: string, owner: string, description: string }",
+    "metrics[]": "{ label: string, value: string, delta: string, delta_dir: enum[up,down,none] }"
+  }
+}

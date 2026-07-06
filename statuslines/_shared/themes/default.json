@@ -1,0 +1,27 @@
+{
+  "name": "default",
+  "description": "claude-hud default palette — standard ANSI named colors.",
+  "source": "claude-hud:default",
+  "colors": {
+    "label": "dim",
+    "model": "cyan",
+    "project": "yellow",
+    "git": "magenta",
+    "gitDirty": "yellow",
+    "context": "green",
+    "contextBar": "green",
+    "usage": "green",
+    "usageBar": "green",
+    "cost": "yellow",
+    "pr": "cyan",
+    "warning": "yellow",
+    "critical": "red",
+    "muted": "gray",
+    "accent": "cyan",
+    "separator": "gray"
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░"
+  }
+}

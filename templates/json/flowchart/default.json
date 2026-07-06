@@ -1,0 +1,9 @@
+{
+  "title": "__SLOT__title",
+  "nodes": [
+    { "id": "__SLOT__nodes", "label": "__SLOT__nodes", "kind": "__SLOT__nodes" }
+  ],
+  "edges": [
+    { "from": "__SLOT__edges", "to": "__SLOT__edges", "label": "__SLOT__edges" }
+  ]
+}

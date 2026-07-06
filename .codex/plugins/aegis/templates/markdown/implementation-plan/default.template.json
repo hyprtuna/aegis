@@ -1,0 +1,25 @@
+{
+  "kind": "template",
+  "name": "implementation-plan",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:16-implementation-plan.html",
+  "description": "Markdown sibling of the implementation plan: goal, architecture summary, a phased timeline with tasks, acceptance criteria, and validation evidence. The agent pre-renders the phases/acceptanceCriteria/validationEvidence collections into lists before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Plan title; the document h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-sentence framing of what the plan delivers." },
+    { "key": "statusPill", "type": "string", "required": false, "description": "Plan status.", "enum": ["draft", "active", "shipped", "blocked"] },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Pre-rendered extra header meta (owner, target date, branch) as an inline list." },
+    { "key": "goal", "type": "string", "description": "Concrete outcome the plan produces, plus optional non-goals." },
+    { "key": "architecture", "type": "string", "required": false, "description": "Architecture summary: surfaces touched, new modules, key contract changes." },
+    { "key": "phases", "type": "string", "description": "Pre-rendered phases: one '### heading' per phase with nested task checkboxes and tags." },
+    { "key": "acceptanceCriteria", "type": "string", "description": "Pre-rendered criteria checklist; check items that are satisfied." },
+    { "key": "validationEvidence", "type": "string", "required": false, "description": "Pre-rendered list of evidence rows: typecheck, tests, manual QA, observability." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "phases[]": "{ when: string, name: string, description: string, tasks: [{ text: string, done: boolean }], tags: string[] }",
+    "validationEvidence[]": "{ label: string, value: string }"
+  }
+}

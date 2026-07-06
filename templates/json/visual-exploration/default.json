@@ -1,0 +1,10 @@
+{
+  "title": "__SLOT__title",
+  "context": "__SLOT__context",
+  "directions": [
+    {
+      "name": "__SLOT__directionName",
+      "notes": "__SLOT__directionNotes"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "systemPrompt": "__SLOT__systemPrompt",
+  "input": "__SLOT__input",
+  "variables": [
+    {
+      "name": "__SLOT__variableName",
+      "value": "__SLOT__variableValue"
+    }
+  ],
+  "metrics": ["__SLOT__metrics"]
+}

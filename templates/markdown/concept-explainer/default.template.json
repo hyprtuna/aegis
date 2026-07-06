@@ -1,0 +1,15 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:15-research-concept-explainer.html",
+  "description": "Markdown sibling of the concept explainer: a concept h1, an intuition lead, a mechanics section, a worked example, and a further-reading list. The further-reading array is rendered to bullets before substitution.",
+  "slots": [
+    { "key": "concept", "type": "string", "description": "Concept name; the document h1." },
+    { "key": "intuition", "type": "string", "description": "The one-sentence mental model, framed against the naive approach." },
+    { "key": "mechanics", "type": "string", "description": "Plain-prose explanation of how the concept works and what it trades off." },
+    { "key": "example", "type": "string", "description": "A small worked example that makes the concept concrete." },
+    { "key": "furtherReading[]", "type": "string", "required": false, "description": "Pointers to follow next, as a bullet list." }
+  ]
+}

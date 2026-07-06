@@ -1,0 +1,23 @@
+{
+  "kind": "statusline",
+  "name": "gruvbox-dark",
+  "description": "Retro-warm Gruvbox palette across all segments.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "gruvbox-dark",
+  "segments": [
+    ["model", "project", "git"],
+    ["context", "usage"]
+  ],
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ],
+    "usage": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 30
+}

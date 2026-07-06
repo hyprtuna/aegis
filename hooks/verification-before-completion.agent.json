@@ -1,0 +1,18 @@
+{
+  "kind": "hook",
+  "intent": "agent-type",
+  "name": "verification-before-completion",
+  "description": "Advisory PreToolUse agent gate on Bash: before a commit, spawn a verifier subagent to inspect the change and confirm the completion claim is backed by fresh evidence.",
+  "visibility": "internal",
+  "platforms": ["claude"],
+  "enabled": false,
+  "trigger": {
+    "matcher": "Bash"
+  },
+  "x-claude": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "dispatch": "agent",
+    "prompt": "You are a verification gate spawned before a Bash command runs. Hook input JSON: $ARGUMENTS\n\nFirst decide whether this command is a completion signal (a git commit, push, merge, tag, or release step). If it is NOT a completion signal, allow it immediately: {\"ok\": true}.\n\nIf it IS a completion signal, perform a code-reviewer-style gate before allowing it. Use your tools to:\n1. Inspect the staged or pending change (git diff / git status) to see what is being committed.\n2. Identify the claim the commit asserts (the message, the work it represents).\n3. Confirm that claim is backed by fresh, observable evidence: run or inspect the project's tests/build/lint for the touched code, and check that the diff actually does what the message says.\n4. Apply the verification iron law (no completion claim without fresh verification evidence) and watch for the silent-failure and rationalization patterns in the change.\n\nYou are evaluating evidence; you cannot delegate to a named subagent. Allow when evidence backs the claim: {\"ok\": true}. Block when verification is missing, tests fail, or the change does not support the claim: {\"ok\": false, \"reason\": \"<which gate failed and the specific missing evidence or failing check>\"}.\n\nRespond with strict JSON only."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "title": "__SLOT__title",
+  "swatches": [
+    {
+      "token": "__SLOT__swatches",
+      "hex": "__SLOT__swatches"
+    }
+  ],
+  "typeScale": [
+    {
+      "name": "__SLOT__typeScale",
+      "size": "__SLOT__typeScale"
+    }
+  ],
+  "spacing": [
+    {
+      "label": "__SLOT__spacing",
+      "value": "__SLOT__spacing"
+    }
+  ],
+  "components": [
+    {
+      "name": "__SLOT__components",
+      "specimen": "__SLOT__components"
+    }
+  ]
+}

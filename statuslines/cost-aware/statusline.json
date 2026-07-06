@@ -1,0 +1,25 @@
+{
+  "kind": "statusline",
+  "name": "cost-aware",
+  "description": "For API users — session cost, subscription usage bars, and duration prominent.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "default",
+  "segments": [
+    ["model", "project"],
+    ["context", "cost"],
+    ["usage"],
+    ["session-time", "tools"]
+  ],
+  "thresholds": {
+    "context": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ],
+    "usage": [
+      { "at": 90, "color": "critical", "label": "CRIT" },
+      { "at": 70, "color": "warning", "label": "HIGH" }
+    ]
+  },
+  "refreshIntervalSeconds": 15
+}

@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aegis.dev/schemas/hook-intent.schema.json",
+  "title": "Aegis Portable Hook Intent",
+  "description": "Schema for hooks/<name>.json — the machine binding (source of truth) for a portable hook intent (AG-0010). The sibling hooks/<name>.md is the human intent doc. The projector (scripts/project.mjs) reads these to generate the Claude .claude-plugin/plugin.json hooks block and the OpenCode compaction region in .opencode/plugins/aegis.js; the HOOK_INTENT validator rule enforces this contract. Hand-edits to the generated host files are validator failures.",
+  "type": "object",
+  "required": ["kind", "intent", "name", "description", "visibility", "platforms"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "const": "hook",
+      "description": "Always 'hook' for a hook intent."
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "session-start",
+        "pre-compact",
+        "post-compact",
+        "instructions-loaded",
+        "file-changed",
+        "cwd-changed",
+        "prompt-injection-guard",
+        "pre-tool-use-deny",
+        "prompt-type",
+        "agent-type"
+      ],
+      "description": "The portable lifecycle category. Command intents map 1:1 to a host event; the judgment categories 'prompt-type'/'agent-type' are keyed by `name` (D10) and bind to PreToolUse."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64,
+      "description": "Stable kebab-case identifier, unique across hooks/. Matches the sibling .md frontmatter `name` when a .md exists (D1)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "What the hook does and when it fires."
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["internal", "public"],
+      "description": "internal = Aegis-machinery; public = user-facing/documented."
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["claude", "opencode", "codex", "cursor", "zed"]
+      },
+      "description": "Non-empty subset of supported hosts this hook projects to."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "When false, the intent is excluded from the generated default hooks block (D7) — e.g. prompt-injection-guard ships opt-in."
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional host-agnostic trigger hints. Host bindings carry the operative matcher.",
+      "properties": {
+        "matcher": {
+          "type": "string",
+          "description": "Host-agnostic matcher hint (e.g. a tool-name alternation)."
+        },
+        "events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Host-agnostic event hints."
+        },
+        "paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Host-agnostic path globs the hook is scoped to."
+        }
+      }
+    },
+    "x-claude": { "$ref": "#/$defs/xClaude" },
+    "x-opencode": { "$ref": "#/$defs/xOpencode" }
+  },
+  "$defs": {
+    "xClaude": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "dispatch"],
+      "description": "Claude Code binding. Required when `platforms` includes 'claude'.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": [
+            "SessionStart",
+            "PreToolUse",
+            "UserPromptSubmit",
+            "PreCompact",
+            "PostCompact",
+            "InstructionsLoaded",
+            "FileChanged",
+            "CwdChanged"
+          ],
+          "description": "Claude hook event (verified against references/claude-code-docs/docs/hooks.md, D2). NOTE: 'UserPromptSubmit' is RESERVED/DEFERRED — it is a valid Claude event kept in this enum for forward-compatibility, but no current hooks/*.json intent binds it. See hooks/AGENTS.md 'Deferred / unimplemented events' for status. Removing it is a wider blast radius than documenting it (v0.0.10 decision: keep + document)."
+        },
+        "matcher": {
+          "type": "string",
+          "description": "Claude matcher string (e.g. 'startup|clear|compact' for SessionStart, a tool-name alternation for PreToolUse)."
+        },
+        "dispatch": {
+          "type": "string",
+          "enum": ["command", "prompt", "agent"],
+          "description": "Hook dispatch type. command → a script under .claude-plugin/hooks/; prompt → an inline judgment prompt; agent → an ad-hoc subagent spawned from a prompt (D4). The event→dispatch support table (D3) constrains which dispatch each event allows."
+        },
+        "command": {
+          "type": "string",
+          "pattern": "^\\.claude-plugin/hooks/.+",
+          "description": "Repo-relative path to the hook script (required when dispatch is 'command'). The projector prefixes ${CLAUDE_PLUGIN_ROOT}/."
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Literal judgment prompt (required when dispatch is 'prompt' or 'agent'). Use the $ARGUMENTS placeholder for the hook input JSON (D5). There is NO field to name a pre-defined subagent (D4)."
+        },
+        "model": {
+          "type": "string",
+          "description": "Optional model override for prompt/agent dispatch."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "dispatch": { "const": "command" } } },
+          "then": { "required": ["command"] }
+        },
+        {
+          "if": { "properties": { "dispatch": { "enum": ["prompt", "agent"] } } },
+          "then": { "required": ["prompt"] }
+        },
+        {
+          "if": { "properties": { "event": { "const": "SessionStart" } } },
+          "then": { "properties": { "dispatch": { "const": "command" } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "event": {
+                "enum": [
+                  "PreCompact",
+                  "PostCompact",
+                  "InstructionsLoaded",
+                  "FileChanged",
+                  "CwdChanged"
+                ]
+              }
+            }
+          },
+          "then": { "properties": { "dispatch": { "const": "command" } } }
+        }
+      ]
+    },
+    "xOpencode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "handler"],
+      "description": "OpenCode binding. Required when `platforms` includes 'opencode'.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["session.start", "session.compacting", "chat.messages.transform"],
+          "description": "OpenCode hook event (D2)."
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["pre", "post"],
+          "description": "Compaction phase (required when event is 'session.compacting')."
+        },
+        "handler": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the handler function in .opencode/plugins/aegis.js the projector wires this binding to."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "event": { "const": "session.compacting" } } },
+          "then": { "required": ["phase"] }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "platforms": { "contains": { "const": "claude" } } } },
+      "then": { "required": ["x-claude"] }
+    },
+    {
+      "if": { "properties": { "platforms": { "contains": { "const": "opencode" } } } },
+      "then": { "required": ["x-opencode"] }
+    },
+    {
+      "if": { "properties": { "intent": { "const": "prompt-injection-guard" } } },
+      "then": { "properties": { "enabled": { "const": false } } }
+    },
+    {
+      "if": { "properties": { "intent": { "const": "prompt-type" } } },
+      "then": { "properties": { "x-claude": { "properties": { "dispatch": { "const": "prompt" } } } } }
+    },
+    {
+      "if": { "properties": { "intent": { "const": "agent-type" } } },
+      "then": { "properties": { "x-claude": { "properties": { "dispatch": { "const": "agent" } } } } }
+    }
+  ]
+}

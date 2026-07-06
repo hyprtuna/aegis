@@ -1,0 +1,27 @@
+{
+  "name": "gruvbox-dark",
+  "description": "Gruvbox Dark truecolor palette.",
+  "source": "claude-hud:gruvbox-dark",
+  "colors": {
+    "label": "#928374",
+    "model": "#83a598",
+    "project": "#fabd2f",
+    "git": "#b8bb26",
+    "gitDirty": "#fabd2f",
+    "context": "#b8bb26",
+    "contextBar": "#b8bb26",
+    "usage": "#b8bb26",
+    "usageBar": "#b8bb26",
+    "cost": "#fabd2f",
+    "pr": "#83a598",
+    "warning": "#fabd2f",
+    "critical": "#fb4934",
+    "muted": "#928374",
+    "accent": "#83a598",
+    "separator": "#928374"
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░"
+  }
+}

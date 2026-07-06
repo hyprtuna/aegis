@@ -1,0 +1,27 @@
+{
+  "name": "hud",
+  "description": "Richer HUD palette (AG-0259) — teal/cyan banner accent, distinct blue usage bar, green->yellow->red context/usage escalation. Pairs with `thresholds.{context,usage}` breakpoints declared by a preset.",
+  "source": "aegis:hud",
+  "colors": {
+    "label": "#5eead4",
+    "model": "#22d3ee",
+    "project": "#facc15",
+    "git": "#c084fc",
+    "gitDirty": "#facc15",
+    "context": "#4ade80",
+    "contextBar": "#4ade80",
+    "usage": "#38bdf8",
+    "usageBar": "#38bdf8",
+    "cost": "#facc15",
+    "pr": "#22d3ee",
+    "warning": "#fbbf24",
+    "critical": "#f87171",
+    "muted": "#64748b",
+    "accent": "#2dd4bf",
+    "separator": "#475569"
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░"
+  }
+}

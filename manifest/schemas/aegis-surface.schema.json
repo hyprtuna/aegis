@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/aegis-surface.schema.json",
+  "title": "Aegis Surface Frontmatter (Lean 5-field)",
+  "type": "object",
+  "required": ["kind", "name", "description", "visibility", "platforms"],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": ["skill", "agent", "command", "rule", "hook", "template"]
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1536
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["user", "internal"]
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["claude", "opencode", "codex", "cursor", "zed"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Provenance string, e.g. 'anvil:skills/universal/research.md'. Required for migrated content; omit for new content."
+    },
+    "x-aegis": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Aegis-specific metadata namespace. Permissive (additionalProperties:true) so fields like 'stance' coexist; the optional 'pipeline' sub-schema below tightens the composition block only.",
+      "properties": {
+        "pipeline": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Composition metadata (AG-0199). All keys optional; absence means an atomic skill. The COMPOSITION validator asserts the requires/next graph is acyclic, that every named skill exists in canonical, and that each handoff resolves to a real template kind (or carries a `// REASON:`).",
+          "properties": {
+            "requires": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+              "uniqueItems": true,
+              "description": "Prerequisite skills auto-invoked before this skill runs. Each MUST name a real canonical skill under its current name."
+            },
+            "handoff": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Named artifact passed forward to the next skill — a real template kind from manifest/template-index.json, or an artifact name justified with a `// REASON:` note."
+            },
+            "next": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$",
+              "description": "The transition target skill this skill hands off to. MUST name a real canonical skill under its current name."
+            }
+          }
+        },
+        "intensity": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Skill intensity-level metadata (AG-0214), an optional extension of the x-aegis composition namespace. Absence means the skill behaves exactly as today (implicit 'full'). When present, the skill body branches per declared level. The COMPOSITION validator checks `default` and `levels` are drawn from the known set {lite, full, ultra} and that `default` is one of the declared `levels`.",
+          "properties": {
+            "default": {
+              "type": "string",
+              "enum": ["lite", "full", "ultra"],
+              "description": "The level used when the caller names none. Implicit 'full' when the intensity block is absent entirely."
+            },
+            "levels": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["lite", "full", "ultra"] },
+              "uniqueItems": true,
+              "minItems": 1,
+              "description": "The intensity levels this skill implements. Each MUST have a matching branch in the body. `lite` trims effort; `full` is the baseline (lossless vs today); `ultra` deepens."
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "patternProperties": {
+    "^x-[a-z][a-z0-9-]*$": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Adapter or source-specific metadata namespace. Prefer x-<adapter> over new unscoped top-level keys. Examples: x-claude, x-opencode, x-anvil."
+    }
+  },
+  "$comment": "Abilities are NOT registered as skills — they live at skills/<name>/abilities/*.md with NO frontmatter (or minimal name+description). This schema applies only to registered surfaces."
+}

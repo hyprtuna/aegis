@@ -1,0 +1,25 @@
+{
+  "kind": "template",
+  "name": "incident-report",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:12-incident-report.html",
+  "description": "Standalone HTML incident / postmortem report: header with severity and status, TL;DR, a dotted timeline, root-cause prose with an optional diff, an impact table, and owned action items.",
+  "slots": [
+    { "key": "id", "type": "string", "description": "Incident identifier, e.g. 'INC-2025-0412'." },
+    { "key": "title", "type": "string", "description": "Incident title; used in <title> and the h1." },
+    { "key": "severity", "type": "string", "description": "Severity label; rendered in the .pill.sev pill.", "enum": ["sev1", "sev2", "sev3"] },
+    { "key": "status", "type": "string", "required": false, "description": "Resolution status pill, e.g. Resolved | Mitigating | Investigating." },
+    { "key": "metaPills", "type": "array", "required": false, "description": "Extra neutral pills: duration, detected time, owner." },
+    { "key": "summary", "type": "string", "description": "One-paragraph TL;DR of the incident." },
+    { "key": "timeline[]", "type": "timelineEntry", "description": "Ordered timeline of events; each entry has a dot variant." },
+    { "key": "rootCause", "type": "string", "description": "Root-cause prose; may include an inline diff code-panel." },
+    { "key": "impact", "type": "array", "description": "Key/value rows quantifying blast radius (requests failed, error rate, users, data loss, SLA)." },
+    { "key": "followups[]", "type": "followup", "description": "Owned action items; add class 'done' when complete." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance / authorship line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "timeline[]": "{ time: string, event: string, dot: enum[default,impact,mitigated] }",
+    "followups[]": "{ owner: string (avatar initials), action: string, due: string, done: boolean }"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "aegis",
+  "version": "0.3.10",
+  "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
+  "homepage": "https://github.com/hyprtuna/aegis",
+  "license": "MIT",
+  "author": {
+    "name": "Aegis Contributors"
+  },
+  "keywords": [
+    "agentic",
+    "skills",
+    "agents",
+    "anvil"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

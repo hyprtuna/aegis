@@ -1,0 +1,12 @@
+{
+  "kind": "statusline",
+  "name": "minimal-mono",
+  "description": "The safe default — no colour, two lines, renders on any terminal.",
+  "visibility": "user",
+  "platforms": ["claude"],
+  "theme": "mono",
+  "segments": [
+    ["model", "project", "git"],
+    ["context"]
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "hook",
+  "intent": "file-changed",
+  "name": "file-changed",
+  "description": "When a watched source file changes, surface the lint/format reminder declared by the matching language overlay (TypeScript, Python, Rust, Go). Advisory only — never blocks the change.",
+  "visibility": "internal",
+  "platforms": ["claude"],
+  "trigger": {
+    "paths": ["**/*.ts", "**/*.tsx", "**/*.py", "**/*.rs", "**/*.go"]
+  },
+  "x-claude": {
+    "event": "FileChanged",
+    "dispatch": "command",
+    "command": ".claude-plugin/hooks/file-changed.sh"
+  }
+}

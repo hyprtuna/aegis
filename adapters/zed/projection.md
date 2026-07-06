@@ -1,0 +1,104 @@
+# Zed Projection
+
+**Status:** deferred (~v0.5.0) — projection notes only; implementation deferred from v0.0.8 to the v0.5.0 backlog ([`.aegis/plans/v0.5.0-plan.md`](../../.aegis/plans/v0.5.0-plan.md), AG-0011 D1). The hook-capability matrix below is authoritative and stays intact.
+
+## What Zed Will Load
+
+| Aegis canonical | Zed native | Status |
+|---|---|---|
+| `rules/<name>.md` + iron laws | `.rules` at project root (generated, concatenated) | V |
+| `AGENTS.md` | Read by Zed natively | V |
+| MCP server entries | `context_servers` config | V |
+| ACP external agents (Claude, Codex) bring their own skills | Pass-through | V |
+| Skills as native | — | No native |
+| Subagents native to Zed | — | No native |
+| Hooks in Zed Agent Panel | — | No native |
+| Slash commands native to Zed | Zed Agent Panel supports them; external-agent slash commands pass through | V (limited) |
+
+## Strategy
+
+**Rules-only + ACP external-agent host.** Zed is treated as a thin shell that defers to Claude/Codex/OpenCode plugins running over ACP.
+
+- Generate `.rules` from canonical (concatenated iron-laws + bootstrap pointer to AGENTS.md).
+- `AGENTS.md` at root is already present.
+- MCP/`context_servers` entries projected if Aegis ships any.
+
+Aegis CAN'T ship a "Zed plugin." Aegis exposes itself to Zed users by being already installed in the Claude/Codex/OpenCode agent that Zed routes to over ACP.
+
+## Constraints
+
+- Hooks and agent teams from Claude/Codex projections are NOT passed through Zed's ACP boundary (per Zed external-agents docs).
+- Zed compatibility-reads: `.cursorrules`, `.windsurfrules`, `.clinerules`, `.aider.conf.yml`, `.goosehints`. Aegis does NOT ship duplicates of these — `.rules` + `AGENTS.md` is enough.
+
+## Unsupported (Documented Gaps)
+
+| Canonical concept | Zed native? | Strategy |
+|---|---|---|
+| Native skills | No | Document — users invoke Aegis via the embedded Claude/Codex agent. |
+| Statusline | No | Document. |
+| Hooks | No | Document. |
+| Subagents | Only via embedded external agent | Document. |
+| Structured questions | No | Document. |
+| `@rules/<file>.md` agent hotlinks (v0.0.13) | No `@`-include resolution | Three skeptical agents (`code-reviewer`, `code-quality-reviewer`, `doc-verifier`) reference `@rules/skeptical-stance.md` for Claude auto-inheritance; Zed (and its ACP-embedded agents) ship the literal `@rules/...` as prose. Each agent keeps a one-line inline stance summary so the doctrine survives. Honest gap, not a silent drop. |
+
+## Hook capability matrix (v0.0.7, AG-0010)
+
+Zed exposes **no hook contract at all** — there is no extension point for lifecycle
+hooks, and the ACP boundary does not pass an embedded agent's hooks through to Zed.
+Every portable hook intent is a `gap`, documented here and never silently dropped.
+
+| Intent / name | Status | Notes |
+|---|---|---|
+| `session-start` | gap | No session-hook extension point. |
+| `pre-tool-use-deny` | gap | No PreToolUse hook extension point. |
+| `pre-compact` | gap | No compaction hook extension point. |
+| `post-compact` | gap | No compaction hook extension point. |
+| `verify-no-secrets-touched` | gap | No LLM-evaluated hook primitive. |
+| `no-silent-failures` | gap | No LLM-evaluated hook primitive. |
+| `no-rationalization` | gap | No LLM-evaluated hook primitive. |
+| `verification-before-completion` | gap | No agent-dispatch hook primitive. |
+| `instructions-loaded` | gap | No `InstructionsLoaded` counterpart. |
+| `file-changed` | gap | No `FileChanged` counterpart. |
+| `cwd-changed` | gap | No `CwdChanged` counterpart. |
+| `prompt-injection-guard` | gap | No PreToolUse hook event; advisory scanner is Claude-only. |
+
+## Statuslines
+
+Zed's Agent-panel footer (model/token info) is not user-scriptable — there is no extension point to render an Aegis statusline preset into it, and the ACP boundary does not pass an embedded agent's statusline through to Zed's UI. Aegis statusline presets are canonical (`statuslines/`) and first-class on Claude Code; on Zed this is an honest gap.
+
+## Permissions
+
+No projection. Zed has **no host primitive for agent-level tool restriction** — Zed
+is a thin shell that defers to an embedded Claude/Codex/OpenCode agent over ACP,
+and the ACP boundary does not pass agent teams or per-agent permission config
+through to Zed's own UI. Aegis agent permissions are therefore **advisory** on Zed:
+`manifest/permissions.json` documents the intended posture, and any *enforcement*
+happens only inside the embedded agent that already carries the Aegis plugin (e.g.
+Claude honouring its `tools:` allowlist), never at the Zed layer. Aegis does not
+write enforcement prose into `.rules` that Zed won't honour. (Decision D6.)
+
+- **Source of truth:** `manifest/permissions.json`.
+- **Author guide:** `docs/agent-permissions.md`.
+- **Enforced hosts:** Claude (`tools:` allowlist) and OpenCode
+  (`agent.<name>.permission`) — reachable through Zed only via the embedded
+  external agent; see those `adapters/<host>/projection.md`.
+
+## v0.0.5 Claude-only uptakes (gaps)
+
+The v0.0.5 release adds Claude-first capabilities with no Zed counterpart;
+`manifest/capabilities.json` is the authoritative per-capability host-status matrix.
+
+- **`userConfig` install prompts** — no Zed plugin-enable-time config prompts.
+- **Background monitors** — no Zed equivalent.
+- **Plugin dependencies / semver constraints** — no Zed plugin-dependency manifest.
+- **`.skill` (ZIP) distribution** — Claude-only channel.
+
+See `manifest/capabilities.json` for the full matrix and per-host evidence.
+
+## Dynamic workflows (gap)
+
+Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): the model writes a JS orchestration script and a background runtime fans it out across dozens-to-hundreds of subagents, saving reusable scripts to `.claude/workflows/`. This is not a plugin extension point — Aegis cannot ship, declare, or project it, and no equivalent exists on this host. The portable substitute is the `orchestration` skill (≤5-wave `Task()` fan-out with in-session synthesis), which runs identically everywhere but does not reach the hundreds-of-agents, context-isolated, resumable regime. For very large audits/migrations on this host, the ≤5-wave skill is the ceiling.
+
+## v0.5.0 Plan
+
+Plan file: `.aegis/plans/v0.5.0-plan.md` (Cursor + Zed projections, deferred from v0.0.8).

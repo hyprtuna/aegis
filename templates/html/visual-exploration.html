@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Visual Exploration</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--gray-700);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 96px;
+    }
+
+    .page { max-width: 1240px; margin: 0 auto; padding: 48px 32px 0; }
+
+    header.page-head { max-width: 720px; margin-bottom: 40px; }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 38px;
+      line-height: 1.15;
+      color: var(--slate);
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+    .prompt-box {
+      background: var(--gray-150);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 14.5px;
+    }
+    .prompt-box .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* ---------- artboard grid ---------- */
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 960px) { .board { grid-template-columns: 1fr; } }
+
+    .artboard {
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+    .tag {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      background: var(--oat);
+      color: var(--slate);
+      padding: 4px 10px;
+      border-radius: 8px;
+      z-index: 2;
+    }
+    .stage {
+      min-height: 220px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gray-300);
+      background: var(--ivory);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px 24px;
+      text-align: center;
+    }
+    .stage h3 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 19px;
+      color: var(--slate);
+      margin-bottom: 6px;
+    }
+    .stage p {
+      font-size: 13px;
+      color: var(--gray-500);
+      max-width: 320px;
+    }
+    .rationale {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    footer.provenance {
+      max-width: 1240px;
+      margin: 48px auto 0;
+      padding: 18px 32px 0;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <header class="page-head">
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Exploration</div>
+      <h1><!-- SLOT: title -->Visual directions for the empty state</h1>
+      <div class="prompt-box">
+        <span class="label">Context</span>
+        <!-- SLOT: context -->
+        Explore several visual directions for this surface. Each card below names a
+        direction and the rationale for when it fits.
+      </div>
+    </header>
+
+    <section class="board">
+      <!-- SLOT: directions (repeat one .artboard per direction; .tag = name, .stage holds a static mockup, .rationale = notes) -->
+      <article class="artboard">
+        <span class="tag">A &mdash; Minimal</span>
+        <div class="stage">
+          <div>
+            <h3>No tasks yet</h3>
+            <p>When you create a task it will show up here.</p>
+          </div>
+        </div>
+        <p class="rationale">
+          Pure typography, single quiet action. Reads as calm and confident;
+          assumes the surrounding UI already carries enough personality.
+        </p>
+      </article>
+
+      <article class="artboard">
+        <span class="tag">B &mdash; Illustrated</span>
+        <div class="stage">
+          <div>
+            <h3>Start your first list</h3>
+            <p>Group related work and watch progress roll up automatically.</p>
+          </div>
+        </div>
+        <p class="rationale">
+          A small spot illustration anchors the eye and explains the object model
+          without a wall of copy.
+        </p>
+      </article>
+
+      <article class="artboard">
+        <span class="tag">C &mdash; Instructional</span>
+        <div class="stage">
+          <div>
+            <h3>Set up this project</h3>
+            <p>Three actionable steps: create a task, add a due date, invite a teammate.</p>
+          </div>
+        </div>
+        <p class="rationale">
+          Treats the empty state as onboarding. Higher density, but every line is
+          actionable &mdash; best when the user is new to the product.
+        </p>
+      </article>
+      <!-- /SLOT: directions -->
+    </section>
+  </div>
+
+  <footer class="provenance">
+    <!-- SLOT: provenance (auto-filled by agent) -->
+    Generated by Aegis on YYYY-MM-DD
+  </footer>
+
+</body>
+</html>

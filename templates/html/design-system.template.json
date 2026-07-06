@@ -1,0 +1,23 @@
+{
+  "kind": "template",
+  "name": "design-system",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:05-design-system.html",
+  "description": "Standalone zero-JS HTML design-system reference: color swatches, a type scale, a spacing ruler, and a core-component gallery, all rendered with the shared design tokens. A portable reference to quote when prompting.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Design-system title; used in <title> and the h1." },
+    { "key": "sub", "type": "string", "required": false, "description": "Header prose describing what the system was generated from." },
+    { "key": "swatches", "type": "swatch", "description": "Color swatches; each renders a .swatch with a colored chip, hex, and token name." },
+    { "key": "typeScale", "type": "typeStep", "description": "Type-scale rows; each renders a specimen with a name and size/line/weight meta." },
+    { "key": "spacing", "type": "spaceToken", "description": "Spacing-ruler tokens; each renders a bar sized to the value with a px + token label." },
+    { "key": "components", "type": "component", "description": "Core-component gallery; each renders a labeled stage holding a specimen." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "swatches[]": "{ token: string, hex: string }",
+    "typeScale[]": "{ name: string, size: string }",
+    "spacing[]": "{ label: string, value: string }",
+    "components[]": "{ name: string, specimen: string }"
+  }
+}

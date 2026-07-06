@@ -1,0 +1,20 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:14-research-feature-explainer.html",
+  "description": "Machine-readable sibling of the feature-explainer: a topic, an overview TL;DR, a sections array (heading, body), and an optional code array (caption, body). Placeholder strings keep the file parseable; the agent expands each single template element into one entry per section/code block.",
+  "slots": [
+    { "key": "topic", "type": "string", "description": "Feature topic." },
+    { "key": "overview", "type": "string", "description": "Short summary of what the feature does and how it flows." },
+    { "key": "sectionHeading", "type": "string", "description": "Section heading. The sections array (see shape) carries one example element to clone per section." },
+    { "key": "sectionBody", "type": "string", "description": "Section body prose." },
+    { "key": "codeCaption", "type": "string", "required": false, "description": "Code block caption, e.g. a file path or label. The code array (see shape) carries one example element to clone per block." },
+    { "key": "codeBody", "type": "string", "required": false, "description": "Code block contents." }
+  ],
+  "shape": {
+    "section[]": "{ heading: string, body: string }",
+    "code[]": "{ caption: string, body: string }"
+  }
+}

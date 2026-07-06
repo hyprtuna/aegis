@@ -1,0 +1,23 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "markdown",
+  "version": "0.1.0",
+  "source": "html-effectiveness:04-code-understanding.html",
+  "description": "Markdown sibling of the code-understanding walkthrough: a question/summary header, a numbered call sequence (location, description, optional code), a component list, and related references. Arrays are rendered to repeated sections before substitution.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Note title; the document h1." },
+    { "key": "question", "type": "string", "description": "The question being answered, plus a short summary of the mechanism." },
+    { "key": "callSequence[]", "type": "step", "description": "Ordered call-sequence steps; rendered to repeated sections." },
+    { "key": "callSequence.location", "type": "string", "description": "File:line location for the step." },
+    { "key": "callSequence.description", "type": "string", "description": "What runs at this step and why it matters." },
+    { "key": "callSequence.code", "type": "string", "required": false, "description": "Representative source snippet for the step." },
+    { "key": "component.path", "type": "string", "description": "Component file path. Repeat the component row once per entry in the components array (see shape)." },
+    { "key": "component.role", "type": "string", "description": "What the component is responsible for." },
+    { "key": "references[]", "type": "string", "required": false, "description": "Related files worth reading, as a bullet list." }
+  ],
+  "shape": {
+    "callSequence[]": "{ location: string (file:line), description: string, code: string (optional) }",
+    "component[]": "{ path: string, role: string }"
+  }
+}
