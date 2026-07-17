@@ -17,14 +17,10 @@ build/
 # projection that hosts load).
 .claude/
 
-# Planning workspace: only the architectural canon under .aegis/specs/ ships.
-# All other planning artifacts (plans, tasks, audits, research, index) and any
-# host runtime state live outside the public snapshot.
-.aegis/*
-!.aegis/specs/
-!.aegis/specs/**
-!.aegis/AGENTS.md
-!.aegis/CLAUDE.md
+# Planning workspace: the private `aegis-internal` repo is cloned into `.aegis/`.
+# None of it ships in the public snapshot. Architecture specs that ARE public
+# live in `docs/specs/`.
+.aegis/
 .anvil/
 
 # Environment & secrets

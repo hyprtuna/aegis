@@ -10,7 +10,7 @@ Aegis is a plugin-first agentic AI dev system descended from Anvil. It carries A
 
 | What | Where |
 |---|---|
-| Architecture spec | `.aegis/specs/aegis-design.md` |
+| Architecture specs | `docs/specs/` (`aegis-design.md`, `native-tool-contracts.md`, `output-conventions.md`, `tiers.md`) |
 | Roadmap | `.aegis/plans/_roadmap.md` |
 | Active release plan | `.aegis/plans/v0.0.x-plan.md` (highest x with incomplete checkboxes) |
 | Research notes | `.aegis/research/*.research.md` |
@@ -18,6 +18,8 @@ Aegis is a plugin-first agentic AI dev system descended from Anvil. It carries A
 | Surface schemas | `manifest/aegis.manifest.json` + `manifest/schemas/*.json` |
 | User-facing docs | `docs/` |
 | Maintainer scripts | `scripts/*.mjs` (node, no Bun) |
+
+> **Two-repo model.** The published architecture specs live in `docs/specs/`. Everything else under `.aegis/` (roadmap, release plans, research, tickets, decision records) is the **private** [`hyprtuna/aegis-internal`](https://github.com/hyprtuna/aegis-internal) planning repo, cloned into `.aegis/` and fully gitignored here. Contributors without that clone will not see those paths.
 
 ## Iron Laws
 

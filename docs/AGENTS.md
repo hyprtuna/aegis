@@ -6,7 +6,8 @@
 
 ## Layout
 
-- `architecture.md` — overall design (mirrors `.aegis/specs/aegis-design.md` but tuned for user audience).
+- `specs/` — published architecture canon (`aegis-design.md`, `native-tool-contracts.md`, `output-conventions.md`, `tiers.md`).
+- `architecture.md` — overall design (mirrors `docs/specs/aegis-design.md` but tuned for user audience).
 - `getting-started.md` — install + first invocation.
 - `roadmap.md` — release plan summary.
 - `contributor-vs-user.md` — clear boundary: what's user-facing, what's maintainer-only.
@@ -18,7 +19,7 @@
 
 ## Rules
 
-- No duplicated content between `docs/` and `.aegis/specs/`. Specs are decision records; docs are how to use.
+- The architecture canon is published at `docs/specs/`; the private `.aegis/specs/` (the `aegis-internal` clone) holds the maintainer copy plus `features/<id>/` decision records. Keep `docs/` how-to content distinct from spec decision records.
 - Keep docs short. The Anvil failure mode is endless wiki sprawl.
 - Link to research files in `.aegis/research/` when documenting design rationale.
 - Update `docs/` in the same change as the release plan that adds the feature being documented.
