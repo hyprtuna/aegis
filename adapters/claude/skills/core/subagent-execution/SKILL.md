@@ -1,6 +1,6 @@
 ---
 name: subagent-execution
-description: 'Use when executing an implementation plan via fresh subagents — runs spec-compliance and code-quality review gates per task.'
+description: 'Use when executing an implementation plan via fresh subagents.'
 ---
 
 > **Invoke via `Skill({skill: "aegis:subagent-execution"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

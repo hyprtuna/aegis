@@ -6,6 +6,13 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.2] — 2026-07-19
+
+- **Forceful skill-invocation bootstrap.** The injected SessionStart guidance now carries a compact, host-neutral skill-invocation gate plus a Red Flags table (ported from the superpowers pattern), so a relevant skill is invoked instead of being rationalized away.
+- **"When to use" skill descriptions.** Rewrote 13 skill/agent descriptions to pure triggering conditions (when to use, not what they do), improving routing.
+- **`DESCRIPTION_SHAPE` validator** (warn-only) flags arrow / mechanism-verb descriptions; slated to graduate to hard-fail in a later release.
+- **Routing acceptance harness** revived from a dead skeleton into a static, no-API lint over a routing fixture (manual-run).
+
 ## [v0.1.1] — 2026-07-19
 
 - **User-selectable HTML output, end-to-end on Claude.** The output-format choice now resolves at runtime — the agent reads the template index, takes the chosen format, and reads the bundled template — closing a path that was previously inert. The two HTML-shipping report producers and the research skill now present the format choice.

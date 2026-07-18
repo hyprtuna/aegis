@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: sdd-workflow
-description: Use when starting a new feature from scratch — orchestrates brainstorm-spec → implementation-planner → implementation under the Spec-Driven Development discipline, parallel to TDD
+description: Use when starting a new feature from scratch and no approved spec exists yet.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:

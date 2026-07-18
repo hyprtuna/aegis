@@ -1,7 +1,7 @@
 ---
 kind: agent
 name: build-error-resolver
-description: 'Use when build or typecheck errors need a minimal-diff fix — narrow scope, no architectural change, runs the build to verify.'
+description: 'Use when build or typecheck errors need a minimal-diff fix with no architectural change.'
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

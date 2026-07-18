@@ -1,6 +1,6 @@
 ---
 name: performance-profiling
-description: 'Use when identifying performance bottlenecks — emits suggested optimisations with measurements.'
+description: 'Use when identifying performance bottlenecks.'
 ---
 
 > **Invoke via `Skill({skill: "aegis:performance-profiling"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

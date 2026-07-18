@@ -1,6 +1,6 @@
 ---
 name: build-error-resolver
-description: 'Use when build or typecheck errors need a minimal-diff fix — narrow scope, no architectural change, runs the build to verify.'
+description: 'Use when build or typecheck errors need a minimal-diff fix with no architectural change.'
 memory: project
 tools: [Read, Edit, Grep, Glob, 'Bash(npm *)', 'Bash(bun *)', 'Bash(pnpm *)', 'Bash(node *)', 'Bash(tsc *)', 'Bash(go build*)', 'Bash(go vet*)', 'Bash(cargo check*)', 'Bash(cargo build*)']
 model: claude-sonnet-4-6

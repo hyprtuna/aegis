@@ -1,6 +1,6 @@
 ---
 name: aegis-default-feature
-description: 'Use when a user requests a new feature or significant change and no more specific workflow applies — runs brainstorm → plan → implement → review → respond.'
+description: 'Use when a user requests a new feature or significant change and no more specific workflow applies.'
 ---
 
 # default-feature workflow

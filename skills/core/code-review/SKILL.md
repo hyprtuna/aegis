@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: code-review
-description: Use when reviewing diffs or files for quality, security, style, or test coverage — emits severity-graded findings (>=80% confidence) plus a fail-closed top-level verdict.
+description: Use when reviewing diffs or files for quality, security, style, or test coverage.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:

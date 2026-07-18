@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: 'Tier 2 parallel fan-out — decomposes a task, dispatches subtasks, synthesizes results'
+description: 'Use when a task should be decomposed and fanned out to parallel subagents.'
 tools: [Read, Grep, Glob, Task]
 model: claude-sonnet-4-6
 ---

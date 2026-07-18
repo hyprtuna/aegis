@@ -54,6 +54,10 @@ import * as skillSize from "./skill-size.mjs";
 // plugin-loaded subagents).
 import * as agentPluginDrop from "./agent-plugin-drop.mjs";
 
+// v0.1.2 (AG-0010) — description-shape lint (warn-only): flags a mechanism
+// marker (arrow or conjugated process verb) in a `description:` field.
+import * as descriptionShape from "./description-shape.mjs";
+
 // Ordered to match the original monolith's section sequence (1 → 12).
 const RULES = [
   rootFiles,           // 1
@@ -89,6 +93,8 @@ const RULES = [
   skillSize,             // SKILL_SIZE (canonical SKILL.md >100-line body cap; sole owner of the size finding)
   // v0.1.0 (AG-0224) warn-only:
   agentPluginDrop,       // AGENT_PLUGIN_DROP (x-claude.{hooks,mcpServers,permissionMode} silently dropped for plugin subagents)
+  // v0.1.2 (AG-0010) warn-only:
+  descriptionShape,      // DESCRIPTION_SHAPE (arrow or conjugated process verb in a description; graduates to hard-fail in v0.1.3)
 ];
 
 export function main() {

@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: finishing-branch
-description: 'Use when wrapping up a development branch — runs the test gate then presents merge / PR / keep / discard options.'
+description: 'Use when wrapping up a development branch and deciding whether to merge, open a PR, keep it, or discard it.'
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 ---

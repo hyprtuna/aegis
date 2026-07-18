@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: review-requesting
-description: Use when requesting code review — assembles context, dispatches reviewer, acts on feedback.
+description: Use when requesting code review on a change.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:

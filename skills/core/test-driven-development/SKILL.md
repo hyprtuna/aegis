@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: test-driven-development
-description: Use when implementing under red->green->refactor discipline — writes the failing test first, always.
+description: Use when implementing under red-green-refactor discipline.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

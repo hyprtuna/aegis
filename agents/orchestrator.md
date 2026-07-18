@@ -1,7 +1,7 @@
 ---
 kind: agent
 name: orchestrator
-description: 'Tier 2 parallel fan-out — decomposes a task, dispatches subtasks, synthesizes results'
+description: 'Use when a task should be decomposed and fanned out to parallel subagents.'
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

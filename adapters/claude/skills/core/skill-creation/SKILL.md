@@ -1,6 +1,6 @@
 ---
 name: skill-creation
-description: 'Use when scaffolding a new skill — emits valid frontmatter and a body that follows Aegis conventions.'
+description: 'Use when scaffolding a new skill.'
 argument-hint: '<name>'
 ---
 

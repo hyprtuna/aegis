@@ -1,6 +1,6 @@
 ---
 name: aegis-subagent-execution
-description: 'Use when executing an implementation plan via fresh subagents — runs spec-compliance and code-quality review gates per task.'
+description: 'Use when executing an implementation plan via fresh subagents.'
 ---
 
 # Subagent Executor
