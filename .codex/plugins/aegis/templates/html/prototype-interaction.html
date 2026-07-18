@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Prototype interaction</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-50:  #F0EEE6;
+      --gray-200: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-800: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--ivory);
+      color: var(--slate);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 32px 64px; }
+    header { margin-bottom: 28px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 30px;
+      letter-spacing: -0.01em;
+      margin: 6px 0 4px;
+    }
+    .sub { color: var(--gray-500); max-width: 600px; }
+    code.inline {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .bench {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .bench { grid-template-columns: 1fr; } }
+
+    /* ---------- interactive stage: sidebar mock ---------- */
+    .sidebar {
+      width: 260px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 14px 10px;
+    }
+    .sidebar-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      padding: 4px 10px 10px;
+    }
+    .list { position: relative; list-style: none; margin: 0; padding: 0; }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      margin: 2px 0;
+      border-radius: 8px;
+      background: var(--white);
+      cursor: grab;
+      user-select: none;
+      transition: background 120ms linear, transform 120ms ease-out, opacity 120ms linear;
+    }
+    .item:hover { background: var(--gray-50); }
+    .item:hover .grip i { background: var(--gray-800); }
+    .item.dragging {
+      opacity: 0.35;
+      transform: rotate(2deg);
+      background: var(--gray-50);
+      cursor: grabbing;
+    }
+    .item .label { font-size: 14px; color: var(--slate); }
+    .item .count {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+    .grip {
+      flex: none;
+      width: 10px;
+      height: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 3px);
+      grid-template-rows: repeat(3, 3px);
+      gap: 3px;
+      align-content: center;
+    }
+    .grip i {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      transition: background 120ms linear;
+    }
+    .indicator {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      height: 2px;
+      background: var(--clay);
+      border-radius: 2px;
+      pointer-events: none;
+      display: none;
+    }
+    .indicator::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--clay);
+    }
+    .indicator.on { display: block; }
+    .footnote {
+      margin-top: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
+    /* ---------- behaviour notes ---------- */
+    .notes {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 22px 24px;
+    }
+    .notes h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 18px;
+      margin: 0 0 6px;
+    }
+    .notes .lede { color: var(--gray-500); font-size: 13px; margin: 0 0 16px; }
+    .notes ul { list-style: none; margin: 0; padding: 0; }
+    .notes li {
+      position: relative;
+      padding: 10px 0 10px 22px;
+      border-top: 1.5px solid var(--gray-50);
+      font-size: 13px;
+      color: var(--gray-800);
+    }
+    .notes li:first-child { border-top: none; }
+    .notes li::before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 16px;
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+      background: var(--clay);
+    }
+    .notes li b { color: var(--slate); font-weight: 600; }
+
+    /* ---------- open questions ---------- */
+    .questions {
+      margin-top: 28px;
+      background: var(--oat);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .questions h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 17px;
+      margin: 0 0 12px;
+    }
+    .questions ol { margin: 0; padding-left: 20px; }
+    .questions li { font-size: 13px; color: var(--gray-800); padding: 4px 0; }
+    .questions li::marker { font-family: var(--mono); color: var(--olive); font-weight: 600; }
+
+    footer.provenance {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-200);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Interactive template — minimal self-contained JS permitted per AG-0011 D2;
+    no external resources. JS only drives the interaction demo (native HTML5
+    drag-to-reorder). No external src/href/CDN, no network, no tracking. The
+    zero-JS rule still applies to the other 17 templates; see templates/AGENTS.md
+    "Interactive-template exception" and docs/templates.md.
+  -->
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow">Prototype / interaction</div>
+      <h1><!-- SLOT: title -->Sidebar drag-to-reorder</h1>
+      <p class="sub">Throwaway HTML so we can <em>feel</em> the interaction before porting
+        it to the real stack. Native events, no libraries. Grab a row and move it.</p>
+    </header>
+
+    <div class="bench">
+
+      <!-- SLOT: stage (the interactive region; replace with the prototype's interactive markup) -->
+      <div>
+        <nav class="sidebar">
+          <div class="sidebar-title">Views</div>
+          <ul class="list" id="list">
+            <li class="item" draggable="true">
+              <span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="label">Inbox</span>
+              <span class="count">14</span>
+            </li>
+            <li class="item" draggable="true">
+              <span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="label">Today</span>
+              <span class="count">3</span>
+            </li>
+            <li class="item" draggable="true">
+              <span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="label">Upcoming</span>
+              <span class="count">21</span>
+            </li>
+            <li class="item" draggable="true">
+              <span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="label">Projects</span>
+              <span class="count">8</span>
+            </li>
+            <li class="item" draggable="true">
+              <span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="label">Archive</span>
+              <span class="count"></span>
+            </li>
+            <div class="indicator" id="indicator"></div>
+          </ul>
+        </nav>
+        <p class="footnote">Order persists in the DOM only — refresh to reset.</p>
+      </div>
+
+      <div>
+        <section class="notes">
+          <h2>What you're feeling</h2>
+          <p class="lede">Design decisions baked into this prototype, so you can push back on them.</p>
+          <!-- SLOT: behaviorNotes (the behaviour-decision bullets; rendered as <li> with optional <b> lead-ins) -->
+          <ul>
+            <li>
+              <b>Drop indicator snaps to the nearest gap</b>, not the raw cursor Y.
+              It only moves when you cross a row's midpoint — feels more decisive, less jittery.
+            </li>
+            <li>
+              <b>Dragged row stays in place at 35% opacity</b> with a 2&deg; tilt.
+              Keeping the ghost in the list preserves your sense of where you started.
+            </li>
+            <li>
+              <b>Grip dots are the affordance, but the whole row is draggable.</b>
+              Dots darken on hover to teach the gesture without forcing a tiny hit target.
+            </li>
+          </ul>
+        </section>
+
+        <section class="questions">
+          <h2>Open questions</h2>
+          <!-- SLOT: openQuestions (repeat one <li> per open question) -->
+          <ol>
+            <li>Should pinned views be excluded from reordering?</li>
+            <li>Do we want rows to <b>slide</b> to their new slot on drop, or is the instant snap acceptable?</li>
+            <li>Keyboard path: is <code class="inline">Alt + Arrow</code> to move the focused row enough for the first ship?</li>
+          </ol>
+        </section>
+      </div>
+
+    </div>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+
+  <script>
+    // Self-contained interaction driver (AG-0011 D2): native drag-to-reorder.
+    var list = document.getElementById('list');
+    var indicator = document.getElementById('indicator');
+    var dragging = null;
+    var dropBefore = null;
+
+    if (list && indicator) {
+      list.addEventListener('dragstart', function (e) {
+        var item = e.target.closest('.item');
+        if (!item) return;
+        dragging = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', '');
+      });
+
+      list.addEventListener('dragover', function (e) {
+        if (!dragging) return;
+        e.preventDefault();
+        var siblings = Array.prototype.filter.call(
+          list.children,
+          function (el) { return el.classList && el.classList.contains('item'); }
+        );
+        dropBefore = null;
+        for (var i = 0; i < siblings.length; i++) {
+          var r = siblings[i].getBoundingClientRect();
+          if (e.clientY < r.top + r.height / 2) { dropBefore = siblings[i]; break; }
+        }
+        var listRect = list.getBoundingClientRect();
+        var edge = dropBefore
+          ? dropBefore.getBoundingClientRect().top
+          : siblings[siblings.length - 1].getBoundingClientRect().bottom;
+        indicator.style.top = (edge - listRect.top - 1) + 'px';
+        indicator.classList.add('on');
+      });
+
+      list.addEventListener('drop', function (e) {
+        e.preventDefault();
+        if (!dragging) return;
+        if (dropBefore) list.insertBefore(dragging, dropBefore);
+        else list.insertBefore(dragging, indicator);
+        cleanup();
+      });
+
+      list.addEventListener('dragleave', function (e) {
+        if (!list.contains(e.relatedTarget)) indicator.classList.remove('on');
+      });
+      document.addEventListener('dragend', cleanup);
+    }
+
+    function cleanup() {
+      if (dragging) dragging.classList.remove('dragging');
+      dragging = null;
+      dropBefore = null;
+      if (indicator) indicator.classList.remove('on');
+    }
+  </script>
+</body>
+</html>

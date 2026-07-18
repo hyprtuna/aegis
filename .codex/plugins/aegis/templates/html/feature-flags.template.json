@@ -1,0 +1,24 @@
+{
+  "kind": "template",
+  "name": "feature-flags",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:19-editor-feature-flags.html",
+  "description": "Standalone zero-JS HTML feature-flag config view: grouped flag panels showing each flag's static on/off state, rollout percentage, and dependency requirement, plus a sidebar with the pending config diff and unmet-requirement warnings. No live editor scripting.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Config title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "sub", "type": "string", "required": false, "description": "Header prose describing the config view." },
+    { "key": "groups", "type": "group", "required": false, "description": "Flag group panels; each .group has a name and a meta count line." },
+    { "key": "flags", "type": "flag", "description": "Flag rows; class 'on' when enabled, 'changed' when pending, 'warn' when a requirement is unmet." },
+    { "key": "changeCount", "type": "string", "required": false, "description": "Sidebar summary of pending changes and warnings." },
+    { "key": "diff", "type": "diffLine", "required": false, "description": "Config diff lines (minus/plus per changed flag)." },
+    { "key": "requirements", "type": "array", "required": false, "description": "Unmet-prerequisite warnings, one li each." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "groups[]": "{ name: string, meta: string }",
+    "flags[]": "{ key: string, description: string, rollout: string (optional), enabled: boolean, changed: boolean (optional), requires: string (optional) }",
+    "diff[]": "{ kind: enum[minus,plus], line: string }"
+  }
+}

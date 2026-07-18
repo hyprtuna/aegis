@@ -1,0 +1,24 @@
+{
+  "kind": "template",
+  "name": "research-report",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "v0.0.9:research",
+  "description": "Standalone HTML rendering of a research report: sourced findings, a grid of 2-4 option cards with pros/cons, and a highlighted recommendation with the key trade-off. Self-contained, zero-JS.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Report title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. research area." },
+    { "key": "findings", "type": "string", "description": "What you found — factual, sourced to specific files/locations." },
+    { "key": "option[]", "type": "option", "description": "2-4 concrete options; one card each." },
+    { "key": "option.label", "type": "string", "description": "Option label, e.g. 'Option A'." },
+    { "key": "option.name", "type": "string", "description": "Short option name." },
+    { "key": "option.pros", "type": "string", "description": "Why this option is attractive." },
+    { "key": "option.cons", "type": "string", "description": "What this option costs or risks." },
+    { "key": "recommendation", "type": "string", "description": "The chosen option plus a one-sentence rationale." },
+    { "key": "keyTradeoff", "type": "string", "description": "What you're optimizing for vs. what you're giving up." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "option[]": "{ label: string, name: string, pros: string, cons: string }"
+  }
+}

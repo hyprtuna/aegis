@@ -1,0 +1,16 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:09-slide-deck.html",
+  "description": "JSON sibling of the slide-deck template: slide metadata as machine-readable data — deck title plus a slides array, each with heading, bullets, and an optional note. The agent expands the slides[] exemplar per slide.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Deck title." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-line framing." },
+    { "key": "slides", "type": "slide", "description": "Slide metadata; expand the exemplar object per slide." }
+  ],
+  "shape": {
+    "slide[]": "{ heading: string, bullets: string[], note: string (optional) }"
+  }
+}

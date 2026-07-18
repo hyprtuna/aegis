@@ -1,0 +1,11 @@
+{
+  "title": "__SLOT__title",
+  "component": "__SLOT__component",
+  "variants": [
+    {
+      "state": "__SLOT__variants",
+      "props": "__SLOT__variants",
+      "note": "__SLOT__variants"
+    }
+  ]
+}

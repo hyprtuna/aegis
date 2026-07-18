@@ -1,0 +1,18 @@
+{
+  "kind": "template",
+  "name": "svg-illustrations",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:10-svg-illustrations.html",
+  "description": "Standalone zero-JS HTML SVG illustration sheet: a header lead above a stack of inline-SVG figures, each on a bordered canvas with a caption title and sub. Palette-locked, self-contained SVGs with no external assets. The reference's download-button scripting is dropped (purely visual; HTML-only, no MD/JSON sibling).",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Sheet title; used in <title> and the h1." },
+    { "key": "lead", "type": "string", "required": false, "description": "Header lead paragraph describing the illustration set and its drawing rules." },
+    { "key": "meta", "type": "string", "required": false, "description": "Small mono meta line, e.g. dimensions and asset notes." },
+    { "key": "illustrations", "type": "illustration", "description": "Illustration figures; each renders an inline SVG on a canvas with a caption title and sub." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "illustrations[]": "{ caption: string, svg: string }"
+  }
+}

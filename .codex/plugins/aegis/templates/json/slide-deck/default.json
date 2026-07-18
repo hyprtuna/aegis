@@ -1,0 +1,11 @@
+{
+  "title": "__SLOT__title",
+  "subtitle": "__SLOT__subtitle",
+  "slides": [
+    {
+      "heading": "__SLOT__slides",
+      "bullets": ["__SLOT__slides"],
+      "note": "__SLOT__slides"
+    }
+  ]
+}

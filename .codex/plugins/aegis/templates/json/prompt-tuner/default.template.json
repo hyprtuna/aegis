@@ -1,0 +1,18 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:20-editor-prompt-tuner.html",
+  "description": "Machine-readable sibling of the prompt-tuner template: the system prompt, a sample input, a variables array (name, value), and a metrics array. Placeholder strings keep the file parseable; the agent expands the single variables element into one entry per variable.",
+  "slots": [
+    { "key": "systemPrompt", "type": "string", "description": "The system prompt, with {{variable}} markers." },
+    { "key": "input", "type": "string", "description": "A representative input the prompt is tuned against." },
+    { "key": "variableName", "type": "string", "description": "Variable name. The variables array (see shape) carries one example element to clone per variable." },
+    { "key": "variableValue", "type": "string", "description": "Variable value." },
+    { "key": "metrics[]", "type": "string", "description": "Quality metrics." }
+  ],
+  "shape": {
+    "variables[]": "{ name: string, value: string }"
+  }
+}

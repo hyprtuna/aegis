@@ -135,6 +135,21 @@ If the manifest is missing or malformed, the plugin **refuses to register agents
 
 OpenCode filesystem-discovers canonical skills (via `skills.paths` pointing at canonical `skills/`) with **no skill-body transform step**, so the `${TEMPLATE:<family>}` directive is **NOT resolved** on OpenCode — the consumer skills render the literal directive here. Unlike Claude (which gained a generated-tree transform in v0.0.5), OpenCode still discovers canonical files in place, so this remains an open `partial` (`templates-surface`) until OpenCode gets its own skill-body transform. (Codex resolution is live and verified since v0.0.4.)
 
+**HTML output is an honest gap on OpenCode (AG-0004, v0.1.1).** The runtime
+format-resolution procedure in `rules/user-choice-discipline.md` (step 5) reads
+`${CLAUDE_PLUGIN_ROOT}/manifest/template-index.json` and `Read`s the chosen
+template under the plugin root — this closes HTML end-to-end on Claude (where
+`${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's install root) and on Codex
+(which ships `templates/html`, `templates/json`, and `template-index.json`
+into its own plugin tree, see the Codex projection doc). OpenCode has **no
+plugin-root environment variable** — canonical files are discovered in place
+with no transform step and no stable base-path token an agent can resolve at
+runtime. Until OpenCode grows an equivalent base-path token, an OpenCode agent
+following step 5 cannot locate the bundled template, so HTML selection stays a
+documented `partial` on this host: Q2 may still offer HTML (the option set is
+index-driven, not host-gated), but the runtime `Read` of the template body has
+no resolvable path on OpenCode today.
+
 ## Unsupported v0.0.5 Uptakes (Documented Gaps)
 
 The following v0.0.5 capabilities are **Claude-only** (DH7) and have no OpenCode equivalent. Each is a `gap`/`partial`/`n-a` row in [`manifest/capabilities.json`](../../manifest/capabilities.json) — the source of truth; this list must not contradict it.

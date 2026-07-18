@@ -1,0 +1,37 @@
+{
+  "title": "__SLOT__title",
+  "eyebrow": "__SLOT__eyebrow",
+  "dateRange": "__SLOT__dateRange",
+  "metaPills": ["__SLOT__metaPills"],
+  "highlights": [
+    { "marker": "__SLOT__highlightMarker", "text": "__SLOT__highlightText" }
+  ],
+  "inProgress": [
+    {
+      "name": "__SLOT__taskName",
+      "sub": "__SLOT__taskSub",
+      "progress": "__SLOT__taskProgress",
+      "owner": "__SLOT__taskOwner"
+    }
+  ],
+  "blockers": [
+    {
+      "variant": "__SLOT__blockerVariant",
+      "title": "__SLOT__blockerTitle",
+      "owner": "__SLOT__blockerOwner",
+      "description": "__SLOT__blockerDescription"
+    }
+  ],
+  "metrics": [
+    {
+      "label": "__SLOT__metricLabel",
+      "value": "__SLOT__metricValue",
+      "delta": "__SLOT__metricDelta",
+      "deltaDir": "__SLOT__metricDeltaDir"
+    }
+  ],
+  "nextUp": [
+    { "task": "__SLOT__nextUpTask", "owner": "__SLOT__nextUpOwner" }
+  ],
+  "provenance": "__SLOT__provenance"
+}

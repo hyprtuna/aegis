@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Code Review</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --rust:     #B04A3F;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+
+      --radius: 12px;
+      --border: 1.5px solid var(--gray-300);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--gray-700);
+      line-height: 1.55;
+      padding: 48px 24px 96px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page { max-width: 960px; margin: 0 auto; }
+
+    /* ---------- Header card ---------- */
+    header.pr-head {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 36px;
+    }
+    .repo-line {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--gray-500);
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 30px;
+      line-height: 1.25;
+      color: var(--slate);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      font-size: 13.5px;
+      color: var(--gray-500);
+    }
+    .branch {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--gray-150);
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      padding: 4px 9px;
+      color: var(--gray-700);
+    }
+    .branch .arrow { color: var(--gray-500); margin: 0 6px; }
+    .pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: var(--border);
+      background: var(--gray-150);
+      color: var(--gray-700);
+      white-space: nowrap;
+    }
+    .pill.status-approved        { background: #E4E9DC; color: #4B5C39; border-color: #C7D3B6; }
+    .pill.status-changes-requested { background: #F3D9CC; color: #8A3B1E; border-color: #E8B7A1; }
+    .pill.status-comment         { background: var(--oat); color: var(--slate); border-color: var(--oat); }
+    .pill.status-pending         { background: var(--gray-150); color: var(--gray-700); }
+
+    /* ---------- Sections ---------- */
+    section { margin-bottom: 44px; }
+    h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--slate);
+      margin-bottom: 10px;
+      scroll-margin-top: 24px;
+    }
+    details.coverage-wrap > summary {
+      cursor: pointer;
+      list-style: none;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--slate);
+      margin-bottom: 10px;
+      scroll-margin-top: 24px;
+    }
+    details.coverage-wrap > summary::-webkit-details-marker { display: none; }
+    details.coverage-wrap > summary::before { content: "▾ "; color: var(--gray-500); }
+    details.coverage-wrap:not([open]) > summary::before { content: "▸ "; }
+    .sec-intro {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+
+    /* ---------- Panel ---------- */
+    .panel {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-size: 15px;
+      color: var(--gray-700);
+    }
+    .panel p + p { margin-top: 10px; }
+    code {
+      font-family: var(--mono);
+      font-size: 0.92em;
+      background: var(--gray-150);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--slate);
+    }
+
+    /* ---------- Findings ---------- */
+    .findings { display: flex; flex-direction: column; gap: 16px; }
+    .finding {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .finding .f-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 14px 20px;
+      border-bottom: var(--border);
+      background: var(--gray-150);
+    }
+    .sev {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .sev.blocker { background: #E8C5B8; color: #6E2616; }
+    .sev.high    { background: #F3D9CC; color: #8A3B1E; }
+    .sev.med     { background: var(--oat); color: var(--slate); }
+    .sev.low     { background: #E4E9DC; color: #4B5C39; }
+    .sev.nit     { background: var(--gray-150); color: var(--gray-500); border: 1px solid var(--gray-300); }
+    .file-line {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--gray-700);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-line .lineno { color: var(--clay); }
+    .finding .f-body { padding: 16px 20px 18px; }
+    .finding h3 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 17px;
+      color: var(--slate);
+      margin-bottom: 6px;
+    }
+    .finding p.desc {
+      font-size: 14px;
+      color: var(--gray-700);
+      margin-bottom: 12px;
+      max-width: 720px;
+    }
+    .suggestion {
+      border-left: 3px solid var(--olive);
+      background: var(--gray-150);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: var(--gray-700);
+    }
+    .suggestion .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--olive);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .suggestion pre {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--slate);
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      padding: 8px 10px;
+      overflow-x: auto;
+      margin-top: 6px;
+      white-space: pre;
+    }
+
+    /* ---------- Test coverage ---------- */
+    .coverage {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .coverage .row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0;
+    }
+    @media (max-width: 720px) { .coverage .row { grid-template-columns: 1fr; } }
+    .coverage .row + .row { border-top: var(--border); }
+    .coverage .cell { padding: 14px 18px; font-size: 14px; }
+    .coverage .cell.k {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      background: var(--gray-150);
+      border-right: var(--border);
+    }
+    @media (max-width: 720px) { .coverage .cell.k { border-right: none; border-bottom: 1px dashed var(--gray-300); } }
+
+    /* ---------- Sign-off ---------- */
+    .signoff {
+      background: var(--white);
+      border: var(--border);
+      border-left: 4px solid var(--olive);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .signoff.requested-changes { border-left-color: var(--rust); }
+    .signoff.comment           { border-left-color: var(--clay); }
+    .signoff .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--oat);
+      color: var(--slate);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      border: var(--border);
+      flex-shrink: 0;
+    }
+    .signoff .body { flex: 1; min-width: 0; }
+    .signoff .reviewer {
+      font-weight: 600;
+      color: var(--slate);
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .signoff .reviewer .verdict {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--gray-500);
+      margin-left: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .signoff .reviewer .verdict.approve { color: var(--olive); }
+    .signoff .reviewer .verdict.request { color: var(--rust); }
+    .signoff .note {
+      font-size: 14px;
+      color: var(--gray-700);
+      margin-top: 4px;
+    }
+
+    /* ---------- Footer ---------- */
+    footer.provenance {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="pr-head">
+      <div class="repo-line">
+        <!-- SLOT: repoLine (e.g. acme/web · PR #247) -->
+        org/repo &middot; PR #000
+      </div>
+      <h1><!-- SLOT: title -->Pull request title goes here</h1>
+      <div class="meta-row">
+        <!-- SLOT: branch -->
+        <span class="branch">feature/branch-name<span class="arrow">&rarr;</span>main</span>
+        <!-- SLOT: statusPill (use class: status-approved | status-changes-requested | status-comment | status-pending) -->
+        <span class="pill status-pending">Pending review</span>
+        <!-- SLOT: meta (any extras: author, date, +/-) -->
+        <span>Author: name</span>
+        <span>Opened: YYYY-MM-DD</span>
+        <span>+123 / &minus;45</span>
+      </div>
+    </header>
+
+    <!-- ====================== SUMMARY ====================== -->
+    <section>
+      <h2 id="summary">Summary</h2>
+      <p class="sec-intro">What this PR does, why, and any context a reviewer needs before diving in.</p>
+      <div class="panel">
+        <!-- SLOT: summary -->
+        <p>Replace this with a 2-4 sentence summary. Lead with the user-visible change, then the mechanism, then any risk or follow-up worth flagging up front.</p>
+      </div>
+    </section>
+
+    <!-- ====================== FINDINGS ====================== -->
+    <section>
+      <h2 id="findings">Findings</h2>
+      <p class="sec-intro">Each finding has a severity, a precise location, the problem, and a concrete suggestion.</p>
+      <div class="findings">
+
+        <!-- SLOT: findings (repeat .finding block once per finding) -->
+        <div class="finding">
+          <div class="f-head">
+            <!-- SLOT: finding.severity (class: blocker | high | med | low | nit) -->
+            <span class="sev high">High</span>
+            <!-- SLOT: finding.location -->
+            <span class="file-line">packages/api/src/handlers/users.ts<span class="lineno">:142</span></span>
+          </div>
+          <div class="f-body">
+            <h3><!-- SLOT: finding.title -->Missing auth check on the update path</h3>
+            <p class="desc"><!-- SLOT: finding.description -->The handler reads the user id from the request body without verifying that it matches the session. Any authenticated user can mutate another user's record.</p>
+            <div class="suggestion">
+              <span class="label">Suggested change</span>
+              <!-- SLOT: finding.suggestion -->
+              <div>Pull the user id from <code>ctx.session.userId</code>, not the request body. If admin overrides are needed, gate them on an explicit role check.</div>
+              <pre>if (input.userId !== ctx.session.userId) {
+  throw new ForbiddenError();
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="finding">
+          <div class="f-head">
+            <span class="sev med">Med</span>
+            <span class="file-line">apps/web/components/UserCard.tsx<span class="lineno">:58</span></span>
+          </div>
+          <div class="f-body">
+            <h3>Loading state flashes when cache is warm</h3>
+            <p class="desc">The skeleton renders for a single frame on the first paint even when the query is hydrated from cache. Tracks a stale boolean that should be replaced with <code>isPending</code>.</p>
+            <div class="suggestion">
+              <span class="label">Suggested change</span>
+              <div>Switch the guard to <code>query.isPending</code> and remove the local <code>hasLoaded</code> state.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="finding">
+          <div class="f-head">
+            <span class="sev nit">Nit</span>
+            <span class="file-line">packages/api/src/utils/format.ts<span class="lineno">:12</span></span>
+          </div>
+          <div class="f-body">
+            <h3>Inconsistent comment style with the rest of the file</h3>
+            <p class="desc">The other helpers in this file use JSDoc; this one uses a single-line comment. Not a blocker, just consistency.</p>
+            <div class="suggestion">
+              <span class="label">Suggested change</span>
+              <div>Convert to JSDoc and document the return shape.</div>
+            </div>
+          </div>
+        </div>
+        <!-- /SLOT: findings -->
+
+      </div>
+    </section>
+
+    <!-- ====================== TEST COVERAGE ====================== -->
+    <section>
+      <details class="coverage-wrap" open id="test-coverage">
+      <summary>Test coverage notes</summary>
+      <p class="sec-intro">What is exercised, what is not, and where the reviewer should look closely.</p>
+      <div class="coverage">
+        <!-- SLOT: coverage (repeat .row blocks for each coverage observation) -->
+        <div class="row">
+          <div class="cell k">New tests added</div>
+          <div class="cell">4 unit tests cover the new validation paths; 1 integration test covers the happy-path round-trip.</div>
+        </div>
+        <div class="row">
+          <div class="cell k">Coverage delta</div>
+          <div class="cell"><code>packages/api</code> +1.8% &middot; <code>apps/web</code> unchanged.</div>
+        </div>
+        <div class="row">
+          <div class="cell k">Gaps</div>
+          <div class="cell">No test for the rate-limit branch in <code>handlers/users.ts</code>. Acceptable for this PR; tracked separately.</div>
+        </div>
+        <div class="row">
+          <div class="cell k">CI status</div>
+          <div class="cell">All checks green as of the last push.</div>
+        </div>
+      </div>
+      </details>
+    </section>
+
+    <!-- ====================== SIGN-OFF ====================== -->
+    <section>
+      <h2 id="sign-off">Sign-off</h2>
+      <!-- SLOT: signoff (class on .signoff: approve | requested-changes | comment) -->
+      <div class="signoff requested-changes">
+        <div class="avatar"><!-- SLOT: reviewer.initials -->RN</div>
+        <div class="body">
+          <div class="reviewer">
+            <!-- SLOT: reviewer.name -->Reviewer Name
+            <!-- SLOT: reviewer.verdict (class: approve | request | comment) -->
+            <span class="verdict request">Changes requested</span>
+          </div>
+          <div class="note">
+            <!-- SLOT: reviewer.note -->
+            Strong direction overall. The auth gap on the update path is a blocker — once that's addressed I'm happy to approve. The medium and nit items can land in this PR or a follow-up.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+</body>
+</html>

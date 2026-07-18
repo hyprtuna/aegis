@@ -76,35 +76,39 @@ After the user picks:
 
 ## Q2 — Format
 
+The option set is **index-driven**: the `plan-audit-report` kind declares
+`formats: { html, markdown, json }` in `manifest/template-index.json` with `default: markdown`,
+so Q2 offers Markdown, HTML, and JSON, with Markdown (the default) marked Recommended.
+
 Invoke AskUserQuestion with the following payload:
 
 ```json
 {
   "question": "What format should the verification report use?",
-  "intro": "Structured JSON integrates with reporting tools and CI pipelines. Markdown is human-readable and renders in PRs.",
+  "intro": "Choose based on who will read the report. The options below are the formats the plan-audit-report kind ships per manifest/template-index.json. Format is independent of where the file is stored.",
   "options": [
     {
-      "label": "Structured JSON (Recommended)",
-      "description": "Machine-readable report consumable by tooling; best when automated processing is needed."
+      "label": "Markdown (Recommended)",
+      "description": "Human-readable report with verdict and analysis sections; renders in PRs and on GitHub. The plan-audit-report kind's default format."
     },
     {
-      "label": "Markdown",
-      "description": "Human-readable report with verdict and analysis sections; renders in PRs and on GitHub."
+      "label": "HTML",
+      "description": "Standalone stakeholder deliverable — verdict, coverage, and gaps as a self-contained page. Best when sharing outside the repo."
     },
     {
-      "label": "Both",
-      "description": "Write both a JSON and a markdown report at the chosen location."
+      "label": "Structured JSON",
+      "description": "Machine-readable report consumable by tooling and CI; best when automated processing is needed."
     }
   ],
-  "_rationale": "Structured JSON enables automated aggregation and tooling integration."
+  "_rationale": "Markdown is the default and serves PR/GitHub readers; HTML and JSON come straight from the kind's index entry — no hardcoded format list."
 }
 ```
 
 ## Load addendum if needed
 
-When the user picks **JSON** or **Both** as the format, load
+When the user picks **Structured JSON** as the format, load
 [`abilities/validation-map-schema.md`](./abilities/validation-map-schema.md) for the
-structured JSON schema. The markdown-only path uses the generic report body below.
+structured JSON schema. The markdown and HTML paths use the generic report body below.
 
 ## Output Format (generic)
 
@@ -155,5 +159,5 @@ The sub-task walks the executed plan, classifies each task as
 when verifying a plan whose implementation has already merged and needs a retroactive
 coverage audit.
 
-When the report format is JSON or Both, also load `abilities/validation-map-schema.md` to
+When the report format is Structured JSON, also load `abilities/validation-map-schema.md` to
 get the structured JSON schema.

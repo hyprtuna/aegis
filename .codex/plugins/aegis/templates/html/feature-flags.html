@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Feature Flags</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --clay-d:   #B85C3E;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ivory);
+      color: var(--slate);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 32px 64px; }
+
+    /* ---------- header ---------- */
+    header { margin-bottom: 26px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 30px;
+      letter-spacing: -0.01em;
+      margin: 6px 0 4px;
+      color: var(--slate);
+    }
+    .sub { color: var(--gray-500); max-width: 600px; }
+
+    /* ---------- layout ---------- */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static !important; }
+    }
+
+    /* ---------- groups / panels ---------- */
+    .form-col { display: flex; flex-direction: column; gap: 16px; }
+    .group {
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .group-head {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      padding: 12px 18px 11px;
+      border-bottom: 1.5px solid var(--gray-150);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .group-head .name { color: var(--gray-700); }
+
+    /* ---------- flag rows ---------- */
+    .flag {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray-150);
+      border-left: 3px solid transparent;
+    }
+    .flag:last-child { border-bottom: none; }
+    .flag.warn { border-left-color: var(--clay); background: #FBF3EE; }
+
+    /* static state pill instead of a live toggle */
+    .state {
+      flex: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      padding: 3px 9px;
+      margin-top: 1px;
+      border: 1.5px solid var(--gray-300);
+      background: var(--gray-150);
+      color: var(--gray-500);
+    }
+    .flag.on .state { background: rgba(120,140,93,0.15); border-color: var(--olive); color: #5C6F44; }
+
+    .flag-info { flex: 1; min-width: 0; }
+    .flag-key {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .flag.changed .flag-key::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--clay);
+      flex: none;
+    }
+    .rollout {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      color: var(--gray-500);
+      background: var(--gray-150);
+      border: 1px solid var(--gray-300);
+      border-radius: 999px;
+      padding: 1px 7px 2px;
+    }
+    .flag-desc { color: var(--gray-500); font-size: 12.5px; margin-top: 2px; }
+    .req-chip {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-top: 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+      background: var(--gray-150);
+      border: 1px solid var(--gray-300);
+      border-radius: 999px;
+      padding: 2px 9px 3px;
+    }
+    .flag.warn .req-chip { color: var(--clay-d); background: #F8E1D5; border-color: #E8C2AE; }
+
+    /* ---------- sidebar ---------- */
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .side-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+    .side-count {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+      color: var(--slate);
+    }
+    .diff {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      background: var(--gray-150);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--slate);
+    }
+    .diff .minus { color: var(--gray-500); }
+    .diff .plus  { color: var(--olive); }
+    .diff .empty { color: var(--gray-500); }
+
+    .requirements {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .requirements li {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--clay-d);
+      line-height: 1.4;
+    }
+    .requirements li::before { content: "\26A0  "; }
+
+    footer.provenance {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Feature flags</div>
+      <h1><!-- SLOT: title -->flags.production.json</h1>
+      <p class="sub"><!-- SLOT: sub -->A static view of the feature-flag config: each flag's rollout state, dependency requirements, and the pending config diff.</p>
+    </header>
+
+    <div class="layout">
+
+      <div class="form-col">
+        <section class="group">
+          <div class="group-head">
+            <!-- SLOT: groups (repeat one .group panel per flag group; fill .name and .meta) -->
+            <span class="name">Sync engine</span>
+            <span class="meta">5 flags, 2 on</span>
+          </div>
+
+          <!-- SLOT: flags (repeat one .flag row per flag; class 'on' when enabled, 'changed' when pending, 'warn' when a requirement is unmet) -->
+          <div class="flag on">
+            <span class="state">on</span>
+            <div class="flag-info">
+              <div class="flag-key">
+                <span>sync.delta_compression</span>
+              </div>
+              <div class="flag-desc">Send field-level deltas instead of full document snapshots.</div>
+            </div>
+          </div>
+          <div class="flag warn changed">
+            <span class="state">off</span>
+            <div class="flag-info">
+              <div class="flag-key">
+                <span>sync.offline_queue_v2</span>
+                <span class="rollout">10%</span>
+              </div>
+              <div class="flag-desc">Persist offline edits to IndexedDB and replay on reconnect.</div>
+              <div class="req-chip"><span>requires sync.delta_compression</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="sidebar">
+        <div>
+          <div class="side-label">Pending changes</div>
+          <div class="side-count"><!-- SLOT: changeCount -->1 changed &middot; 1 warning</div>
+        </div>
+        <pre class="diff"><!-- SLOT: diff (repeat .minus / .plus lines per changed flag; use .empty when none) --><span class="minus">- "sync.offline_queue_v2": false</span>
+<span class="plus">+ "sync.offline_queue_v2": true</span></pre>
+        <div>
+          <div class="side-label">Requirements</div>
+          <ul class="requirements">
+            <!-- SLOT: requirements (repeat one li per unmet prerequisite warning) -->
+            <li>sync.offline_queue_v2 enabled without sync.delta_compression</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+</body>
+</html>

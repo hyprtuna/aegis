@@ -1,0 +1,13 @@
+{
+  "title": "__SLOT__title",
+  "context": "__SLOT__context",
+  "approaches": [
+    {
+      "name": "__SLOT__approachName",
+      "code": "__SLOT__approachCode",
+      "pros": ["__SLOT__approachPros"],
+      "cons": ["__SLOT__approachCons"]
+    }
+  ],
+  "recommendation": "__SLOT__recommendation"
+}

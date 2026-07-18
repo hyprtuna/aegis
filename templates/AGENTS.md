@@ -155,6 +155,10 @@ now key `shape` by the collection base, not the type name.)
 - System font stacks only.
 - Static documents: zero `<script>` tags (default).
 - Use content slots — agents fill slots, not full HTML.
+- Accessible: semantic landmarks/sectioning, WCAG AA contrast, keyboard-reachable
+  interactive controls (the three interactive templates named below), and
+  `aria-hidden`/decorative handling for purely-visual SVG. See the `ui-design`
+  skill for the full a11y guidance — not duplicated here.
 
 ### Interactive-template exception (AG-0011 D2)
 

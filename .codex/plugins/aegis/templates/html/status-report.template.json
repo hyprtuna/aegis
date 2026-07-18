@@ -1,0 +1,26 @@
+{
+  "kind": "template",
+  "name": "status-report",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:11-status-report.html",
+  "description": "Standalone HTML status report: highlights, in-progress work, blockers, steering metrics, and next-up items for a reporting period.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Report title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "dateRange", "type": "string", "description": "Reporting period, e.g. 'Week of YYYY-MM-DD — YYYY-MM-DD'." },
+    { "key": "metaPills", "type": "array", "required": false, "description": "Extra header pills: cadence, author." },
+    { "key": "highlights", "type": "array", "description": "The few things worth knowing; each item has a marker variant.", "enum": ["default", "warn", "alert"] },
+    { "key": "inProgress", "type": "array", "description": "Active tasks with name, sub-note, progress percent, and owner." },
+    { "key": "blockers", "type": "array", "required": false, "description": "Items needing help or a decision; each has a severity variant.", "enum": ["default", "warn"] },
+    { "key": "metrics", "type": "array", "required": false, "description": "KPI cards with label, value, and optional week-over-week delta." },
+    { "key": "nextUp", "type": "array", "required": false, "description": "Planned tasks for the upcoming period with owner." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "highlights[]": "{ marker: enum[default,warn,alert], text: string }",
+    "inProgress[]": "{ name: string, sub: string, progress: string|number, owner: string }",
+    "blockers[]": "{ variant: enum[default,warn], title: string, owner: string, description: string }",
+    "metrics[]": "{ label: string, value: string, delta: string, delta_dir: enum[up,down,none] }"
+  }
+}

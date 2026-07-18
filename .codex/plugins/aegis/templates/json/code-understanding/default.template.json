@@ -1,0 +1,22 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:04-code-understanding.html",
+  "description": "Machine-readable sibling of the code-understanding walkthrough: a title, the question being answered, a components array (path, role), an ordered callSequence array (location, description, optional code), and a flat references array. Placeholder strings keep the file parseable; the agent expands each single template element into one entry per component/step/reference.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Note title." },
+    { "key": "question", "type": "string", "description": "The question being answered, plus a short summary of the mechanism." },
+    { "key": "componentPath", "type": "string", "description": "Component file path. The components array (see shape) carries one example element to clone per component." },
+    { "key": "componentRole", "type": "string", "description": "What the component is responsible for." },
+    { "key": "stepLocation", "type": "string", "description": "File:line location for the step. The callSequence array (see shape) carries one example element to clone per step." },
+    { "key": "stepDescription", "type": "string", "description": "What runs at this step and why it matters." },
+    { "key": "stepCode", "type": "string", "required": false, "description": "Representative source snippet for the step." },
+    { "key": "references[]", "type": "string", "required": false, "description": "Related files worth reading; one entry each." }
+  ],
+  "shape": {
+    "component[]": "{ path: string, role: string }",
+    "callSequence[]": "{ location: string (file:line), description: string, code: string (optional) }"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "__SLOT__title",
+  "summary": "__SLOT__summary",
+  "columns": [
+    {
+      "name": "__SLOT__columns",
+      "items": [
+        {
+          "title": "__SLOT__columns",
+          "tag": "__SLOT__columns",
+          "sub": "__SLOT__columns"
+        }
+      ]
+    }
+  ]
+}

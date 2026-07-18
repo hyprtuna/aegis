@@ -1,0 +1,27 @@
+{
+  "kind": "template",
+  "name": "code-review",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:03-code-review-pr.html",
+  "description": "Standalone HTML code-review writeup: PR header, summary, severity-graded findings, test-coverage notes, and reviewer sign-off.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Review title; used in <title> and the h1." },
+    { "key": "repoLine", "type": "string", "required": false, "description": "Repo + PR identifier line, e.g. 'org/repo · PR #247'." },
+    { "key": "branch", "type": "string", "required": false, "description": "Source → target branch label." },
+    { "key": "statusPill", "type": "string", "required": false, "description": "Review status pill text; element class picks the enum variant.", "enum": ["status-approved", "status-changes-requested", "status-comment", "status-pending"] },
+    { "key": "meta", "type": "string", "required": false, "description": "Extra header meta items: author, open date, diff stat." },
+    { "key": "summary", "type": "string", "description": "2-4 sentence summary of what the PR does and why." },
+    { "key": "findings[]", "type": "finding", "description": "One block per finding; severity, location, problem, suggestion." },
+    { "key": "coverage", "type": "array", "required": false, "description": "Key/value rows of test-coverage observations (new tests, delta, gaps, CI status)." },
+    { "key": "signoff", "type": "object", "description": "Sign-off block; class on .signoff selects the verdict variant.", "enum": ["approve", "requested-changes", "comment"] },
+    { "key": "reviewer.initials", "type": "string", "description": "Reviewer avatar initials." },
+    { "key": "reviewer.name", "type": "string", "description": "Reviewer display name." },
+    { "key": "reviewer.verdict", "type": "string", "description": "Verdict label; element class selects the variant.", "enum": ["approve", "request", "comment"] },
+    { "key": "reviewer.note", "type": "string", "description": "Reviewer's closing note." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "finding[]": "{ severity: enum[blocker,high,med,low,nit], location: string (file:line), title: string, description: string, suggestion: string }"
+  }
+}

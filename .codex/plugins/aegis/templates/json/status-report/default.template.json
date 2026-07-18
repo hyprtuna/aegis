@@ -1,0 +1,38 @@
+{
+  "kind": "template",
+  "name": "status-report",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:11-status-report.html",
+  "description": "Machine-readable sibling of the status report: highlights, in-progress work, blockers, steering metrics, and next-up items as data arrays. The agent expands each exemplar element, one per item.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Report title." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label." },
+    { "key": "dateRange", "type": "string", "description": "Reporting period." },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Extra header meta items (cadence, author); one per array element." },
+    { "key": "highlightMarker", "type": "string", "description": "Highlight marker variant. The highlights array carries one exemplar element to clone per highlight.", "enum": ["default", "warn", "alert"] },
+    { "key": "highlightText", "type": "string", "description": "Highlight text." },
+    { "key": "taskName", "type": "string", "description": "Active task name. The inProgress array carries one exemplar element to clone per task." },
+    { "key": "taskSub", "type": "string", "required": false, "description": "Task sub-note." },
+    { "key": "taskProgress", "type": "string", "description": "Task progress percent (string or number)." },
+    { "key": "taskOwner", "type": "string", "description": "Task owner." },
+    { "key": "blockerVariant", "type": "string", "required": false, "description": "Blocker severity variant. The blockers array carries one exemplar element to clone per blocker.", "enum": ["default", "warn"] },
+    { "key": "blockerTitle", "type": "string", "required": false, "description": "Blocker title." },
+    { "key": "blockerOwner", "type": "string", "required": false, "description": "Blocker owner." },
+    { "key": "blockerDescription", "type": "string", "required": false, "description": "Blocker description." },
+    { "key": "metricLabel", "type": "string", "required": false, "description": "KPI label. The metrics array carries one exemplar element to clone per metric." },
+    { "key": "metricValue", "type": "string", "required": false, "description": "KPI value." },
+    { "key": "metricDelta", "type": "string", "required": false, "description": "Week-over-week delta." },
+    { "key": "metricDeltaDir", "type": "string", "required": false, "description": "Delta direction.", "enum": ["up", "down", "none"] },
+    { "key": "nextUpTask", "type": "string", "required": false, "description": "Planned upcoming task. The nextUp array carries one exemplar element to clone per item." },
+    { "key": "nextUpOwner", "type": "string", "required": false, "description": "Planned task owner." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "highlight[]": "{ marker: enum[default,warn,alert], text: string }",
+    "task[]": "{ name: string, sub: string, progress: string|number, owner: string }",
+    "blocker[]": "{ variant: enum[default,warn], title: string, owner: string, description: string }",
+    "metric[]": "{ label: string, value: string, delta: string, deltaDir: enum[up,down,none] }",
+    "nextUp[]": "{ task: string, owner: string }"
+  }
+}

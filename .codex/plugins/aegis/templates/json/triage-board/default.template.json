@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:18-editor-triage-board.html",
+  "description": "JSON sibling of the triage-board template: the board as machine-readable data — a summary line plus columns, each with a name and an items array (title, tag, sub). The agent expands the columns[]/items[] exemplars.",
+  "slots": [
+    { "key": "title", "type": "string", "required": false, "description": "Board title." },
+    { "key": "summary", "type": "string", "description": "Count summary line (totals per column)." },
+    { "key": "columns", "type": "column", "description": "Kanban columns; expand the exemplar object per column and item." }
+  ],
+  "shape": {
+    "column[]": "{ name: string, items: item[] }",
+    "item[]": "{ title: string, tag: enum[bug,feat,chore,debt], sub: string }"
+  }
+}

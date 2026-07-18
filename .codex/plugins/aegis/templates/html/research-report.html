@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SLOT: title (used in <title> and h1) -->
+<title>Research report</title>
+<style>
+  :root {
+    --ivory: #FAF9F5;
+    --slate: #141413;
+    --clay: #D97757;
+    --oat: #E3DACC;
+    --olive: #788C5D;
+    --rust: #B04A3F;
+    --gray-150: #F0EEE6;
+    --gray-300: #D1CFC5;
+    --gray-500: #87867F;
+    --gray-700: #3D3D3A;
+    --serif: ui-serif, Georgia, 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 48px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 880px; margin: 0 auto; }
+
+  header { margin-bottom: 24px; }
+  .repo-line {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.25;
+    color: var(--slate);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 36px 0 14px;
+    scroll-margin-top: 24px;
+  }
+
+  details.options-wrap { margin: 0; }
+  details.options-wrap > summary {
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 36px 0 14px;
+    scroll-margin-top: 24px;
+  }
+  details.options-wrap > summary::-webkit-details-marker { display: none; }
+  details.options-wrap > summary::before { content: "▾ "; color: var(--gray-500); }
+  details.options-wrap:not([open]) > summary::before { content: "▸ "; }
+
+  .findings { max-width: 760px; font-size: 15.5px; }
+  .findings code { font-family: var(--mono); font-size: 13px; }
+
+  .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 720px) { .options { grid-template-columns: 1fr; } }
+  .option {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 12px;
+    background: #fff;
+    padding: 18px 20px;
+  }
+  .option h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--slate);
+    margin-bottom: 12px;
+  }
+  .option .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--clay);
+    font-weight: 600;
+  }
+  .option p { font-size: 14px; margin-bottom: 8px; }
+  .option .pros::before { content: "Pros — "; color: var(--olive); font-weight: 600; }
+  .option .cons::before { content: "Cons — "; color: var(--rust); font-weight: 600; }
+
+  .recommendation {
+    background: var(--gray-150);
+    border-left: 4px solid var(--clay);
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-size: 15px;
+  }
+  .recommendation .tradeoff {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--gray-700);
+  }
+  .recommendation .tradeoff strong { color: var(--slate); }
+
+  footer.provenance {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gray-500);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <!-- SLOT: eyebrow (small overline label, e.g. research area) -->
+    <div class="repo-line">Research</div>
+    <h1><!-- SLOT: title -->Research Report</h1>
+  </header>
+
+  <main>
+    <h2 id="findings">Findings</h2>
+    <!-- SLOT: findings -->
+    <div class="findings">
+      What you found — factual, sourced to specific files/locations such as <code>src/path/to/file.ts:42</code>.
+    </div>
+
+    <details class="options-wrap" open id="options">
+    <summary>Options</summary>
+    <div class="options">
+      <!-- SLOT: option (repeat the .option card once per option) -->
+      <div class="option">
+        <!-- SLOT: option.label -->
+        <span class="label">Option A</span>
+        <!-- SLOT: option.name -->
+        <h3>Option name</h3>
+        <!-- SLOT: option.pros -->
+        <p class="pros">Why this option is attractive.</p>
+        <!-- SLOT: option.cons -->
+        <p class="cons">What this option costs or risks.</p>
+      </div>
+      <!-- /SLOT: option -->
+    </div>
+    </details>
+
+    <h2 id="recommendation">Recommendation</h2>
+    <div class="recommendation">
+      <!-- SLOT: recommendation -->
+      <div>Chosen option — one-sentence rationale.</div>
+      <!-- SLOT: keyTradeoff -->
+      <div class="tradeoff"><strong>Key trade-off:</strong> what you're optimizing for vs. what you're giving up.</div>
+    </div>
+  </main>
+
+  <footer class="provenance">
+    <!-- SLOT: provenance (auto-filled by agent) -->
+    Generated by Aegis on YYYY-MM-DD
+  </footer>
+
+</div>
+</body>
+</html>

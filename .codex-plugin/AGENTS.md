@@ -980,12 +980,19 @@ Short form:
    decision prompt offering exactly the formats that kind ships (`formats` keys — `html` /
    `markdown` / `json`, including HTML where present), with the kind's `default` format marked
    Recommended. Surface via a second `AskUserQuestion`. The option set is index-driven, not fixed.
-5. **Post-selection.** After both responses:
+5. **Post-selection — runtime template resolution.** After both responses, for each chosen
+   format: (1) read `${CLAUDE_PLUGIN_ROOT}/manifest/template-index.json`; (2) take
+   `kinds[<kind>].formats[<chosen>]`; (3) `Read` that path under the plugin root (e.g.
+   `${CLAUDE_PLUGIN_ROOT}/templates/html/<kind>.html`); (4) fill the `<!-- SLOT: … -->` (HTML) /
+   `{{ slot.key }}` (markdown) markers with the artifact's content; (5) write `<name>.<ext>` at
+   the chosen location (`markdown` → `.md`; `json` → `.json`; `html` → `.html`). If the user
+   picks more than one format, repeat for each. This is a **runtime** procedure — `${TEMPLATE:…}`
+   is a **build-time** projector directive (see `scripts/project.mjs`), never evaluated at
+   runtime; do not attempt to "resolve" one during a skill run. On hosts without a plugin-root
+   variable, the templates ship alongside the Aegis install — resolve relative to the install
+   root instead (see the OpenCode gap noted in `adapters/opencode/projection.md`).
    - `.aegis/<kind>/` → bootstrap the directory silently (`mkdir -p`).
    - Custom path → validate (relative, no `..`, no cwd escape).
-   - Resolve the chosen format's template via `${TEMPLATE:<kind>:<format>}` and write the
-     matching artifact: `markdown` → `<name>.md`; `json` → `<name>.json`; `html` → `<name>.html`.
-     If the user picks more than one format, write one file per chosen format.
 6. **Persist.** Record the chosen location and format as the per-kind preference.
 
 ## Kind taxonomy

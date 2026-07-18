@@ -1,0 +1,18 @@
+{
+  "kind": "template",
+  "name": "concept-explainer",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:15-research-concept-explainer.html",
+  "description": "Standalone HTML concept explainer for research/learning output: an intuition lead, a plain-prose mechanics section, a worked example, and a sidebar of further-reading pointers. Zero-JS: the reference's interactive ring demo and hover-glossary are reduced to static prose + a further-reading list.",
+  "slots": [
+    { "key": "concept", "type": "string", "description": "Concept name; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. topic area." },
+    { "key": "intuition", "type": "string", "description": "The one-sentence mental model, framed against the naive approach." },
+    { "key": "mechanics", "type": "string", "description": "Plain-prose explanation of how the concept works and what it trades off." },
+    { "key": "example", "type": "string", "description": "A small worked example that makes the concept concrete." },
+    { "key": "furtherReading[]", "type": "string", "required": false, "description": "Pointers to follow next; one sidebar entry each." },
+    { "key": "reading", "type": "string", "required": false, "description": "A single further-reading pointer (the repeated list item)." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ]
+}

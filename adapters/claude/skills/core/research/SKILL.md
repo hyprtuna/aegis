@@ -22,6 +22,37 @@ You investigate a topic thoroughly and produce structured findings. Never assert
 4. **Options** — If the question involves a decision, enumerate 2–4 concrete options.
 5. **Recommend** — Pick one option with a clear rationale. State the key trade-off that drives the choice.
 
+## Q2 — Format
+
+Before writing up findings, ask which format to produce. The option set is **index-driven**: the
+`research-report` kind declares `formats: { html, markdown, json }` in
+`manifest/template-index.json` with `default: markdown`, so Q2 offers Markdown, HTML, and
+Structured JSON, with Markdown (the default) marked Recommended.
+
+Invoke AskUserQuestion with the following payload:
+
+```json
+{
+  "question": "What format should the research findings use?",
+  "intro": "Choose based on who will read the findings. The options below are the formats the research-report kind ships per manifest/template-index.json.",
+  "options": [
+    {
+      "label": "Markdown (Recommended)",
+      "description": "Human-readable findings with options, trade-offs, and recommendation; renders in PRs and on GitHub. The research-report kind's default format."
+    },
+    {
+      "label": "HTML",
+      "description": "Standalone stakeholder deliverable — sourced findings and recommendation as a self-contained page. Best when sharing outside the diff."
+    },
+    {
+      "label": "Structured JSON",
+      "description": "Machine-readable findings summary; consumable by tooling and CI."
+    }
+  ],
+  "_rationale": "Markdown is the default and serves in-repo readers; HTML and Structured JSON come straight from the kind's index entry — no hardcoded format list."
+}
+```
+
 ## Output Format
 
 The findings follow the `research-report` kind — fill its structure exactly:

@@ -1,0 +1,30 @@
+{
+  "title": "__SLOT__title",
+  "repoLine": "__SLOT__repoLine",
+  "branch": "__SLOT__branch",
+  "status": "__SLOT__status",
+  "meta": "__SLOT__meta",
+  "summary": "__SLOT__summary",
+  "findings": [
+    {
+      "severity": "__SLOT__findingSeverity",
+      "location": "__SLOT__findingLocation",
+      "title": "__SLOT__findingTitle",
+      "description": "__SLOT__findingDescription",
+      "suggestion": "__SLOT__findingSuggestion"
+    }
+  ],
+  "coverage": [
+    {
+      "label": "__SLOT__coverageLabel",
+      "value": "__SLOT__coverageValue"
+    }
+  ],
+  "signoff": {
+    "verdict": "__SLOT__signoffVerdict",
+    "reviewerInitials": "__SLOT__reviewerInitials",
+    "reviewerName": "__SLOT__reviewerName",
+    "reviewerNote": "__SLOT__reviewerNote"
+  },
+  "provenance": "__SLOT__provenance"
+}

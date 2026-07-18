@@ -21,6 +21,10 @@ For stakeholder-facing deliverables that benefit from layout, hierarchy, and vis
 - Static documents have 0–1 `<script>` tags; interactive editors may have more.
 - File size target: ~10–25 KB.
 - Use templates with content slots — agents fill slots, not full HTML.
+- Accessible: semantic landmarks/sectioning, WCAG AA contrast, keyboard-reachable
+  interactive controls (the three interactive templates: `prototype-animation`,
+  `prototype-interaction`, `prompt-tuner`), and `aria-hidden` on purely-decorative
+  SVG. See the `ui-design` skill for the full a11y guidance.
 
 **v0.0.1 templates (3):**
 - `templates/html/implementation-plan.html`

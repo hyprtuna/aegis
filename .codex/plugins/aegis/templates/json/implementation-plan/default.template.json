@@ -1,0 +1,34 @@
+{
+  "kind": "template",
+  "name": "implementation-plan",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:16-implementation-plan.html",
+  "description": "Machine-readable sibling of the implementation plan: goal, architecture summary, a phases array (each with tasks and tags), an acceptance-criteria array, and a validation-evidence array. The agent expands each exemplar element, one per item.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Plan title." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-sentence framing." },
+    { "key": "status", "type": "string", "required": false, "description": "Plan status.", "enum": ["draft", "active", "shipped", "blocked"] },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Extra header meta (owner, target date, branch); one per array element." },
+    { "key": "goal", "type": "string", "description": "Concrete outcome the plan produces, plus optional non-goals." },
+    { "key": "architecture", "type": "string", "required": false, "description": "Architecture summary." },
+    { "key": "phaseWhen", "type": "string", "required": false, "description": "Phase timing label. The phases array carries one exemplar element to clone per phase." },
+    { "key": "phaseName", "type": "string", "description": "Phase name." },
+    { "key": "phaseDescription", "type": "string", "required": false, "description": "Phase description." },
+    { "key": "phaseTaskText", "type": "string", "description": "Phase task text. The tasks array carries one exemplar element to clone per task." },
+    { "key": "phaseTaskDone", "type": "boolean", "required": false, "description": "Whether the task is done." },
+    { "key": "phaseTags", "type": "string", "required": false, "description": "Phase tag; one per array element." },
+    { "key": "acceptanceText", "type": "string", "description": "Acceptance criterion text. The acceptanceCriteria array carries one exemplar element to clone per criterion." },
+    { "key": "acceptanceMet", "type": "boolean", "required": false, "description": "Whether the criterion is satisfied." },
+    { "key": "validationLabel", "type": "string", "required": false, "description": "Validation-evidence row label. The validationEvidence array carries one exemplar element to clone per row." },
+    { "key": "validationValue", "type": "string", "required": false, "description": "Validation-evidence row value." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "phase[]": "{ when: string, name: string, description: string, tasks: task[], tags: string[] }",
+    "task[]": "{ text: string, done: boolean }",
+    "acceptanceCriteria[]": "{ text: string, met: boolean }",
+    "validationEvidence[]": "{ label: string, value: string }"
+  }
+}

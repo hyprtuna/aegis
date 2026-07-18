@@ -1,0 +1,12 @@
+{
+  "title": "__SLOT__title",
+  "flags": [
+    {
+      "key": "__SLOT__flags",
+      "description": "__SLOT__flags",
+      "rollout": "__SLOT__flags",
+      "enabled": "__SLOT__flags",
+      "meta": "__SLOT__flags"
+    }
+  ]
+}

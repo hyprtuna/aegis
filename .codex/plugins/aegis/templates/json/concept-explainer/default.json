@@ -1,0 +1,7 @@
+{
+  "concept": "__SLOT__concept",
+  "intuition": "__SLOT__intuition",
+  "mechanics": "__SLOT__mechanics",
+  "example": "__SLOT__example",
+  "furtherReading": ["__SLOT__furtherReading"]
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "template",
+  "name": "incident-report",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:12-incident-report.html",
+  "description": "Machine-readable sibling of the incident / postmortem report: header, summary, an ordered timeline array, root-cause prose, an impact array, and owned follow-up action items. The agent expands each exemplar element, one per item.",
+  "slots": [
+    { "key": "id", "type": "string", "description": "Incident identifier, e.g. 'INC-2025-0412'." },
+    { "key": "title", "type": "string", "description": "Incident title." },
+    { "key": "severity", "type": "string", "description": "Severity label.", "enum": ["sev1", "sev2", "sev3"] },
+    { "key": "status", "type": "string", "required": false, "description": "Resolution status." },
+    { "key": "metaPills", "type": "string", "required": false, "description": "Extra meta items (duration, detected time, owner); one per array element." },
+    { "key": "summary", "type": "string", "description": "One-paragraph TL;DR of the incident." },
+    { "key": "timelineTime", "type": "string", "description": "Timeline entry time. The timeline array carries one exemplar element to clone per event." },
+    { "key": "timelineEvent", "type": "string", "description": "Timeline entry event description." },
+    { "key": "timelineDot", "type": "string", "description": "Timeline entry dot variant.", "enum": ["default", "impact", "mitigated"] },
+    { "key": "rootCause", "type": "string", "description": "Root-cause prose; may embed a diff string." },
+    { "key": "impactLabel", "type": "string", "description": "Impact row label (requests failed, error rate, users, data loss, SLA). The impact array carries one exemplar element to clone per row." },
+    { "key": "impactValue", "type": "string", "description": "Impact row value." },
+    { "key": "followupOwner", "type": "string", "description": "Follow-up owner (avatar initials). The followups array carries one exemplar element to clone per action." },
+    { "key": "followupAction", "type": "string", "description": "Follow-up action item." },
+    { "key": "followupDue", "type": "string", "required": false, "description": "Follow-up due date." },
+    { "key": "followupDone", "type": "boolean", "required": false, "description": "Whether the follow-up is complete." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance / authorship line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "timelineEntry[]": "{ time: string, event: string, dot: enum[default,impact,mitigated] }",
+    "impact[]": "{ label: string, value: string }",
+    "followup[]": "{ owner: string, action: string, due: string, done: boolean }"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "v0.0.9:research",
+  "description": "Machine-readable summary sibling of the research report: the research question, a findings array (each claim with its sourcing evidence), an options array (2-4 options with pros/cons), and a single recommendation block (chosen option, rationale, key trade-off). Placeholder strings keep the file parseable; the agent expands the findings/options exemplar elements, one per claim/option.",
+  "slots": [
+    { "key": "question", "type": "string", "description": "The research question, restated precisely." },
+    { "key": "findingClaim", "type": "string", "description": "A factual claim found in the codebase. The findings array (see shape) carries one exemplar element to clone per finding." },
+    { "key": "findingEvidence", "type": "string", "description": "The file path or line number that sources the claim." },
+    { "key": "optionLabel", "type": "string", "description": "Option label, e.g. 'A', 'B'. The options array (see shape) carries one exemplar element to clone per option." },
+    { "key": "optionName", "type": "string", "description": "Short option name." },
+    { "key": "optionPros", "type": "string", "description": "Why this option is attractive." },
+    { "key": "optionCons", "type": "string", "description": "What this option costs or risks." },
+    { "key": "recommendationOption", "type": "string", "description": "The chosen option's label or name." },
+    { "key": "recommendationRationale", "type": "string", "description": "One-sentence rationale for the choice." },
+    { "key": "keyTradeoff", "type": "string", "description": "What you're optimizing for vs. what you're giving up." }
+  ],
+  "shape": {
+    "findings[]": "{ claim: string, evidence: string (file path or line) }",
+    "options[]": "{ label: string, name: string, pros: string, cons: string }",
+    "recommendation": "{ option: string, rationale: string, key_tradeoff: string }"
+  }
+}
