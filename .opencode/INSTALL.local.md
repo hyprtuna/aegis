@@ -1,6 +1,10 @@
-# Installing Aegis for OpenCode — Local Testing
+# Installing Aegis for OpenCode — Local Clone (Symlink)
 
-Use this when you have a local clone of Aegis and want to test the OpenCode plugin without pushing to a git remote.
+This is the primary, verified way to install Aegis for OpenCode: symlink a
+local clone's plugin file into OpenCode's plugin directory. Use it for local
+testing and for first-time installs alike — until Aegis publishes a real npm
+package, there is no other verified path (see [`INSTALL.md`](./INSTALL.md)
+for the unverified npm/git-spec alternative).
 
 ## Prerequisites
 
@@ -21,9 +25,9 @@ That's it. The plugin handles all three surface registrations at session start:
 
 | Surface | Mechanism |
 |---|---|
-| 79 skills | `config.skills.paths` populated with absolute paths to `skills/{core,languages,workflows}` |
-| 18 agents | `config.agent.aegis-<name>` populated inline (frontmatter from `.opencode/agents/<name>.md` + body as prompt) |
-| 13 commands | `config.command.aegis-<name>` populated inline (frontmatter + body as template) |
+| 82 skills | `config.skills.paths` populated with absolute paths to `skills/{core,languages,workflows}` |
+| 17 agents | `config.agent.aegis-<name>` populated inline (frontmatter from `.opencode/agents/<name>.md` + body as prompt) |
+| 6 commands | `config.command.aegis-<name>` populated inline (frontmatter + body as template) |
 | Bootstrap | `experimental.chat.messages.transform` injects `using-aegis` SKILL body into first user message, marker-guarded |
 
 The plugin uses `fs.realpathSync` to follow the symlink to the real Aegis path, so all relative resolutions work.
@@ -38,7 +42,7 @@ In an OpenCode session:
 use skill tool to list skills
 ```
 
-Should show ~79 entries.
+Should show ~82 entries.
 
 Then:
 
@@ -90,7 +94,7 @@ readlink -f ~/.config/opencode/plugins/aegis.js
 # should print the path inside your Aegis clone
 
 ls "$(readlink -f ~/.config/opencode/plugins/aegis.js | sed 's|/.opencode/plugins/aegis.js$||')/.opencode/agents" | wc -l
-# should print 18
+# should print 17
 ```
 
 ### Stale plugin cache

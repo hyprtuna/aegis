@@ -1,21 +1,40 @@
 # Installing Aegis for OpenCode
 
-> **Testing locally?** If you have a local clone of Aegis and want to install it without going through git/npm, use [`INSTALL.local.md`](./INSTALL.local.md) (symlink-into-`~/.config/opencode/plugins/`).
+> **Primary install:** symlink a local clone into OpenCode's plugin
+> directory. This is the only verified method — use it for local testing
+> *and* first-time installs. See [`INSTALL.local.md`](./INSTALL.local.md).
 
 ## Prerequisites
 
 - [OpenCode](https://opencode.ai) installed (≥1.15 for `experimental.chat.messages.transform` support).
-- Aegis published to a git remote OR npm. Per the official OpenCode plugin docs, `opencode.json`'s `plugin` array accepts npm package names. Git-spec strings (`name@git+https://...`) work via Bun's package resolver in many OpenCode versions but are not officially documented; verify with your OpenCode version.
+- A local clone of Aegis (`git clone https://github.com/hyprtuna/aegis.git`).
 
-## Installation (npm — once Aegis is published)
+## Installation (recommended): symlink
+
+```bash
+AEGIS=/absolute/path/to/aegis
+mkdir -p ~/.config/opencode/plugins
+ln -sf "$AEGIS/.opencode/plugins/aegis.js" ~/.config/opencode/plugins/aegis.js
+```
+
+Restart OpenCode. Full walkthrough (verification, troubleshooting, uninstall)
+lives in [`INSTALL.local.md`](./INSTALL.local.md).
+
+## Installation (unverified/experimental): npm or git URL
+
+Aegis is not yet published to npm — `package.json` is `private: true` with
+no `main`/`exports`, so there is nothing an npm-style install can resolve
+today. Per the official OpenCode plugin docs, the `plugin` array accepts npm
+package names; git-spec strings (`name@git+https://...`) work via Bun's
+package resolver in some OpenCode versions but are undocumented upstream and
+unverified for Aegis. Treat both forms below as experimental until Aegis
+ships a published package:
 
 ```json
 {
   "plugin": ["aegis-opencode"]
 }
 ```
-
-## Installation (git URL — undocumented but observed to work)
 
 ```json
 {
@@ -29,9 +48,9 @@ Replace `hyprtuna/aegis.git` with the actual git remote.
 
 Restart OpenCode. The plugin runs at session start and:
 
-1. Registers all 79 Aegis skills (core, language overlays, workflows) via `config.skills.paths`.
-2. Registers the 18 Aegis agents inline via `config.agent.aegis-<name>` (reads each `.opencode/agents/<name>.md`, parses frontmatter, inlines the body as the agent's `prompt`).
-3. Registers the 13 Aegis commands inline via `config.command.aegis-<name>` (same pattern, body becomes the command `template`).
+1. Registers all 82 Aegis skills (core, language overlays, workflows) via `config.skills.paths`.
+2. Registers the 17 Aegis agents inline via `config.agent.aegis-<name>` (reads each `.opencode/agents/<name>.md`, parses frontmatter, inlines the body as the agent's `prompt`).
+3. Registers the 6 Aegis commands inline via `config.command.aegis-<name>` (same pattern, body becomes the command `template`).
 4. Injects the `using-aegis` SKILL body into the first user message of each session, guarded by `<!-- aegis:bootstrap -->`.
 
 No separate symlinking of agents/commands directories is required — the plugin handles all three surfaces via OpenCode's documented JSON config registration mechanism.
@@ -40,8 +59,7 @@ Verify by asking in a new OpenCode session: "Tell me about Aegis."
 
 If you already use Aegis on another harness (Claude Code, Codex, Cursor, Zed), install separately for each — they all use their own plugin/extension mechanism.
 
-## Pinning a Specific Version
-
+## Pinning a Specific Version (unverified git-spec method only)
 
 ```json
 {
@@ -51,7 +69,14 @@ If you already use Aegis on another harness (Claude Code, Codex, Cursor, Zed), i
 
 ## Updating
 
-OpenCode installs Aegis through a git-backed package spec. Some OpenCode and Bun versions cache git dependencies, so a restart may not pick up the newest commit. If updates do not appear, clear OpenCode's package cache or reinstall the plugin via:
+**Symlink install (recommended):** pull the latest commits in your local
+Aegis clone. OpenCode picks up the change on next restart — no reinstall
+needed.
+
+**Unverified npm/git install:** OpenCode installs Aegis through a git-backed
+or npm package spec. Some OpenCode and Bun versions cache these, so a
+restart may not pick up the newest commit. If updates do not appear, clear
+OpenCode's package cache or reinstall the plugin via:
 
 ```
 opencode plugin reinstall aegis
@@ -121,11 +146,15 @@ These gaps are documented in `adapters/opencode/projection.md` inside the Aegis 
 
 If you are an AI agent following instructions to install Aegis for a user, do this:
 
-1. Read this file to confirm the install steps.
-2. Locate the user's `opencode.json` (project-level: `./opencode.json`; global: `~/.config/opencode/opencode.json`).
-3. Add or extend the `plugin` array with the Aegis git-spec string as shown above.
+1. Read [`INSTALL.local.md`](./INSTALL.local.md) to confirm the symlink
+   install steps — the recommended, verified method.
+2. Locate the user's local Aegis clone path.
+3. Create `~/.config/opencode/plugins/` if needed and symlink
+   `.opencode/plugins/aegis.js` into it, as shown in `INSTALL.local.md`.
 4. Confirm the edit with the user.
 5. Tell the user to restart OpenCode.
 6. After restart, verify by sending: `Tell me about Aegis.`
 
-Do not write a separate install script — OpenCode's native plugin manager handles fetch and install. Your job is to edit `opencode.json` correctly and walk the user through the restart + verify steps.
+Do not use the npm/git-spec `plugin` array form — it is unverified for
+Aegis. Do not write a separate install script; the symlink is the only step
+required.

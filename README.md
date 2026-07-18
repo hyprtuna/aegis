@@ -35,13 +35,15 @@ Each block below is the short form. The full install and verification flow for e
 
 ### OpenCode
 
-Add Aegis to the `plugin` array in your `opencode.json`, then restart OpenCode:
+Symlink the plugin into OpenCode's plugin directory, then restart OpenCode:
 
-```json
-{
-  "plugin": ["aegis@git+https://github.com/hyprtuna/aegis.git"]
-}
+```bash
+mkdir -p ~/.config/opencode/plugins
+ln -sf /path/to/aegis/.opencode/plugins/aegis.js ~/.config/opencode/plugins/aegis.js
 ```
+
+See `.opencode/INSTALL.local.md` for the full walkthrough. An npm/git-spec
+`plugin` array install is unverified for Aegis — see `.opencode/INSTALL.md`.
 
 ### Codex
 

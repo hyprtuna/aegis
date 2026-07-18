@@ -42,13 +42,17 @@ cloned this repository.
 
 ## OpenCode
 
-1. Add Aegis to the `plugin` array in your `opencode.json` (project-level
-   `./opencode.json` or global `~/.config/opencode/opencode.json`):
-   ```json
-   {
-     "plugin": ["aegis@git+https://github.com/hyprtuna/aegis.git"]
-   }
+1. Symlink the plugin file into OpenCode's global plugin directory (adjust
+   the path to your local clone):
+   ```bash
+   AEGIS=/path/to/aegis
+   mkdir -p ~/.config/opencode/plugins
+   ln -sf "$AEGIS/.opencode/plugins/aegis.js" ~/.config/opencode/plugins/aegis.js
    ```
+   This is the primary, verified OpenCode install; see
+   `.opencode/INSTALL.local.md` for the full walkthrough. An npm/git-spec
+   `plugin` array entry is unverified for Aegis until it publishes a
+   package — see `.opencode/INSTALL.md`.
 
 2. Restart OpenCode so it picks up the new plugin.
 
@@ -63,8 +67,9 @@ cloned this repository.
    Use the skill tool to load aegis-research, then investigate X.
    ```
 
-5. Troubleshooting: if nothing loads, confirm the `plugin` array entry is valid
-   JSON and that you restarted OpenCode after editing `opencode.json`.
+5. Troubleshooting: if nothing loads, confirm the symlink resolves
+   (`readlink -f ~/.config/opencode/plugins/aegis.js`) and that you restarted
+   OpenCode after creating it.
 
 ## Codex
 
