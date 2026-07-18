@@ -94,11 +94,54 @@ cloned this repository.
 5. Troubleshooting: if no `aegis-` skills appear, re-run the `codex plugin add`
    command and restart Codex.
 
-## Other hosts
+## Zed via OpenCode ACP
 
-Cursor and Zed are not yet supported; both are deferred to roughly v0.5.0. There
-are no working install steps for them today. See `.aegis/plans/_roadmap.md` for
-the schedule.
+Zed reaches the full Aegis surface today through OpenCode's ACP (Agent Client
+Protocol) bridge — no new Aegis code required. Install the OpenCode plugin
+first (see [OpenCode](#opencode) above), then point Zed at the `opencode acp`
+subcommand.
+
+1. Confirm the OpenCode plugin is installed and verified (the OpenCode section
+   above).
+
+2. Add to `~/.config/zed/settings.json`:
+   ```json
+   {
+     "agent_servers": {
+       "OpenCode": {
+         "command": "opencode",
+         "args": ["acp"]
+       }
+     }
+   }
+   ```
+   Over ACP, Zed launches the full OpenCode engine as a subprocess — the same
+   engine that carries the Aegis skills, `.opencode/commands/` slash commands,
+   agents, and session bootstrap. Nothing Aegis-specific needs to be installed
+   for Zed itself.
+
+3. Verify it loaded. Open Zed's Agent Panel, select the "OpenCode" agent
+   server, and send:
+   ```
+   Tell me about Aegis.
+   ```
+   A loaded install responds with Aegis context from the session bootstrap.
+
+4. Honest gaps — read before relying on this path:
+   - **Question tool disabled by default.** `AskUserQuestion` and the
+     `user-choice-discipline` rule depend on OpenCode's interactive question
+     tool, which ACP disables unless you set
+     `OPENCODE_ENABLE_QUESTION_TOOL=1` in the environment that launches
+     `opencode acp`. Without it, those flows degrade silently.
+   - **`/undo` and `/redo` are unsupported over ACP.** These built-in OpenCode
+     slash commands do not work through the ACP bridge (upstream limitation).
+   - **Bootstrap-over-ACP is unverified.** The session bootstrap relies on
+     `experimental.chat.messages.transform`; whether that hook fires when
+     OpenCode is launched via `opencode acp` has not been verified in this
+     release. Treat it as unverified, not confirmed working.
+
+Cursor is not yet supported; it remains deferred to roughly v0.5.0. See
+`.aegis/plans/_roadmap.md` for the schedule.
 
 ## What's available
 

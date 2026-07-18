@@ -6,7 +6,7 @@ Aegis is the plugin-first descendant of [Anvil](https://github.com/hyprtuna/anvi
 
 ## Status
 
-`v0.1.0` — Claude Code, OpenCode, and Codex hosts online. Cursor and Zed are deferred (~v0.5.0).
+`v0.1.0` — Claude Code, OpenCode, and Codex hosts online. Zed is reachable now via OpenCode ACP (native Zed extension deferred, ~v0.5.0). Cursor is deferred (~v0.5.0).
 
 The surface is intentionally flexible while host plugin tooling evolves — there is no frozen contract yet, and shapes may shift between releases.
 
@@ -57,7 +57,8 @@ Restart Codex after adding.
 
 | Host | Status |
 |---|---|
-| Cursor / Zed | deferred (~v0.5.0) |
+| Zed | reachable now via OpenCode ACP; native Zed extension deferred (~v0.5.0) — see [`docs/getting-started.md`](docs/getting-started.md) |
+| Cursor | deferred (~v0.5.0) |
 
 ## Documentation
 
