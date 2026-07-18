@@ -364,6 +364,21 @@ React -> Vue") is not falsely flagged.
 clause; move mechanism/output detail out of the description and into the skill
 or agent body.
 
+**Necessary, not sufficient.** A clean `DESCRIPTION_SHAPE` pass does NOT prove
+every description is a pure WHEN-trigger — the rule is a narrow mechanical
+proxy limited to an arrow plus four conjugated verbs (`runs `, `emits `,
+`orchestrates `, `dispatches `). Other WHAT-style verbs — `produces`,
+`generates`, `scores`, `assembles`, and similar — pass the rule clean even
+though they describe mechanism, not trigger condition. Treat a zero-warning
+run as "no known mechanical smell detected," not as "every description is
+trigger-pure."
+
+**Scope.** The rule lints `skills/**/SKILL.md` and `agents/*.md` only.
+`commands/*.md` descriptions are explicitly out of scope — intentionally, for
+now; commands are a small, capped set (~15) reviewed by hand, and extending
+the rule there is a candidate for a future release, not a gap being silently
+carried.
+
 ## Standalone gates
 
 These two scripts are **not** wired into `validate-structure.mjs`. Run them

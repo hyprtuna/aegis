@@ -34,8 +34,9 @@ routed — skip this gate and do the task.
 | "I'll check the skill later" | Later never arrives. Check before acting. |
 | "The skill doesn't exactly fit" | Partial fit > no fit. Read it; adapt. |
 
-**Exit condition:** either invoke the applicable skill via your host's Skill tool, or
-explicitly state why none applies. A silent skip is a violation.
+**Exit condition:** either invoke the applicable skill via your host's skill-invocation
+mechanism (see How to Use below), or explicitly state why none applies. A silent skip is a
+violation.
 
 ## What's Available
 

@@ -3,7 +3,14 @@
 The **static lint arm** is live as of v0.1.2 (AG-0011). It loads every fixture
 under `fixtures/*.json` and asserts (a) required fields are present and (b)
 each `expectRoutesTo` path resolves to a real skill folder (a directory
-carrying `SKILL.md`) in the repo. No API calls, no network access, no cost:
+carrying `SKILL.md`) in the repo. No API calls, no network access, no cost.
+
+**Manual-run only — not wired into `gate.mjs` or CI.** `scripts/gate.mjs` (the
+single entry point CI runs) does not invoke this harness; it catches a routing
+regression only when a maintainer runs it by hand (or as part of the
+per-ticket static gate documented in the release workflow). Gating it into
+`gate.mjs` so it runs automatically on every push is a possible v0.1.3
+follow-up, not something this release does.
 
 ```bash
 node scripts/eval/three-arm-baseline.mjs
@@ -13,8 +20,10 @@ node scripts/eval/three-arm-baseline.mjs
 ```
 
 Exits non-zero if any fixture fails — a renamed or removed routed-to skill
-(e.g. `default-feature` or `brainstorm-spec`) fails the harness instead of
-drifting silently.
+(e.g. `default-feature` or `brainstorm-spec`) fails the harness the next time
+someone runs it, instead of drifting silently forever. Since it is not wired
+into `gate.mjs`/CI (see above), "the next time someone runs it" is the honest
+bound — it is not a per-push guarantee.
 
 ## Layout
 
