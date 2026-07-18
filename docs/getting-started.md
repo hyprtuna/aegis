@@ -96,10 +96,11 @@ cloned this repository.
 
 ## Zed via OpenCode ACP
 
-Zed reaches the full Aegis surface today through OpenCode's ACP (Agent Client
-Protocol) bridge — no new Aegis code required. Install the OpenCode plugin
-first (see [OpenCode](#opencode) above), then point Zed at the `opencode acp`
-subcommand.
+Zed reaches Aegis skills, `.opencode/commands/` slash commands, and agents
+today through OpenCode's ACP (Agent Client Protocol) bridge — no new Aegis
+code required. Install the OpenCode plugin first (see [OpenCode](#opencode)
+above), then point Zed at the `opencode acp` subcommand. See the honest gaps
+below for what is unverified on this path.
 
 1. Confirm the OpenCode plugin is installed and verified (the OpenCode section
    above).
@@ -117,15 +118,15 @@ subcommand.
    ```
    Over ACP, Zed launches the full OpenCode engine as a subprocess — the same
    engine that carries the Aegis skills, `.opencode/commands/` slash commands,
-   agents, and session bootstrap. Nothing Aegis-specific needs to be installed
-   for Zed itself.
+   and agents. Nothing Aegis-specific needs to be installed for Zed itself.
 
 3. Verify it loaded. Open Zed's Agent Panel, select the "OpenCode" agent
    server, and send:
    ```
-   Tell me about Aegis.
+   Use the skill tool to list available skills.
    ```
-   A loaded install responds with Aegis context from the session bootstrap.
+   A loaded install lists the Aegis skill set (~82 skills). You can also
+   invoke an Aegis command or agent directly to confirm the surface loaded.
 
 4. Honest gaps — read before relying on this path:
    - **Question tool disabled by default.** `AskUserQuestion` and the
@@ -135,13 +136,20 @@ subcommand.
      `opencode acp`. Without it, those flows degrade silently.
    - **`/undo` and `/redo` are unsupported over ACP.** These built-in OpenCode
      slash commands do not work through the ACP bridge (upstream limitation).
+   - **Skills/agents registration over ACP is documented, not yet hands-on
+     verified.** The ACP reference documents commands working over the
+     bridge explicitly; plugin `config()`-registered skills/agents loading
+     the same way is expected but has not been hands-on verified in this
+     release.
    - **Bootstrap-over-ACP is unverified.** The session bootstrap relies on
      `experimental.chat.messages.transform`; whether that hook fires when
      OpenCode is launched via `opencode acp` has not been verified in this
-     release. Treat it as unverified, not confirmed working.
+     release. Treat it as unverified, not confirmed working — do not rely on
+     it to confirm the install loaded (use the skill-listing check above
+     instead).
 
 Cursor is not yet supported; it remains deferred to roughly v0.5.0. See
-`.aegis/plans/_roadmap.md` for the schedule.
+`docs/roadmap.md` for the schedule.
 
 ## What's available
 

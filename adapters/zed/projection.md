@@ -3,8 +3,7 @@
 **Status:** two paths, two statuses. **Zed via OpenCode ACP is reachable today** — no
 new Aegis code, see below. The **native Zed extension** (a first-class Aegis
 extension shipping its own skills/statusline/hooks as Zed primitives) stays
-deferred (~v0.5.0) — implementation deferred from v0.0.8 to the v0.5.0 backlog
-([`.aegis/plans/v0.5.0-plan.md`](../../.aegis/plans/v0.5.0-plan.md), AG-0011 D1).
+deferred to ~v0.5.0 — see [`docs/roadmap.md`](../../docs/roadmap.md).
 The hook-capability matrix below documents the native-extension gaps and is
 authoritative for that path.
 
@@ -14,10 +13,12 @@ Zed integrates with OpenCode over ACP (Agent Client Protocol): add `opencode acp
 to `~/.config/zed/settings.json` (see `docs/getting-started.md` for the full
 config and verification steps — canonical detail lives there, not duplicated
 here). Over ACP, Zed launches the **full OpenCode engine** as a subprocess, so
-every canonical Aegis surface the OpenCode plugin already carries — skills,
-`.opencode/commands/` slash commands, agents/modes, and the session bootstrap —
-is available inside Zed with **zero new Aegis code**. This is a working path
-today, not a future plan.
+canonical Aegis surfaces the OpenCode plugin already carries — skills,
+`.opencode/commands/` slash commands, and agents/modes — are available inside
+Zed with **zero new Aegis code**. Slash commands over ACP are documented to
+work by the upstream ACP reference; skills/agents registration over ACP is
+documented to work the same way but has **not yet been hands-on verified**
+(see honest gaps below).
 
 Honest gaps specific to the ACP path (not the native-extension gaps below):
 
@@ -25,6 +26,10 @@ Honest gaps specific to the ACP path (not the native-extension gaps below):
   `opencode acp`, or `AskUserQuestion` / `user-choice-discipline` degrades
   silently (the question tool is disabled by default under ACP).
 - `/undo` and `/redo` are unsupported over ACP (upstream OpenCode limitation).
+- **Skills/agents registration over ACP — documented, not yet hands-on
+  verified.** The ACP reference documents commands-over-ACP explicitly, but
+  does not document plugin `config.skills.paths`-style registration loading
+  the same way; treat skills/agents-over-ACP as expected-but-unconfirmed.
 - Whether the bootstrap's `experimental.chat.messages.transform` hook fires
   when OpenCode is launched via `opencode acp` is **unverified** — treat it as
   unverified, not confirmed working.
@@ -33,7 +38,8 @@ Honest gaps specific to the ACP path (not the native-extension gaps below):
 
 The table below describes the **native Zed extension** path (deferred,
 ~v0.5.0) — a first-class Aegis extension exposing canonical surfaces as Zed
-primitives. It does not describe the ACP path above, which already works.
+primitives. It does not describe the ACP path above, which is reachable
+today (see the honest gaps noted there for what remains unverified).
 
 | Aegis canonical | Zed native | Status |
 |---|---|---|
@@ -50,10 +56,11 @@ primitives. It does not describe the ACP path above, which already works.
 
 **Rules-only native extension + ACP external-agent host.** For the native Zed
 extension, Zed is treated as a thin shell that defers to Claude/Codex/OpenCode
-plugins running over ACP. The ACP path above already delivers the full Aegis
-surface through the embedded OpenCode engine; the native-extension work below
-is about giving Zed itself first-class primitives (statusline, hooks, skills)
-independent of any embedded agent.
+plugins running over ACP. The ACP path above already delivers commands and
+(expected, not yet hands-on verified) skills/agents through the embedded
+OpenCode engine; the native-extension work below is about giving Zed itself
+first-class primitives (statusline, hooks, skills) independent of any
+embedded agent.
 
 - Generate `.rules` from canonical (concatenated iron-laws + bootstrap pointer to AGENTS.md).
 - `AGENTS.md` at root is already present.
@@ -74,8 +81,9 @@ future plan.
 
 These gaps describe the **native Zed extension** path only — a first-class
 Aegis extension surfacing canonical concepts as Zed primitives directly. They
-do not apply to the ACP path above, which already carries the full surface
-through the embedded OpenCode engine.
+do not apply to the ACP path above, which carries skills, commands, and
+agents through the embedded OpenCode engine (see the ACP path's own honest
+gaps for what remains unverified there).
 
 | Canonical concept | Zed native? | Strategy |
 |---|---|---|
@@ -146,4 +154,5 @@ Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): 
 
 ## v0.5.0 Plan
 
-Plan file: `.aegis/plans/v0.5.0-plan.md` (Cursor + Zed projections, deferred from v0.0.8).
+Cursor and native-Zed-extension projections are deferred to ~v0.5.0 — see
+[`docs/roadmap.md`](../../docs/roadmap.md).
