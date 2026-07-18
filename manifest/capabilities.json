@@ -134,12 +134,12 @@
     {
       "id": "templates-surface",
       "title": "Templates surface",
-      "description": "Canonical templates/ tree (markdown/json/html) referenced by skills via the ${TEMPLATE:<family>} directive. Codex resolves the directive at projection; Claude and OpenCode render it literally pending the v0.0.5 skill-body transform; Cursor/Zed fall back to a literal file-path reference. Shipped v0.0.4.",
+      "description": "Canonical templates/ tree (markdown/json/html) referenced by skills via the ${TEMPLATE:<family>} build-time directive, plus the v0.1.1 runtime index→Read procedure (rules/user-choice-discipline.md step 5) that lets an agent resolve a user-chosen format (incl. HTML) at runtime. Claude closes both mechanisms end-to-end via ${CLAUDE_PLUGIN_ROOT}. Codex bundles the html/json templates + template-index.json (fixing the prior :json bundled-pointer gap) but has no equivalent base-path token for the runtime read, so it stays partial. OpenCode has no plugin-root token at all — the ${TEMPLATE} directive renders literally and the runtime read has no resolvable base path — also partial. Cursor/Zed fall back to a literal file-path reference (deferred).",
       "category": "surface",
       "hosts": {
-        "claude": { "status": "partial", "evidence": "adapters/claude/projection.md#templates-v004", "since": "v0.0.4" },
-        "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#templates-template-gap-deferred-to-v005", "since": "v0.0.4" },
-        "codex": { "status": "supported", "evidence": "docs/templates.md:111", "since": "v0.0.4" },
+        "claude": { "status": "supported", "evidence": "rules/user-choice-discipline.md:75-84", "since": "v0.1.1" },
+        "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#templates-template-gap-still-open-on-opencode", "since": "v0.0.4" },
+        "codex": { "status": "partial", "evidence": "adapters/codex/projection.md#honest-gaps", "since": "v0.1.1" },
         "cursor": { "status": "gap" },
         "zed": { "status": "gap" }
       }
