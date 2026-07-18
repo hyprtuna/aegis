@@ -7,6 +7,33 @@ description: 'Use at the start of every session to discover Aegis surfaces and a
 
 Aegis is loaded. You have access to a curated catalog of skills, agents, commands, rules, and templates for software development tasks.
 
+## Invoke skills first (non-negotiable)
+
+<EXTREMELY-IMPORTANT>
+If there is even a 1% chance a named skill applies to what you are doing, you MUST invoke
+it — BEFORE any response, including clarifying questions, exploring the codebase, or reading
+files. If a skill applies you do not have a choice; you cannot rationalize your way out.
+Checking is cheap; guessing wrong is expensive.
+</EXTREMELY-IMPORTANT>
+
+If you were dispatched as a subagent to execute a specific task, you have already been
+routed — skip this gate and do the task.
+
+### Red flags — thoughts that mean STOP
+
+| Thought | Reality |
+|---|---|
+| "It's just a small change" | Small changes drift. Skills prevent drift. |
+| "I already know how to do this" | Knowing ≠ doing it consistently. |
+| "This is just a simple question" | Questions are tasks. Check for a skill first. |
+| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
+| "The skill is overkill" | Overkill is cheap. Under-discipline is expensive. |
+| "I'll check the skill later" | Later never arrives. Check before acting. |
+| "The skill doesn't exactly fit" | Partial fit > no fit. Read it; adapt. |
+
+**Exit condition:** either invoke the applicable skill via your host's Skill tool, or
+explicitly state why none applies. A silent skip is a violation.
+
 ## What's Available
 
 - **Skills** at `skills/`: universal capabilities (`skills/core/`), language overlays (`skills/languages/`), workflow skills (`skills/workflows/`).

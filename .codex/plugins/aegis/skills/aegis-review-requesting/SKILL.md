@@ -1,6 +1,6 @@
 ---
 name: aegis-review-requesting
-description: 'Use when requesting code review — assembles context, dispatches reviewer, acts on feedback.'
+description: 'Use when requesting code review on a change.'
 ---
 
 # Review Requester

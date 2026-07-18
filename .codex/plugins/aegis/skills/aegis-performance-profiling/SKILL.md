@@ -1,6 +1,6 @@
 ---
 name: aegis-performance-profiling
-description: 'Use when identifying performance bottlenecks — emits suggested optimisations with measurements.'
+description: 'Use when identifying performance bottlenecks.'
 ---
 
 # Performance Profiler

@@ -1,6 +1,6 @@
 ---
 name: aegis-build-error-resolver
-description: 'Use when build or typecheck errors need a minimal-diff fix — narrow scope, no architectural change, runs the build to verify.'
+description: 'Use when build or typecheck errors need a minimal-diff fix with no architectural change.'
 ---
 
 > Invoked via Codex Skill discovery.

@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: performance-profiling
-description: Use when identifying performance bottlenecks — emits suggested optimisations with measurements.
+description: Use when identifying performance bottlenecks.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

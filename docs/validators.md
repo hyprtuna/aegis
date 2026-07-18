@@ -335,6 +335,35 @@ deliberately NOT flagged.
 the intended behavior to a host-honored mechanism (e.g. a portable hook intent
 under `hooks/` for `hooks`, project-level MCP config for `mcpServers`).
 
+## New v0.1.2 rules
+
+### `DESCRIPTION_SHAPE` — description must read as WHEN, not WHAT (warn-only)
+
+Module: `scripts/validate/description-shape.mjs`. For every skill `SKILL.md`
+(`skills/**`) and every `agents/*.md` (excluding `AGENTS.md`/`CLAUDE.md`), the
+rule parses the frontmatter `description:` and warns when it carries a
+mechanism marker: an arrow (`→`/`->`) or a conjugated process verb (`runs `,
+`emits `, `orchestrates `, `dispatches `, trailing space required so the
+`dispatch` noun never matches the conjugated verb form). A conformant
+description describes WHEN to invoke the surface, not WHAT it internally does
+once invoked.
+
+**Scope is deliberately narrow.** The "Use when X — `<gloss>`" em-dash shape is
+house style across ~40 descriptions in this catalog; a literal em-dash marker
+would fire catalog-wide (false-positive explosion) and is explicitly NOT
+implemented. Arrow + the four conjugated verbs are the mechanical proxy for the
+pipeline/step-enumeration smell the rule targets.
+
+**Stage:** **warn-only** in v0.1.2 (new-rule cadence). It **graduates to
+hard-fail in v0.1.3**, preconditioned on (a) canonical staying warning-free for
+one full release, and (b) a situational-arrow guard being added first so a
+future legitimate trigger clause containing an arrow (e.g. "Use when migrating
+React -> Vue") is not falsely flagged.
+
+**Remediation:** rewrite the `description` as a pure "Use when …" trigger
+clause; move mechanism/output detail out of the description and into the skill
+or agent body.
+
 ## Standalone gates
 
 These two scripts are **not** wired into `validate-structure.mjs`. Run them

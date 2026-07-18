@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: default-feature
-description: Use when a user requests a new feature or significant change and no more specific workflow applies — runs brainstorm → plan → implement → review → respond.
+description: Use when a user requests a new feature or significant change and no more specific workflow applies.
 visibility: internal
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:

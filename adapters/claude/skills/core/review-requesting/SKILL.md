@@ -1,6 +1,6 @@
 ---
 name: review-requesting
-description: 'Use when requesting code review — assembles context, dispatches reviewer, acts on feedback.'
+description: 'Use when requesting code review on a change.'
 ---
 
 > **Invoke via `Skill({skill: "aegis:review-requesting"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: changelog-generation
-description: 'Use when assembling a release changelog from git history between two refs — emits a Conventional-Commits-shaped draft, filters noise, categorises by section.'
+description: 'Use when assembling a release changelog from git history between two refs.'
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

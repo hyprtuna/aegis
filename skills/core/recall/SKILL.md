@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: recall
-description: Use when you need to retrieve relevant past observations, decisions, or patterns from MEMORY.md — 3-layer Read+Grep retrieval, no MCP.
+description: Use when you need to retrieve relevant past observations, decisions, or patterns from MEMORY.md.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 ---

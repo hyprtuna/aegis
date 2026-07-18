@@ -1,7 +1,7 @@
 ---
 kind: skill
 name: skill-creation
-description: Use when scaffolding a new skill — emits valid frontmatter and a body that follows Aegis conventions.
+description: Use when scaffolding a new skill.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:

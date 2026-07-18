@@ -1,6 +1,6 @@
 ---
 name: sdd-workflow
-description: 'Use when starting a new feature from scratch — orchestrates brainstorm-spec → implementation-planner → implementation under the Spec-Driven Development discipline, parallel to TDD'
+description: 'Use when starting a new feature from scratch and no approved spec exists yet.'
 ---
 
 > **Invoke via `Skill({skill: "aegis:sdd-workflow"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

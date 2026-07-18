@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: 'Use when implementing under red->green->refactor discipline — writes the failing test first, always.'
+description: 'Use when implementing under red-green-refactor discipline.'
 argument-hint: '<feature...>'
 ---
 
