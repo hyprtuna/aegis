@@ -32,7 +32,7 @@ ships a published package:
 
 ```json
 {
-  "plugin": ["aegis-opencode"]
+  "plugin": ["aegis"]
 }
 ```
 
@@ -63,7 +63,7 @@ If you already use Aegis on another harness (Claude Code, Codex, Cursor, Zed), i
 
 ```json
 {
-  "plugin": ["aegis@git+https://github.com/hyprtuna/aegis.git#v0.0.2"]
+  "plugin": ["aegis@git+https://github.com/hyprtuna/aegis.git#v0.1.0"]
 }
 ```
 
@@ -136,8 +136,8 @@ Some Windows OpenCode builds have upstream installer issues with git-backed plug
 ## What Aegis Does Not Provide (Yet) on OpenCode
 
 - **Statusline integration** — OpenCode has no plugin statusline slot. Aegis status appears as toast notifications when available.
-- **Tool execution hooks** (`pre-tool-use`, `post-tool-use`, etc.) — Deferred to a later Aegis release (v0.0.5).
-- **MCP server bundling** — Aegis does not ship MCP servers in v0.0.2.
+- **Tool execution hooks** (`pre-tool-use`, `post-tool-use`, etc.) — OpenCode has no PreToolUse/PostToolUse hook event; see the hook capability matrix in `adapters/opencode/projection.md` for the current per-hook status.
+- **MCP server bundling** — Aegis ships no MCP servers by default (see `docs/mcp-policy.md`).
 - **Permissions defaults** — Aegis does not push a `permission` block; host defaults apply.
 
 These gaps are documented in `adapters/opencode/projection.md` inside the Aegis repo.
