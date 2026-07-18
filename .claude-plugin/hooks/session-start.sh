@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.3.10
+# aegis-hook-version: 0.1.0
 # Aegis SessionStart bootstrap.
 # Emits Claude-compatible JSON announcing Aegis discovery.
 

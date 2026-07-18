@@ -41,7 +41,7 @@ Aegis is a plugin-first agentic AI dev system descended from Anvil. It carries A
 
 ## Release Workflow
 
-The full pipeline for shipping a release lives in **[`docs/release-workflow.md`](docs/release-workflow.md)** — read it before cutting any release. It is the authoritative procedure; the rules below are the essential summary.
+The full release runbook is maintained in the private `aegis-internal` planning repo; the essential rules here are the public summary.
 
 **Pipeline:** pre-flight (clean `main`, plan + tickets exist) → cut `release/v<X.Y.Z>` branch + `.worktrees/release-v<X.Y.Z>` worktree (INLINE) → per-ticket loop (plan → verify → code+gate+commit) → strict reviewer at release granularity → fixers → ship.
 

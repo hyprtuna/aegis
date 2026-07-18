@@ -42,13 +42,17 @@ cloned this repository.
 
 ## OpenCode
 
-1. Add Aegis to the `plugin` array in your `opencode.json` (project-level
-   `./opencode.json` or global `~/.config/opencode/opencode.json`):
-   ```json
-   {
-     "plugin": ["aegis@git+https://github.com/hyprtuna/aegis.git"]
-   }
+1. Symlink the plugin file into OpenCode's global plugin directory (adjust
+   the path to your local clone):
+   ```bash
+   AEGIS=/path/to/aegis
+   mkdir -p ~/.config/opencode/plugins
+   ln -sf "$AEGIS/.opencode/plugins/aegis.js" ~/.config/opencode/plugins/aegis.js
    ```
+   This is the primary, verified OpenCode install; see
+   `.opencode/INSTALL.local.md` for the full walkthrough. An npm/git-spec
+   `plugin` array entry is unverified for Aegis until it publishes a
+   package — see `.opencode/INSTALL.md`.
 
 2. Restart OpenCode so it picks up the new plugin.
 
@@ -63,8 +67,9 @@ cloned this repository.
    Use the skill tool to load aegis-research, then investigate X.
    ```
 
-5. Troubleshooting: if nothing loads, confirm the `plugin` array entry is valid
-   JSON and that you restarted OpenCode after editing `opencode.json`.
+5. Troubleshooting: if nothing loads, confirm the symlink resolves
+   (`readlink -f ~/.config/opencode/plugins/aegis.js`) and that you restarted
+   OpenCode after creating it.
 
 ## Codex
 
@@ -89,11 +94,62 @@ cloned this repository.
 5. Troubleshooting: if no `aegis-` skills appear, re-run the `codex plugin add`
    command and restart Codex.
 
-## Other hosts
+## Zed via OpenCode ACP
 
-Cursor and Zed are not yet supported; both are deferred to roughly v0.5.0. There
-are no working install steps for them today. See `.aegis/plans/_roadmap.md` for
-the schedule.
+Zed reaches Aegis skills, `.opencode/commands/` slash commands, and agents
+today through OpenCode's ACP (Agent Client Protocol) bridge — no new Aegis
+code required. Install the OpenCode plugin first (see [OpenCode](#opencode)
+above), then point Zed at the `opencode acp` subcommand. See the honest gaps
+below for what is unverified on this path.
+
+1. Confirm the OpenCode plugin is installed and verified (the OpenCode section
+   above).
+
+2. Add to `~/.config/zed/settings.json`:
+   ```json
+   {
+     "agent_servers": {
+       "OpenCode": {
+         "command": "opencode",
+         "args": ["acp"]
+       }
+     }
+   }
+   ```
+   Over ACP, Zed launches the full OpenCode engine as a subprocess — the same
+   engine that carries the Aegis skills, `.opencode/commands/` slash commands,
+   and agents. Nothing Aegis-specific needs to be installed for Zed itself.
+
+3. Verify it loaded. Open Zed's Agent Panel, select the "OpenCode" agent
+   server, and send:
+   ```
+   Use the skill tool to list available skills.
+   ```
+   A loaded install lists the Aegis skill set (~82 skills). You can also
+   invoke an Aegis command or agent directly to confirm the surface loaded.
+
+4. Honest gaps — read before relying on this path:
+   - **Question tool disabled by default.** `AskUserQuestion` and the
+     `user-choice-discipline` rule depend on OpenCode's interactive question
+     tool, which ACP disables unless you set
+     `OPENCODE_ENABLE_QUESTION_TOOL=1` in the environment that launches
+     `opencode acp`. Without it, those flows degrade silently.
+   - **`/undo` and `/redo` are unsupported over ACP.** These built-in OpenCode
+     slash commands do not work through the ACP bridge (upstream limitation).
+   - **Skills/agents registration over ACP is documented, not yet hands-on
+     verified.** The ACP reference documents commands working over the
+     bridge explicitly; plugin `config()`-registered skills/agents loading
+     the same way is expected but has not been hands-on verified in this
+     release.
+   - **Bootstrap-over-ACP is unverified.** The session bootstrap relies on
+     `experimental.chat.messages.transform`; whether that hook fires when
+     OpenCode is launched via `opencode acp` has not been verified in this
+     release. Treat it as unverified, not confirmed working — do not rely on
+     it to confirm the install loaded (use the skill-listing check above
+     instead).
+
+Cursor is not yet supported; it remains deferred to roughly v0.5.0. See
+`docs/roadmap.md` for the schedule.
 
 ## What's available
 
