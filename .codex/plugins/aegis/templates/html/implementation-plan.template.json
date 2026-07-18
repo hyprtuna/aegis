@@ -1,0 +1,24 @@
+{
+  "kind": "template",
+  "name": "implementation-plan",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:16-implementation-plan.html",
+  "description": "Standalone HTML implementation plan: goal, architecture summary, phased timeline with tasks, acceptance criteria, and validation evidence.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Plan title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label above the title." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-sentence framing of what the plan delivers." },
+    { "key": "statusPill", "type": "string", "required": false, "description": "Plan status pill; element class selects the variant.", "enum": ["status-draft", "status-active", "status-shipped", "status-blocked"] },
+    { "key": "metaPills", "type": "array", "required": false, "description": "Extra header pills: owner, target date, branch." },
+    { "key": "goal", "type": "string", "description": "Concrete outcome the plan produces, plus optional non-goals." },
+    { "key": "architecture", "type": "string", "required": false, "description": "Architecture summary: surfaces touched, new modules, key contract changes." },
+    { "key": "phases[]", "type": "phase", "description": "Ordered phases, each independently reviewable." },
+    { "key": "acceptanceCriteria", "type": "array", "description": "Criteria list; each item gets class 'met' when satisfied." },
+    { "key": "validationEvidence", "type": "array", "required": false, "description": "Key/value rows of evidence: typecheck, tests, manual QA, observability." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "phase[]": "{ when: string, name: string, description: string, tasks: [{ text: string, done: boolean }], tags: string[] }"
+  }
+}

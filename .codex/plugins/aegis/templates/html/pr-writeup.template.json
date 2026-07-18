@@ -1,0 +1,29 @@
+{
+  "kind": "template",
+  "name": "pr-writeup",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:17-pr-writeup.html",
+  "description": "Standalone HTML pull-request writeup for reviewers: TL;DR, motivation with before/after, a file-by-file tour with code, review-focus callouts, a test plan, and a staged rollout.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "PR title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. 'Pull request · <org>'." },
+    { "key": "pr.number", "type": "string", "description": "PR number, woven into the h1 (e.g. '#312 — ...')." },
+    { "key": "pr.meta", "type": "array", "required": false, "description": "Header meta stats: file count, diff stat, branches, author." },
+    { "key": "prompt", "type": "string", "required": false, "description": "The request that produced this writeup." },
+    { "key": "summary", "type": "string", "description": "One-paragraph TL;DR of the change." },
+    { "key": "why", "type": "string", "required": false, "description": "Motivation prose explaining why the change is needed." },
+    { "key": "before", "type": "array", "required": false, "description": "Bullet list of prior behavior." },
+    { "key": "after", "type": "array", "required": false, "description": "Bullet list of new behavior." },
+    { "key": "changes[]", "type": "change", "description": "One collapsible block per changed file." },
+    { "key": "focus", "type": "array", "required": false, "description": "Numbered reviewer-attention callouts." },
+    { "key": "testPlan[]", "type": "testStep", "description": "Test-plan rows; add class 'done' when verified." },
+    { "key": "rolloutIntro", "type": "string", "required": false, "description": "One-line framing of the rollout plan." },
+    { "key": "rollout", "type": "array", "required": false, "description": "Staged ramp steps." }
+  ],
+  "shape": {
+    "change[]": "{ file: string, badge: enum[new,mod,del], lines: string (diff stat), why: string, code: string (optional snippet) }",
+    "testPlan[]": "{ step: string (label), expectation: string (note), done: boolean }",
+    "rollout[]": "{ when: string, pct: string, d: string }"
+  }
+}

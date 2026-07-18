@@ -1,0 +1,36 @@
+{
+  "kind": "template",
+  "name": "plan-audit-report",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "v0.0.9:plan-verifier",
+  "description": "Standalone HTML rendering of the plan-verifier's Plan Verification Report: a Plan/Goal/Verdict header with a coloured verdict pill, requirement coverage, gaps, extras, file references, ordering issues, task-quality notes, a tasks-complete tally, and a verdict rationale. Self-contained, zero-JS.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Report title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. plan area." },
+    { "key": "planName", "type": "string", "description": "Plan name or path." },
+    { "key": "goal", "type": "string", "description": "The plan's stated goal." },
+    { "key": "verdict", "type": "string", "description": "Binary verdict; set the pill class to .pass or .fail.", "enum": ["PASS", "FAIL"] },
+    { "key": "coverage[]", "type": "coverageRow", "description": "Requirement-to-task coverage rows; one li each." },
+    { "key": "coverage.requirement", "type": "string", "description": "A discrete goal requirement." },
+    { "key": "coverage.status", "type": "string", "description": "Coverage status, e.g. 'Task N ✓' or 'NOT COVERED ✗'." },
+    { "key": "gap[]", "type": "string", "required": false, "description": "Gaps; one li each. Write 'None' if empty." },
+    { "key": "extra[]", "type": "string", "required": false, "description": "Unjustified tasks; one li each. Write 'None' if empty." },
+    { "key": "fileReference[]", "type": "fileRow", "required": false, "description": "Referenced paths and existence status; one li each. Write 'None' if empty." },
+    { "key": "fileReference.path", "type": "string", "description": "A path referenced by the plan." },
+    { "key": "fileReference.status", "type": "string", "description": "Existence status, e.g. 'EXISTS ✓' or 'MISSING ✗'." },
+    { "key": "orderingIssue[]", "type": "string", "required": false, "description": "Ordering violations; one li each. Write 'None' if empty." },
+    { "key": "taskQuality[]", "type": "string", "required": false, "description": "Task-quality problems; one li each. Write 'None' if empty." },
+    { "key": "tasksComplete", "type": "string", "description": "Tasks with complete fields, e.g. 'N/M (X%)'." },
+    { "key": "verdictRationale", "type": "string", "description": "2-3 sentences; if FAIL, the most critical reason." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "coverage[]": "{ requirement: string, status: string }",
+    "fileReference[]": "{ path: string, status: string }",
+    "gap[]": "string",
+    "extra[]": "string",
+    "orderingIssue[]": "string",
+    "taskQuality[]": "string"
+  }
+}

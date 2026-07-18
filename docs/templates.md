@@ -315,6 +315,33 @@ The ten design-only kinds as of v0.0.9:
   **not** mint net-new producers for them (out of scope). Flagged design-only until
   a real producer lands.
 
+> **Discoverability.** These ten `designOnly` kinds are a real, browsable design
+> gallery — every body ships on disk and is fillable by hand even without a
+> workflow producer. Query them with `node scripts/template-query.mjs --list`
+> or `--formats <kind>` (see "Querying the index" above); each also has a
+> sibling `<name>.template.json` slot manifest so the shape is inspectable
+> without opening the body.
+
+### Other orphaned kinds (documented gaps, not `designOnly`)
+
+Four kinds ship a body + index entry, are **not** flagged `designOnly`, and
+still have no wired producer as of v0.1.1. Unlike the ten above, these are
+gaps to close rather than intentional design references:
+
+- **`flowchart`** — no natural producer skill exists yet; keep the template on
+  disk, route it through the `${TEMPLATE}` mechanism once one is authored.
+- **`feature-explainer`** — `learning` already emits `concept-explainer`; a
+  second, feature-specific producer is a follow-up, not v0.1.1 scope.
+- **`releases`** — the release checklist template; the actual release workflow
+  is maintainer prose (see the root `AGENTS.md` release-workflow section), not
+  a skill deliverable.
+- **`prompts`** — a one-shot prompt skeleton with no workflow producer today.
+
+Authoring new producer skills for these four is deferred (see the v0.1.1
+release plan) to avoid surface-count churn; any producer that does get wired
+must route the format choice through the runtime index→Read procedure in
+`rules/user-choice-discipline.md`, not a new static mechanism.
+
 ## Validation
 
 Two gates cover the templates surface:

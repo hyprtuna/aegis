@@ -1,0 +1,20 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:01-exploration-code-approaches.html",
+  "description": "Machine-readable sibling of the code-approaches exploration: title, context, an approaches array (name, code, pros, cons), and a recommendation. Placeholder strings keep the file parseable; the agent expands the single template element into one entry per approach.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "approachName", "type": "string", "description": "Approach name. The approaches array (see shape) carries one example element to clone per approach." },
+    { "key": "approachCode", "type": "string", "description": "Representative code sketch for the approach." },
+    { "key": "approachPros[]", "type": "string", "description": "Advantages of the approach." },
+    { "key": "approachCons[]", "type": "string", "description": "Drawbacks of the approach." },
+    { "key": "recommendation", "type": "string", "description": "Which approach to take and why." }
+  ],
+  "shape": {
+    "approach[]": "{ name: string, code: string, pros: string[], cons: string[] }"
+  }
+}

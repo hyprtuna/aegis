@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SLOT: title (used in <title> and h1) -->
+<title>Plan verification report</title>
+<style>
+  :root {
+    --ivory: #FAF9F5;
+    --slate: #141413;
+    --clay: #D97757;
+    --oat: #E3DACC;
+    --olive: #788C5D;
+    --rust: #B04A3F;
+    --gray-150: #F0EEE6;
+    --gray-300: #D1CFC5;
+    --gray-500: #87867F;
+    --gray-700: #3D3D3A;
+    --serif: ui-serif, Georgia, 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 48px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 880px; margin: 0 auto; }
+
+  header { margin-bottom: 24px; }
+  .repo-line {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.25;
+    color: var(--slate);
+    margin-bottom: 16px;
+  }
+  .meta { font-family: var(--mono); font-size: 13px; color: var(--gray-700); }
+  .meta .label { color: var(--gray-500); }
+
+  .verdict {
+    display: inline-block;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1.5px solid var(--gray-300);
+    margin-top: 12px;
+  }
+  .verdict.pass { background: rgba(120, 140, 93, 0.14); color: var(--olive); border-color: var(--olive); }
+  .verdict.fail { background: rgba(176, 74, 63, 0.12); color: var(--rust); border-color: var(--rust); }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 36px 0 14px;
+    scroll-margin-top: 24px;
+  }
+
+  details.secondary {
+    margin: 28px 0 0;
+    border-left: 3px solid var(--oat);
+    padding-left: 16px;
+  }
+  details.secondary > summary {
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--slate);
+    padding: 6px 0;
+  }
+  details.secondary > summary::-webkit-details-marker { display: none; }
+  details.secondary > summary::before { content: "▸ "; color: var(--gray-500); }
+  details.secondary[open] > summary::before { content: "▾ "; }
+
+  ul.rows { list-style: none; padding: 0; }
+  ul.rows li {
+    padding: 10px 0;
+    border-bottom: 1.5px solid var(--gray-150);
+    font-size: 14.5px;
+  }
+  ul.rows li:last-child { border-bottom: none; }
+  ul.rows .ok { color: var(--olive); font-weight: 600; }
+  ul.rows .bad { color: var(--rust); font-weight: 600; }
+  code, .path { font-family: var(--mono); font-size: 13px; color: var(--slate); }
+
+  .tasks-complete {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-top: 10px;
+  }
+
+  .rationale {
+    background: #fff;
+    border: 1.5px solid var(--gray-300);
+    border-left: 4px solid var(--clay);
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-size: 15px;
+  }
+
+  footer.provenance {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gray-500);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <!-- SLOT: eyebrow (small overline label, e.g. plan area) -->
+    <div class="repo-line">Plan verification</div>
+    <h1><!-- SLOT: title -->Plan Verification Report</h1>
+    <div class="meta">
+      <!-- SLOT: planName -->
+      <div><span class="label">Plan:</span> plans/my-feature.plan.md</div>
+      <!-- SLOT: goal -->
+      <div><span class="label">Goal:</span> Restate the plan's stated goal here.</div>
+    </div>
+    <!-- SLOT: verdict (set class to .pass or .fail) -->
+    <span class="verdict pass">PASS</span>
+  </header>
+
+  <main>
+    <h2 id="coverage">Coverage</h2>
+    <ul class="rows">
+      <!-- SLOT: coverage (repeat the li once per requirement) -->
+      <li>
+        <!-- SLOT: coverage.requirement -->
+        Requirement description
+        <!-- SLOT: coverage.status -->
+        — <span class="ok">Task 3 ✓</span>
+      </li>
+      <!-- /SLOT: coverage -->
+    </ul>
+
+    <h2 id="gaps">Gaps</h2>
+    <ul class="rows">
+      <!-- SLOT: gap (repeat the li once per gap; write "None" if empty) -->
+      <li>What is missing and why it matters.</li>
+      <!-- /SLOT: gap -->
+    </ul>
+
+    <h2>Extras</h2>
+    <ul class="rows">
+      <!-- SLOT: extra (repeat the li once per unjustified task; write "None" if empty) -->
+      <li>Task not justified by any requirement.</li>
+      <!-- /SLOT: extra -->
+    </ul>
+
+    <h2>File References</h2>
+    <ul class="rows">
+      <!-- SLOT: fileReference (repeat the li once per referenced path; write "None" if empty) -->
+      <li>
+        <!-- SLOT: fileReference.path -->
+        <span class="path">src/path/to/file.ts</span>
+        <!-- SLOT: fileReference.status -->
+        — <span class="ok">EXISTS ✓</span>
+      </li>
+      <!-- /SLOT: fileReference -->
+    </ul>
+
+    <details class="secondary" id="ordering-issues">
+      <summary>Ordering Issues</summary>
+      <ul class="rows">
+        <!-- SLOT: orderingIssue (repeat the li once per violation; write "None" if empty) -->
+        <li>Task N depends on Task M but comes before it.</li>
+        <!-- /SLOT: orderingIssue -->
+      </ul>
+    </details>
+
+    <details class="secondary" id="task-quality">
+      <summary>Task Quality</summary>
+      <ul class="rows">
+        <!-- SLOT: taskQuality (repeat the li once per problem; write "None" if empty) -->
+        <li>Task N: verification field missing.</li>
+        <!-- /SLOT: taskQuality -->
+      </ul>
+    </details>
+    <!-- SLOT: tasksComplete -->
+    <div class="tasks-complete">Tasks with complete fields: 11/12 (92%)</div>
+
+    <h2>Verdict Rationale</h2>
+    <!-- SLOT: verdictRationale -->
+    <div class="rationale">Two-to-three sentences. If FAIL, state the most critical reason.</div>
+  </main>
+
+  <footer class="provenance">
+    <!-- SLOT: provenance (auto-filled by agent) -->
+    Generated by Aegis on YYYY-MM-DD
+  </footer>
+
+</div>
+</body>
+</html>

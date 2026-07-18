@@ -1,0 +1,9 @@
+{
+  "kind": "template",
+  "name": "claude-code",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "hand-authored",
+  "description": "Claude-Code AskUserQuestion payload variant for the decisions template — surfaces a decision as a CC-native AskUserQuestion call. Static skeleton — no __SLOT__ placeholders; option labels/descriptions are filled as angle-bracket prose.",
+  "slots": []
+}

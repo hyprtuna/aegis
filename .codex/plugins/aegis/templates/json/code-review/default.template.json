@@ -1,0 +1,33 @@
+{
+  "kind": "template",
+  "name": "code-review",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:03-code-review-pr.html",
+  "description": "Machine-readable sibling of the code-review writeup: PR header, summary, a severity-graded findings array, test-coverage rows, and a sign-off block. Placeholder strings keep the file parseable; the agent expands the findings[]/coverage[] exemplar elements, one per finding/row.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Review title." },
+    { "key": "repoLine", "type": "string", "required": false, "description": "Repo + PR identifier line, e.g. 'org/repo · PR #247'." },
+    { "key": "branch", "type": "string", "required": false, "description": "Source → target branch label." },
+    { "key": "status", "type": "string", "required": false, "description": "Review status.", "enum": ["approved", "changes-requested", "comment", "pending"] },
+    { "key": "meta", "type": "string", "required": false, "description": "Extra header meta: author, open date, diff stat." },
+    { "key": "summary", "type": "string", "description": "2-4 sentence summary of what the PR does and why." },
+    { "key": "findingSeverity", "type": "string", "description": "Finding severity. The findings array (see shape) carries one exemplar element to clone per finding.", "enum": ["blocker", "high", "med", "low", "nit"] },
+    { "key": "findingLocation", "type": "string", "description": "Finding location, file:line." },
+    { "key": "findingTitle", "type": "string", "description": "Short finding title." },
+    { "key": "findingDescription", "type": "string", "description": "What is wrong and why." },
+    { "key": "findingSuggestion", "type": "string", "required": false, "description": "Suggested fix." },
+    { "key": "coverageLabel", "type": "string", "required": false, "description": "Test-coverage row label (new tests, delta, gaps, CI status). The coverage array carries one exemplar element to clone per row." },
+    { "key": "coverageValue", "type": "string", "required": false, "description": "Test-coverage row value." },
+    { "key": "signoffVerdict", "type": "string", "description": "Sign-off verdict.", "enum": ["approve", "requested-changes", "comment"] },
+    { "key": "reviewerInitials", "type": "string", "description": "Reviewer avatar initials." },
+    { "key": "reviewerName", "type": "string", "description": "Reviewer display name." },
+    { "key": "reviewerNote", "type": "string", "required": false, "description": "Reviewer's closing note." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "finding[]": "{ severity: enum[blocker,high,med,low,nit], location: string (file:line), title: string, description: string, suggestion: string }",
+    "coverage[]": "{ label: string, value: string }",
+    "signoff": "{ verdict: enum[approve,requested-changes,comment], reviewerInitials: string, reviewerName: string, reviewerNote: string }"
+  }
+}

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and h1) -->
+  <title>Prompt tuner</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --clay-d:   #B85C3E;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-50:  #F0EEE6;
+      --gray-200: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-800: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--ivory);
+      color: var(--slate);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 48px 32px 64px; }
+
+    header { margin-bottom: 22px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 30px;
+      letter-spacing: -0.01em;
+      margin: 6px 0 4px;
+    }
+    .sub { color: var(--gray-500); max-width: 640px; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 14px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .toolbar .spacer { flex: 1; }
+    .toolbar .hint {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 0.02em;
+    }
+    button {
+      font-family: var(--mono);
+      font-size: 12px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .btn-primary {
+      background: var(--slate);
+      color: var(--ivory);
+      border: 1.5px solid var(--slate);
+      border-radius: 999px;
+      padding: 9px 16px;
+      transition: background 140ms ease, transform 80ms ease;
+    }
+    .btn-primary:hover { background: var(--gray-800); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary.copied { background: var(--olive); border-color: var(--olive); }
+
+    .cols {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+      margin-top: 18px;
+    }
+    @media (max-width: 880px) { .cols { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .ed-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-bottom: 1.5px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+    .ed-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      text-transform: uppercase;
+    }
+    .ed-toolbar .spacer { flex: 1; }
+    .counter {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-800);
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 999px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .editor {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 18px;
+      min-height: 320px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--white);
+      color: var(--slate);
+      outline: none;
+      caret-color: var(--clay);
+      tab-size: 2;
+    }
+    .slot {
+      background: var(--oat);
+      color: var(--clay-d);
+      border-radius: 4px;
+      padding: 0 3px;
+      font-weight: 600;
+    }
+    .legend {
+      border-top: 1.5px solid var(--gray-200);
+      padding: 12px 16px 14px;
+      background: var(--gray-50);
+    }
+    .legend-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 8px;
+    }
+    .legend-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--oat);
+      color: var(--clay-d);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 600;
+    }
+
+    .preview-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .preview-head {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      padding: 0 2px 2px;
+    }
+    .sample { border: 1.5px solid var(--gray-200); border-radius: 10px; overflow: hidden; }
+    .sample-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      border-bottom: 1.5px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+    .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--gray-500); }
+    .rendered {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--gray-800);
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 12px 13px 14px;
+    }
+    .filled {
+      background: var(--gray-50);
+      border-radius: 3px;
+      padding: 0 2px;
+      box-shadow: inset 0 0 0 1px var(--gray-200);
+    }
+    .missing {
+      background: rgba(217, 119, 87, 0.12);
+      color: var(--clay-d);
+      border-radius: 3px;
+      padding: 0 2px;
+      font-weight: 600;
+    }
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 2px;
+    }
+    .metric {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 999px;
+      padding: 4px 11px;
+      color: var(--gray-800);
+    }
+
+    footer.provenance {
+      margin-top: 36px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-200);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-500);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Interactive template — minimal self-contained JS permitted per AG-0011 D2;
+    no external resources. JS only drives the live preview: it re-renders the
+    filled prompt from the variables as you edit the system prompt. No external
+    src/href/CDN, no network, no tracking. The zero-JS rule still applies to the
+    other 17 templates; see templates/AGENTS.md "Interactive-template exception"
+    and docs/templates.md.
+  -->
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow">Editor / prompt-tuner</div>
+      <h1><!-- SLOT: title -->Support reply draft prompt</h1>
+      <p class="sub">Edit the system prompt on the left and watch the filled preview
+        re-render on the right, live as you type. When it reads well, copy the prompt out.</p>
+    </header>
+
+    <div class="toolbar">
+      <button id="copyBtn" class="btn-primary">Copy prompt</button>
+      <div class="spacer"></div>
+      <div class="hint">slots use <strong>{{double_brace}}</strong> syntax</div>
+    </div>
+
+    <div class="cols">
+
+      <section class="panel">
+        <div class="ed-toolbar">
+          <span class="ed-label">System prompt</span>
+          <div class="spacer"></div>
+          <span id="counter" class="counter">0 chars · ~0 tokens</span>
+        </div>
+        <!-- SLOT: systemPrompt (the editable system prompt; {{var}} markers fill from variables) -->
+        <div id="editor" class="editor" contenteditable="true" spellcheck="false" autocapitalize="off" autocorrect="off">You are a support agent for Acme, a project workspace for small teams.
+
+A customer named {{customer_name}} on the {{plan_tier}} plan wrote in.
+
+Their message:
+{{ticket_body}}
+
+Write a reply that is {{tone}}, no more than 120 words, and ends with a single concrete next step.</div>
+        <div class="legend">
+          <div class="legend-label">Available variables</div>
+          <!-- SLOT: variables (repeat one .chip per variable; shape: name, value) -->
+          <div id="legendChips" class="legend-chips"></div>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">Sample input</div>
+        <!-- SLOT: input (a representative input the prompt runs against) -->
+        <div class="sample">
+          <div class="sample-head"><span class="badge">SAMPLE TICKET</span></div>
+          <div class="rendered">A customer can't find a board they created yesterday and isn't sure if they deleted it.</div>
+        </div>
+
+        <div class="preview-head">Live preview</div>
+        <!-- SLOT: previewOutput (the filled prompt; rebuilt live by the demo from systemPrompt + variables) -->
+        <div class="sample">
+          <div class="sample-head"><span class="badge">FILLED PROMPT</span></div>
+          <div id="preview" class="rendered"></div>
+        </div>
+
+        <div class="preview-head">Metrics</div>
+        <!-- SLOT: metrics (repeat one .metric per quality metric, e.g. length, reading-grade) -->
+        <div class="metrics">
+          <span class="metric">length: ~120 words</span>
+          <span class="metric">tone: warm</span>
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+
+  </div>
+
+  <script>
+  // Self-contained prompt-tuner driver (AG-0011 D2): live-fill preview + copy.
+  (function () {
+    "use strict";
+
+    var VARIABLES = {
+      customer_name: 'Priya N.',
+      plan_tier: 'Free',
+      ticket_body: 'I made a board yesterday and today I can’t find it. Did I delete it?',
+      tone: 'warm and patient'
+    };
+    var SLOT_RE = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
+
+    var editor   = document.getElementById('editor');
+    var preview  = document.getElementById('preview');
+    var counter  = document.getElementById('counter');
+    var legend   = document.getElementById('legendChips');
+    var copyBtn  = document.getElementById('copyBtn');
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function fillHtml(text) {
+      var html = '', last = 0, m;
+      SLOT_RE.lastIndex = 0;
+      while ((m = SLOT_RE.exec(text)) !== null) {
+        html += escapeHtml(text.slice(last, m.index));
+        var name = m[1];
+        if (Object.prototype.hasOwnProperty.call(VARIABLES, name)) {
+          html += '<span class="filled">' + escapeHtml(String(VARIABLES[name])) + '</span>';
+        } else {
+          html += '<span class="missing">' + escapeHtml(m[0]) + '</span>';
+        }
+        last = m.index + m[0].length;
+      }
+      html += escapeHtml(text.slice(last));
+      return html;
+    }
+
+    function plainText() {
+      return editor.innerText.replace(/\r\n/g, '\n');
+    }
+
+    function refresh() {
+      var text = plainText();
+      if (preview) preview.innerHTML = fillHtml(text);
+      if (counter) {
+        var chars = text.length;
+        counter.textContent = chars + ' chars · ~' + Math.round(chars / 4.2) + ' tokens';
+      }
+    }
+
+    function buildLegend() {
+      if (!legend) return;
+      legend.innerHTML = '';
+      Object.keys(VARIABLES).forEach(function (name) {
+        var c = document.createElement('span');
+        c.className = 'chip';
+        c.textContent = '{{' + name + '}}';
+        legend.appendChild(c);
+      });
+    }
+
+    if (editor) {
+      editor.addEventListener('input', refresh);
+    }
+
+    if (copyBtn) {
+      var timer = null;
+      copyBtn.addEventListener('click', function () {
+        var text = plainText();
+        var done = function () {
+          copyBtn.textContent = 'Copied ✓';
+          copyBtn.classList.add('copied');
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(function () {
+            copyBtn.textContent = 'Copy prompt';
+            copyBtn.classList.remove('copied');
+          }, 1200);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          done();
+        }
+      });
+    }
+
+    buildLegend();
+    refresh();
+  })();
+  </script>
+</body>
+</html>

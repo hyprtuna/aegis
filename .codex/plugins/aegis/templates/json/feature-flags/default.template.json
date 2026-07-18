@@ -1,0 +1,15 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:19-editor-feature-flags.html",
+  "description": "JSON sibling of the feature-flags template: the flag set as machine-readable config data — each flag with its key, description, rollout, enabled state, and meta. The agent expands the flags[] exemplar per flag.",
+  "slots": [
+    { "key": "title", "type": "string", "required": false, "description": "Config title." },
+    { "key": "flags", "type": "flag", "description": "Flag config entries; expand the exemplar object per flag." }
+  ],
+  "shape": {
+    "flag[]": "{ key: string, description: string, rollout: string (optional), enabled: boolean, meta: string (optional) }"
+  }
+}

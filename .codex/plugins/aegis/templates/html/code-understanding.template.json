@@ -1,0 +1,26 @@
+{
+  "kind": "template",
+  "name": "code-understanding",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:04-code-understanding.html",
+  "description": "Standalone HTML walkthrough that answers a 'how does X work' question: a question + summary header, a numbered call-sequence with collapsible source snippets, and a sidebar of key components and related references.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Note title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. repo or area." },
+    { "key": "question", "type": "string", "description": "The question being answered, plus a short summary of the mechanism." },
+    { "key": "callSequence[]", "type": "step", "description": "Ordered steps of the call sequence; one .step block each." },
+    { "key": "callSequence.location", "type": "string", "description": "File:line location for the step." },
+    { "key": "callSequence.description", "type": "string", "description": "What runs at this step and why it matters." },
+    { "key": "callSequence.code", "type": "string", "required": false, "description": "Representative source snippet for the step." },
+    { "key": "components[]", "type": "component", "description": "Key components involved; one sidebar entry each." },
+    { "key": "component.path", "type": "string", "description": "Component file path." },
+    { "key": "component.role", "type": "string", "description": "What the component is responsible for." },
+    { "key": "references[]", "type": "string", "required": false, "description": "Related files worth reading; one sidebar entry each." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "callSequence[]": "{ location: string (file:line), description: string, code: string (optional) }",
+    "component[]": "{ path: string, role: string }"
+  }
+}

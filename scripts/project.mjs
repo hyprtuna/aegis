@@ -865,13 +865,28 @@ function projectCodex(hookIntents) {
   // internally so it stays atomic even though it runs after the skill swap.
   const rules = projectCodexRules();
 
-  // Ship the markdown templates into the Codex plugin tree so the bundled-path
-  // references emitted by resolveTemplateDirectives() resolve on Codex.
-  const codexTemplatesDir = join(REPO, ".codex/plugins/aegis/templates/markdown");
-  if (existsSync(codexTemplatesDir)) rmSync(codexTemplatesDir, { recursive: true, force: true });
-  const templates = copyDirRecursive(
-    join(REPO, "templates", "markdown"),
-    codexTemplatesDir,
+  // Ship the markdown, html, and json templates into the Codex plugin tree so
+  // the bundled-path references emitted by resolveTemplateDirectives() resolve
+  // on Codex (AG-0004 A5). Also fixes the pre-existing latent gap where
+  // :json bundled-pointers (design-system, plan-audit-report) referenced
+  // templates/json/... that never shipped on Codex.
+  const codexTemplatesRoot = join(REPO, ".codex/plugins/aegis/templates");
+  if (existsSync(codexTemplatesRoot)) rmSync(codexTemplatesRoot, { recursive: true, force: true });
+  let templates = 0;
+  for (const variant of ["markdown", "html", "json"]) {
+    templates += copyDirRecursive(
+      join(REPO, "templates", variant),
+      join(codexTemplatesRoot, variant),
+    );
+  }
+
+  // Ship manifest/template-index.json into the Codex plugin tree so a runtime
+  // index read (rules/user-choice-discipline.md step 5) can resolve there too.
+  const codexManifestDir = join(REPO, ".codex/plugins/aegis/manifest");
+  mkdirSync(codexManifestDir, { recursive: true });
+  copyFileSync(
+    join(REPO, "manifest", "template-index.json"),
+    join(codexManifestDir, "template-index.json"),
   );
 
   // Emit the official plugin manifest + MCP stub at plugin-root (B1/B2, D-04/D-06).

@@ -48,37 +48,41 @@ Note: only show the `~/.aegis/projects/` option when `~/.aegis/` exists on the s
 
 ## Q2 — Format
 
+The option set is **index-driven**: the `code-review` kind declares
+`formats: { markdown, html, json }` in `manifest/template-index.json` with `default: markdown`,
+so Q2 offers Markdown, HTML, and Structured JSON, with Markdown (the default) marked Recommended.
+
 Invoke AskUserQuestion with the following payload:
 
 ```json
 {
   "question": "What format should the review report use?",
-  "intro": "Structured JSON integrates with tooling and CI pipelines. Markdown is human-readable and renders in PRs.",
+  "intro": "Choose based on who will read the report. The options below are the formats the code-review kind ships per manifest/template-index.json. Format is independent of where the file is stored.",
   "options": [
     {
-      "label": "Structured JSON (Recommended)",
+      "label": "Markdown (Recommended)",
+      "description": "Human-readable severity-graded review with section headers; renders in PR diffs and on GitHub. The code-review kind's default format."
+    },
+    {
+      "label": "HTML",
+      "description": "Standalone stakeholder deliverable — severity-graded findings and reviewer sign-off as a self-contained page. Best when sharing outside the diff."
+    },
+    {
+      "label": "Structured JSON",
       "description": "Machine-readable review report; consumable by tooling and CI. Schema = the code-reviewer agent's inline ReviewReport."
-    },
-    {
-      "label": "Markdown",
-      "description": "Human-readable severity-graded review with section headers; renders in PR diffs and on GitHub."
-    },
-    {
-      "label": "Both",
-      "description": "Write both a JSON and a markdown report at the chosen location."
     }
   ],
-  "_rationale": "Structured JSON enables automated aggregation and tooling integration."
+  "_rationale": "Markdown is the default and serves PR/GitHub readers; HTML and Structured JSON come straight from the kind's index entry — no hardcoded format list."
 }
 ```
 
 ## Structured JSON schema
 
-When the user picks **Structured JSON** or **Both**, the report follows the `ReviewReport`
+When the user picks **Structured JSON**, the report follows the `ReviewReport`
 schema defined inline in the `code-reviewer` agent (its source of truth — there is no separate
 addendum file). The severity vocabulary lives there too, and the `--strict-review` behavior is
 the `code-reviewer --strict` mode (the adversarial lock-in / irreversible-decision lens,
-`min_confidence: 0`). The markdown-only path uses the generic stage output below.
+`min_confidence: 0`). The markdown and HTML paths use the generic stage output below.
 
 ## Reviewer-dispatch doctrine (read before constructing any dispatch prompt)
 

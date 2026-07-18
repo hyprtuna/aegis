@@ -1,0 +1,16 @@
+{
+  "verdict": "__SLOT__verdict",
+  "plan_path": "__SLOT__planPath",
+  "spec_path": "__SLOT__specPath",
+  "gaps": [
+    {
+      "kind": "__SLOT__gapKind",
+      "severity": "__SLOT__gapSeverity",
+      "message": "__SLOT__gapMessage",
+      "task_ref": "__SLOT__gapTaskRef",
+      "spec_ref": "__SLOT__gapSpecRef"
+    }
+  ],
+  "requirements_total": "__SLOT__requirementsTotal",
+  "requirements_covered": "__SLOT__requirementsCovered"
+}

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SLOT: title (used in <title> and h1) -->
+<title>Code understanding</title>
+<style>
+  :root {
+    --ivory: #FAF9F5;
+    --slate: #141413;
+    --clay: #D97757;
+    --oat: #E3DACC;
+    --olive: #788C5D;
+    --rust: #B04A3F;
+    --gray-150: #F0EEE6;
+    --gray-300: #D1CFC5;
+    --gray-500: #87867F;
+    --gray-700: #3D3D3A;
+    --serif: ui-serif, Georgia, 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 48px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 40px;
+  }
+  @media (max-width: 960px) { .page { grid-template-columns: 1fr; } }
+
+  header { grid-column: 1 / -1; margin-bottom: 8px; }
+  .repo-line {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.25;
+    color: var(--slate);
+    margin-bottom: 16px;
+  }
+  .summary { max-width: 760px; font-size: 15.5px; }
+  .summary code { font-family: var(--mono); font-size: 13px; }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 36px 0 16px;
+  }
+
+  /* ---------- Walkthrough ---------- */
+  .step {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 18px;
+    padding: 20px 0;
+    border-bottom: 1.5px solid var(--gray-150);
+  }
+  .step:last-of-type { border-bottom: none; }
+  .badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--oat);
+    border: 1.5px solid var(--gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--slate);
+    font-size: 14px;
+  }
+  .step-loc {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+  .step-body p { margin-bottom: 10px; }
+
+  details.snippet { margin-top: 6px; }
+  details.snippet summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--gray-500);
+    font-family: var(--mono);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    user-select: none;
+  }
+  details.snippet summary::-webkit-details-marker { display: none; }
+  details.snippet summary::before {
+    content: "\25B8";
+    font-size: 10px;
+    transition: transform 0.15s ease;
+  }
+  details.snippet[open] summary::before { transform: rotate(90deg); }
+
+  pre.code {
+    background: var(--slate);
+    color: #E8E6DC;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin-top: 10px;
+    white-space: pre;
+  }
+
+  /* ---------- Sidebar ---------- */
+  aside { position: sticky; top: 24px; align-self: start; }
+  .panel {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 12px;
+    background: #fff;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .panel h3 {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+  }
+  .key-files { list-style: none; padding: 0; }
+  .key-files li { margin-bottom: 12px; }
+  .key-files li:last-child { margin-bottom: 0; }
+  .key-files .path {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--slate);
+    display: block;
+    margin-bottom: 2px;
+    word-break: break-all;
+  }
+  .key-files .desc {
+    font-size: 12.5px;
+    color: var(--gray-500);
+    line-height: 1.45;
+  }
+
+  footer.provenance {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gray-500);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <!-- SLOT: eyebrow (small overline label, e.g. repo or area) -->
+    <div class="repo-line">Code understanding</div>
+    <h1><!-- SLOT: title -->How a subsystem flows through the codebase</h1>
+    <p class="summary">
+      <!-- SLOT: question -->
+      Restate the question being answered, then give a two-to-four sentence summary of the mechanism: the single entry point, the trust boundary, and where state ultimately lives.
+    </p>
+  </header>
+
+  <main>
+    <h2 style="margin-top:0">Call sequence</h2>
+
+    <!-- SLOT: callSequence (repeat the .step block once per step, numbering the badge) -->
+    <div class="step">
+      <div class="badge">1</div>
+      <div class="step-body">
+        <!-- SLOT: callSequence.location -->
+        <div class="step-loc">src/path/to/file.ts:14-31</div>
+        <!-- SLOT: callSequence.description -->
+        <p>Describe what runs at this step and why it matters to the overall flow.</p>
+        <details class="snippet">
+          <summary>show source</summary>
+<pre class="code"><!-- SLOT: callSequence.code -->// representative source for this step</pre>
+        </details>
+      </div>
+    </div>
+    <!-- /SLOT: callSequence -->
+  </main>
+
+  <aside>
+    <div class="panel">
+      <h3>Components</h3>
+      <ul class="key-files">
+        <!-- SLOT: components (repeat the li once per component) -->
+        <li>
+          <!-- SLOT: component.path -->
+          <span class="path">src/path/to/component.ts</span>
+          <!-- SLOT: component.role -->
+          <span class="desc">What this component is responsible for.</span>
+        </li>
+        <!-- /SLOT: components -->
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>References</h3>
+      <ul class="key-files">
+        <!-- SLOT: references (repeat the li once per reference) -->
+        <li>
+          <span class="path">src/path/to/related.ts</span>
+        </li>
+        <!-- /SLOT: references -->
+      </ul>
+    </div>
+  </aside>
+
+  <footer class="provenance">
+    <!-- SLOT: provenance (auto-filled by agent) -->
+    Generated by Aegis on YYYY-MM-DD
+  </footer>
+
+</div>
+</body>
+</html>

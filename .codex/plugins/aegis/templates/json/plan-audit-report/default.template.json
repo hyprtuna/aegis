@@ -1,0 +1,23 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "v0.0.9:plan-verifier",
+  "description": "Machine-readable PlanAuditReport emitted by the plan-verifier agent: a binary verdict, plan/spec paths, a gaps array (goal-coverage gaps, missing steps, ordering and reference problems, risk notes — each with kind/severity/message and optional task/spec refs), and requirement coverage counts. Placeholder strings keep the file parseable; the agent expands the gaps exemplar element, one per gap. Emit JSON even on PASS (gaps empty or suggestions only).",
+  "slots": [
+    { "key": "verdict", "type": "string", "description": "Binary verdict; matches the markdown verdict.", "enum": ["pass", "fail"] },
+    { "key": "planPath", "type": "string", "description": "Relative path to the plan." },
+    { "key": "specPath", "type": "string", "required": false, "description": "Relative path to the spec, or null." },
+    { "key": "gapKind", "type": "string", "description": "Gap kind. The gaps array (see shape) carries one exemplar element to clone per gap.", "enum": ["missing-requirement", "scope-creep", "ambiguous-acceptance", "unmapped-task", "dependency-violation", "broken-reference", "hidden-intention", "missing-edge-case"] },
+    { "key": "gapSeverity", "type": "string", "description": "Gap severity; 'critical' alone causes FAIL.", "enum": ["critical", "important", "suggestion"] },
+    { "key": "gapMessage", "type": "string", "description": "Concise description of the gap." },
+    { "key": "gapTaskRef", "type": "string", "required": false, "description": "Task reference, e.g. 'Task N' or a task id." },
+    { "key": "gapSpecRef", "type": "string", "required": false, "description": "Spec reference, e.g. 'path#anchor'." },
+    { "key": "requirementsTotal", "type": "number", "description": "Total discrete goal requirements." },
+    { "key": "requirementsCovered", "type": "number", "description": "Requirements mapped to at least one covering task." }
+  ],
+  "shape": {
+    "gaps[]": "{ kind: enum[missing-requirement,scope-creep,ambiguous-acceptance,unmapped-task,dependency-violation,broken-reference,hidden-intention,missing-edge-case], severity: enum[critical,important,suggestion], message: string, task_ref: string (optional), spec_ref: string (optional) }"
+  }
+}

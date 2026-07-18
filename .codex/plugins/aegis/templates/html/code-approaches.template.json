@@ -1,0 +1,23 @@
+{
+  "kind": "template",
+  "name": "code-approaches",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:01-exploration-code-approaches.html",
+  "description": "Standalone HTML exploration of multiple candidate implementations: a prompt/context header, a grid of approach cards (name, code sketch, pros/cons tradeoff table), and a closing recommendation.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Exploration title; used in <title> and the h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Small overline label, e.g. project or area." },
+    { "key": "context", "type": "string", "description": "Prompt or problem statement that motivated the exploration." },
+    { "key": "approaches[]", "type": "approach", "description": "One card per candidate approach." },
+    { "key": "approach.name", "type": "string", "description": "Approach name, shown in the card heading." },
+    { "key": "approach.code", "type": "string", "description": "Representative code sketch for the approach." },
+    { "key": "approach.pros[]", "type": "string", "description": "Advantages of the approach; one .pro cell each." },
+    { "key": "approach.cons[]", "type": "string", "description": "Drawbacks of the approach; one .con cell each." },
+    { "key": "recommendation", "type": "string", "description": "Which approach to take and why, with the accepted trade-off." },
+    { "key": "provenance", "type": "string", "required": false, "description": "Footer provenance line, auto-filled by the agent." }
+  ],
+  "shape": {
+    "approach[]": "{ name: string, code: string, pros: string[], cons: string[] }"
+  }
+}

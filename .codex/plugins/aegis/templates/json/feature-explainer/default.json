@@ -1,0 +1,16 @@
+{
+  "topic": "__SLOT__topic",
+  "overview": "__SLOT__overview",
+  "sections": [
+    {
+      "heading": "__SLOT__sectionHeading",
+      "body": "__SLOT__sectionBody"
+    }
+  ],
+  "code": [
+    {
+      "caption": "__SLOT__codeCaption",
+      "body": "__SLOT__codeBody"
+    }
+  ]
+}

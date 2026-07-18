@@ -1,0 +1,18 @@
+{
+  "kind": "template",
+  "name": "slide-deck",
+  "family": "html",
+  "version": "0.1.0",
+  "source": "html-effectiveness:09-slide-deck.html",
+  "description": "Standalone zero-JS HTML slide deck rendered as print-friendly stacked slide cards (no navigation or transition scripts): a title slide plus content slides with a heading, bullet points, and an optional speaker note.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Deck title; used in <title> and the title-slide h1." },
+    { "key": "eyebrow", "type": "string", "required": false, "description": "Overline label on the title slide." },
+    { "key": "subtitle", "type": "string", "required": false, "description": "One-line framing under the title." },
+    { "key": "byline", "type": "array", "required": false, "description": "Title-slide meta items: presenter, date, slide count, duration." },
+    { "key": "slides", "type": "slide", "description": "Content slides; one .slide block each, add class 'invert' for emphasis." }
+  ],
+  "shape": {
+    "slides[]": "{ heading: string, bullets: string[], note: string (optional), invert: boolean (optional) }"
+  }
+}

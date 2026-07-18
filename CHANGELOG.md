@@ -6,6 +6,13 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.1] — 2026-07-19
+
+- **User-selectable HTML output, end-to-end on Claude.** The output-format choice now resolves at runtime — the agent reads the template index, takes the chosen format, and reads the bundled template — closing a path that was previously inert. The two HTML-shipping report producers and the research skill now present the format choice.
+- **Codex template substrate bundled** — the Codex plugin now ships the HTML and JSON templates plus the template index (fixing a latent `:json` pointer gap). HTML/JSON selection is honestly documented as `partial` on Codex and OpenCode (no runtime plugin-root token) and closed on Claude.
+- **HTML accessibility criterion** added to the output conventions — semantic landmarks, WCAG AA contrast, keyboard-reachable controls, `aria-hidden` on decorative SVG.
+- Corrected the `implementation-plan` template default to markdown; documented the orphaned template kinds.
+
 ## [v0.1.0] — 2026-07-19
 
 Public launch. Aegis is a plugin-first agentic AI development system for Claude Code, OpenCode, and Codex — a curated, portable set of skills, agents, commands, rules, hooks, and templates that load natively in your host. There is no CLI and no build step: you add Aegis as a plugin and your host reads the surfaces directly.

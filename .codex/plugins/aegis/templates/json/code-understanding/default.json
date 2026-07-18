@@ -1,0 +1,18 @@
+{
+  "title": "__SLOT__title",
+  "question": "__SLOT__question",
+  "components": [
+    {
+      "path": "__SLOT__componentPath",
+      "role": "__SLOT__componentRole"
+    }
+  ],
+  "callSequence": [
+    {
+      "location": "__SLOT__stepLocation",
+      "description": "__SLOT__stepDescription",
+      "code": "__SLOT__stepCode"
+    }
+  ],
+  "references": ["__SLOT__references"]
+}

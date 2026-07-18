@@ -1,0 +1,15 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:15-research-concept-explainer.html",
+  "description": "Machine-readable sibling of the concept-explainer: a concept name, an intuition lead, a plain-prose mechanics explanation, a worked example, and a flat furtherReading array. Placeholder strings keep the file parseable; the agent expands the single furtherReading element into one entry per pointer.",
+  "slots": [
+    { "key": "concept", "type": "string", "description": "Concept name." },
+    { "key": "intuition", "type": "string", "description": "The one-sentence mental model, framed against the naive approach." },
+    { "key": "mechanics", "type": "string", "description": "Plain-prose explanation of how the concept works and what it trades off." },
+    { "key": "example", "type": "string", "description": "A small worked example that makes the concept concrete." },
+    { "key": "furtherReading[]", "type": "string", "required": false, "description": "Pointers to follow next; one entry each." }
+  ]
+}

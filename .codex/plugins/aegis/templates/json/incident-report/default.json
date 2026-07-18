@@ -1,0 +1,28 @@
+{
+  "id": "__SLOT__id",
+  "title": "__SLOT__title",
+  "severity": "__SLOT__severity",
+  "status": "__SLOT__status",
+  "metaPills": ["__SLOT__metaPills"],
+  "summary": "__SLOT__summary",
+  "timeline": [
+    {
+      "time": "__SLOT__timelineTime",
+      "event": "__SLOT__timelineEvent",
+      "dot": "__SLOT__timelineDot"
+    }
+  ],
+  "rootCause": "__SLOT__rootCause",
+  "impact": [
+    { "label": "__SLOT__impactLabel", "value": "__SLOT__impactValue" }
+  ],
+  "followups": [
+    {
+      "owner": "__SLOT__followupOwner",
+      "action": "__SLOT__followupAction",
+      "due": "__SLOT__followupDue",
+      "done": "__SLOT__followupDone"
+    }
+  ],
+  "provenance": "__SLOT__provenance"
+}

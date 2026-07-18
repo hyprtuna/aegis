@@ -135,6 +135,24 @@ If the manifest is missing or malformed, the plugin **refuses to register agents
 
 OpenCode filesystem-discovers canonical skills (via `skills.paths` pointing at canonical `skills/`) with **no skill-body transform step**, so the `${TEMPLATE:<family>}` directive is **NOT resolved** on OpenCode — the consumer skills render the literal directive here. Unlike Claude (which gained a generated-tree transform in v0.0.5), OpenCode still discovers canonical files in place, so this remains an open `partial` (`templates-surface`) until OpenCode gets its own skill-body transform. (Codex resolution is live and verified since v0.0.4.)
 
+**HTML output reachability (v0.1.1).** The runtime format-resolution procedure
+in `rules/user-choice-discipline.md` (step 5) reads
+`${CLAUDE_PLUGIN_ROOT}/manifest/template-index.json` and `Read`s the chosen
+template under the plugin root. Only **Claude** closes HTML end-to-end: it has
+a `${CLAUDE_PLUGIN_ROOT}` token, so the runtime read resolves. **Codex now
+bundles the substrate** — `templates/html`, `templates/json`, and
+`template-index.json` ship into its plugin tree (see the Codex projection
+doc), which fixes the pre-existing `:json` bundled-pointer gap — but Codex has
+**no equivalent base-path token** (`project.mjs` never emits
+`${CLAUDE_PLUGIN_ROOT}` for `host === "codex"`), so an agent following step 5
+still cannot resolve the runtime read; HTML selection stays a documented
+`partial` on Codex, the same class of gap as OpenCode. **OpenCode** has
+**no plugin-root environment variable at all** — canonical files are
+discovered in place with no transform step and no stable base-path token an
+agent can resolve at runtime. On both Codex and OpenCode, Q2 may still offer
+HTML (the option set is index-driven, not host-gated), but the runtime `Read`
+of the template body has no resolvable path today.
+
 ## Unsupported v0.0.5 Uptakes (Documented Gaps)
 
 The following v0.0.5 capabilities are **Claude-only** (DH7) and have no OpenCode equivalent. Each is a `gap`/`partial`/`n-a` row in [`manifest/capabilities.json`](../../manifest/capabilities.json) — the source of truth; this list must not contradict it.

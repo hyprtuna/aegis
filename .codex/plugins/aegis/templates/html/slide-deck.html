@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SLOT: title (used in <title> and the title-slide h1) -->
+  <title>Slide Deck</title>
+  <style>
+    :root {
+      --ivory:    #FAF9F5;
+      --slate:    #141413;
+      --clay:     #D97757;
+      --oat:      #E3DACC;
+      --olive:    #788C5D;
+      --gray-150: #F0EEE6;
+      --gray-300: #D1CFC5;
+      --gray-500: #87867F;
+      --gray-700: #3D3D3A;
+      --white:    #FFFFFF;
+
+      --serif: ui-serif, Georgia, 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono:  ui-monospace, 'SF Mono', Menlo, Monaco, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--gray-150);
+      color: var(--slate);
+      -webkit-font-smoothing: antialiased;
+      padding: 48px 24px 96px;
+    }
+
+    .deck {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Each slide is a self-contained 16:9-ish card; stacked for print/scroll. */
+    .slide {
+      background: var(--ivory);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 16px;
+      padding: 56px 56px 48px;
+      min-height: 460px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .slide.invert { background: var(--slate); color: var(--ivory); }
+
+    .slide-num {
+      position: absolute;
+      top: 22px;
+      right: 28px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+    .invert .slide-num { color: var(--gray-300); }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 22px;
+    }
+    .invert .eyebrow { color: var(--gray-300); }
+
+    /* title slide */
+    .title-slide h1 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 18px;
+    }
+    .title-slide .subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--gray-700);
+      max-width: 540px;
+    }
+    .byline {
+      margin-top: 44px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--gray-500);
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* content slide */
+    h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(26px, 3.4vw, 38px);
+      line-height: 1.15;
+      letter-spacing: -0.005em;
+      margin-bottom: 28px;
+    }
+    .bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .bullets li {
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--gray-700);
+      padding-left: 32px;
+      position: relative;
+    }
+    .invert .bullets li { color: var(--ivory); }
+    .bullets li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 18px;
+      height: 1.5px;
+      background: var(--clay);
+    }
+    .note {
+      margin-top: 32px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gray-300);
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--gray-500);
+      font-style: italic;
+    }
+    .invert .note { border-top-color: var(--gray-700); color: var(--gray-300); }
+
+    @media print {
+      body { background: var(--white); padding: 0; }
+      .slide { page-break-after: always; border-radius: 0; border: none; min-height: 96vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+
+    <!-- ====================== TITLE SLIDE ====================== -->
+    <section class="slide title-slide">
+      <div class="slide-num">1</div>
+      <div class="eyebrow"><!-- SLOT: eyebrow -->Presentation</div>
+      <h1><!-- SLOT: title -->Deck title goes here</h1>
+      <p class="subtitle"><!-- SLOT: subtitle -->One-line framing of what this deck covers and the decision or takeaway it builds toward.</p>
+      <div class="byline">
+        <!-- SLOT: byline (extras: presenter, date, slide count, duration) -->
+        <span>Presenter</span>
+        <span>YYYY-MM-DD</span>
+      </div>
+    </section>
+
+    <!-- ====================== CONTENT SLIDES ====================== -->
+    <!-- SLOT: slides (repeat one .slide block per content slide; add class 'invert' for emphasis slides; omit .bullets or .note when empty) -->
+    <section class="slide">
+      <div class="slide-num">2</div>
+      <div class="eyebrow">Section</div>
+      <h2>Slide heading</h2>
+      <ul class="bullets">
+        <li>First key point on this slide.</li>
+        <li>Second key point, kept to one line where possible.</li>
+        <li>Third point.</li>
+      </ul>
+      <p class="note">Speaker note or aside that supports the slide without cluttering it.</p>
+    </section>
+
+    <section class="slide invert">
+      <div class="slide-num">3</div>
+      <div class="eyebrow">Decision</div>
+      <h2>One call to make</h2>
+      <ul class="bullets">
+        <li>Option A — what we gain, what we give up.</li>
+        <li>Option B — the alternative and its trade-off.</li>
+      </ul>
+      <p class="note">Recommendation and why, in one sentence.</p>
+    </section>
+
+  </div>
+</body>
+</html>

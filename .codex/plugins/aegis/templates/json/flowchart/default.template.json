@@ -1,0 +1,17 @@
+{
+  "kind": "template",
+  "name": "default",
+  "family": "json",
+  "version": "0.1.0",
+  "source": "html-effectiveness:13-flowchart-diagram.html",
+  "description": "JSON sibling of the flowchart template: the graph as machine-readable data — a node list and a directed-edge list. The agent expands the nodes[]/edges[] arrays from the __SLOT__ exemplar entries.",
+  "slots": [
+    { "key": "title", "type": "string", "description": "Flow title." },
+    { "key": "nodes", "type": "node", "description": "Graph nodes; expand the exemplar object per node." },
+    { "key": "edges", "type": "edge", "description": "Directed edges; expand the exemplar object per edge." }
+  ],
+  "shape": {
+    "node[]": "{ id: string, label: string, kind: enum[process,terminal,decision,ok,bad] }",
+    "edge[]": "{ from: string, to: string, label: string (optional) }"
+  }
+}

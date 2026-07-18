@@ -24,7 +24,7 @@ Generated from `manifest/capabilities.json`. See [capability-matrix.md](capabili
 | `plugin-dependencies` | 🟡 partial | 🟡 partial | ⛔ gap | — n/a | — n/a |
 | `zip-skill-distribution` | ✅ supported | 🟡 partial | 🟡 partial | — n/a | — n/a |
 | `statusline-presets` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
-| `templates-surface` | 🟡 partial | 🟡 partial | ✅ supported | ⛔ gap | ⛔ gap |
+| `templates-surface` | ✅ supported | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |
 | `model-aliases` | ✅ supported | ✅ supported | 🟡 partial | — n/a | — n/a |
 | `provider-tagged-prose` | ✅ supported | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap |
 | `session-start-hook` | ✅ supported | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |

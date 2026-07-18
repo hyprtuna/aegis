@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- SLOT: topic (used in <title> and h1) -->
+<title>Feature explainer</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 48px;
+  }
+  @media (max-width: 920px) { .page { grid-template-columns: 1fr; } nav { display: none; } }
+
+  /* nav */
+  nav { position: sticky; top: 32px; align-self: start; font-size: 13px; }
+  nav .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+  }
+  nav a {
+    display: block;
+    padding: 5px 0 5px 12px;
+    border-left: 2px solid var(--gray-300);
+    color: var(--gray-700);
+    text-decoration: none;
+  }
+  nav a:hover { color: var(--slate); border-color: var(--slate); }
+
+  /* header */
+  header { margin-bottom: 12px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    color: var(--slate);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .tldr {
+    border: 1.5px solid var(--gray-300);
+    border-left: 3px solid var(--clay);
+    border-radius: 10px;
+    background: #fff;
+    padding: 16px 18px;
+    margin-bottom: 8px;
+  }
+  .tldr b { color: var(--slate); }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 40px 0 14px;
+    scroll-margin-top: 24px;
+  }
+  p { margin-bottom: 12px; max-width: 680px; }
+  code { font-family: var(--mono); font-size: 13px; }
+
+  /* code block */
+  .codeblock {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 10px;
+    background: #fff;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .codeblock .cap {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    background: var(--gray-150);
+    border-bottom: 1px solid var(--gray-300);
+    padding: 8px 16px;
+    text-transform: none;
+  }
+  .codeblock pre {
+    margin: 0;
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--slate);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* callout */
+  .callout {
+    display: flex;
+    gap: 12px;
+    border: 1.5px solid var(--oat);
+    background: rgba(227,218,204,0.35);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .callout .ico { color: var(--clay); font-weight: 600; }
+
+  footer.provenance {
+    margin-top: 40px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gray-500);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- side nav -->
+  <nav>
+    <div class="label">On this page</div>
+    <a href="#overview">Overview</a>
+    <!-- SLOT: sections (optionally one nav anchor per section heading) -->
+    <a href="#section">Section</a>
+    <!-- /SLOT: sections -->
+  </nav>
+
+  <!-- main -->
+  <main>
+    <header>
+      <!-- SLOT: eyebrow (small overline label, e.g. area or repo) -->
+      <div class="eyebrow">Feature explainer</div>
+      <h1><!-- SLOT: topic -->How a feature works</h1>
+      <div class="tldr" id="overview">
+        <b>Overview</b> &mdash;
+        <!-- SLOT: overview -->
+        Two-to-four sentence summary of what the feature does, the path a request takes through it, and where its configuration lives.
+      </div>
+    </header>
+
+    <!-- SLOT: sections (repeat the h2 + body once per section) -->
+    <h2 id="section"><!-- SLOT: section.heading -->Section heading</h2>
+    <!-- SLOT: section.body -->
+    <p>Body prose for this section explaining one part of the feature in concrete terms.</p>
+    <!-- /SLOT: sections -->
+
+    <h2>Code</h2>
+    <!-- SLOT: code (repeat the .codeblock once per labeled snippet) -->
+    <div class="codeblock">
+      <!-- SLOT: code.caption -->
+      <div class="cap">path/or/label.ts</div>
+      <pre><!-- SLOT: code.body -->// representative code for this part of the feature</pre>
+    </div>
+    <!-- /SLOT: code -->
+
+    <footer class="provenance">
+      <!-- SLOT: provenance (auto-filled by agent) -->
+      Generated by Aegis on YYYY-MM-DD
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>
