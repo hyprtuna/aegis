@@ -73,26 +73,6 @@
           }
         ]
       }
-    ],
-    "FileChanged": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/file-changed.sh"
-          }
-        ]
-      }
-    ],
-    "CwdChanged": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/cwd-changed.sh"
-          }
-        ]
-      }
     ]
   },
   "agents": [

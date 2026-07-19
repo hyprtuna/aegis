@@ -1,6 +1,5 @@
 ---
 description: 'Activate a named skill explicitly. Bypasses skill-selection; use when you know exactly which skill you want.'
-argument-hint: '<name>'
 ---
 
 Invoke the named skill directly.

@@ -1,6 +1,5 @@
 ---
 description: 'Install or switch an Aegis statusline preset — pick, preview, and merge into settings.json.'
-argument-hint: '[preset]'
 ---
 
 Guide the user through installing or switching an Aegis statusline preset for Claude Code. This is a Claude Code slash command — work entirely in-host. **IMPORTANT: Aegis never runs a CLI to mutate `settings.json`. This command guides you (the model) and the user to make the change in-host; there is no `aegis` binary doing the write.**

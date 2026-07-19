@@ -6,11 +6,24 @@
 
 ## Iron Rule: No Canonical Duplication
 
-NEVER copy canonical content (skills, agents, commands) into `adapters/<host>/`. The canonical source is `skills/`, `agents/`, etc. Adapter folders hold:
+NEVER **hand-copy** canonical content (skills, agents, commands) into `adapters/<host>/`. The canonical source is `skills/`, `agents/`, etc. Adapter folders hold:
 
 - `projection.md` — what each canonical surface maps to in this host.
 - `gaps.md` (optional) — what canonical surfaces have no host counterpart.
 - Host-specific generator helpers if needed (avoid until truly needed).
+
+**Sanctioned exception: `adapters/claude/{skills,agents,commands}/`.** This tree is not
+hand-copied canonical — it is **generated** by `scripts/project.mjs` (`projectClaude()`)
+and drift-guarded: `validate-structure.mjs`'s `claude-drift` rule hard-fails if the
+committed tree diverges from what a fresh `node scripts/project.mjs` run would produce.
+It exists because Claude's plugin loader needs a host-native projection that canonical
+alone cannot provide — flattened `x-claude.*` frontmatter, resolved `${TEMPLATE:*}`
+directives, injected `tools:`/`disallowedTools:`/`memory:`, and the re-injected Invoke-via
+blockquote (see `adapters/claude/projection.md` "Generated-Tree Projection"). No maintainer
+ever edits a file under `adapters/claude/skills|agents|commands/` by hand; every change
+flows canonical → `project.mjs` → generated tree. The Iron Rule still forbids *authoring*
+content directly in `adapters/<host>/` — this exception covers only the projector's own
+generated output, which is the opposite of duplication-by-hand.
 
 ## Layout
 

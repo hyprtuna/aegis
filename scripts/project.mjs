@@ -323,12 +323,11 @@ function projectCommands() {
     const { fm, body } = parseFrontmatter(raw);
 
     // OpenCode command frontmatter: description (required), plus optional
-    // agent/model/subtask/argument-hint. Promote x-claude.argument-hint → argument-hint.
+    // agent/model/subtask. `argument-hint` is a Claude-only field (not a
+    // documented OpenCode config.command field) — not promoted here.
     const outFm = {
       description: fm.description,
     };
-    const argHint = fm["x-claude"]?.["argument-hint"];
-    if (argHint) outFm["argument-hint"] = argHint;
 
     // Canonical bodies are host-neutral as of v0.0.10 Phase F — body verbatim.
     const out = `${emitFrontmatter(outFm)}\n\n${body.trimStart()}`;
