@@ -11,7 +11,7 @@
         "path": "./.codex/plugins/aegis"
       },
       "description": "Plugin-first agentic AI development system.",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "category": "development",
       "keywords": [
         "agentic",

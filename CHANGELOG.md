@@ -6,6 +6,11 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.4] — 2026-07-19
+
+- **Pre-launch residue swept from shipped content** — internal `AG-NNNN` ticket references were replaced with their descriptive rationale, and pre-launch `v0.0/0.2/0.3.x` version stamps were reconciled, across scripts, statuslines, manifest, hooks, adapters, canonical surfaces, and docs. Broken private-repo links were repointed to public anchors.
+- **`SHIPPED_REF` validator** (warn-only) now guards against ticket-number references and pre-launch version stamps re-entering shipped content (the private planning tree is exempt); it graduates to a hard failure in a later release.
+
 ## [v0.1.3] — 2026-07-19
 
 - **Removed two non-functional hooks** — `FileChanged` (its matcher cannot express the intended watch) and `CwdChanged` (its context never reached the agent); both are gone from all shipped surfaces (docs, host projections, language-skill activation notes). They remain in the schema enum as forward-compat reservations only.
