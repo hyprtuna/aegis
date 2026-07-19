@@ -10,10 +10,8 @@ Coordinate Go work through migrated Aegis abilities and rule overlays.
 
 ## Activation
 
-This overlay activates on the shared matcher table `**/*.go` — the same glob the
-`file-changed` hook (`hooks/file-changed.json` `trigger.paths`) watches, so
-`paths:`-based skill activation and the FileChanged lint/format reminder fire on one
-set.
+This overlay activates on the shared matcher table `**/*.go` via `paths:`-based
+skill activation.
 
 ## Abilities
 - `abilities/go-development.md`

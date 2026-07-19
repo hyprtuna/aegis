@@ -2,7 +2,7 @@
 
 **Status:** v0.0.5 — shipped. Headline host.
 
-## Discovery Model (v0.1.3, AG-0012)
+## Discovery Model (v0.1.3)
 
 Aegis ships populated canonical `skills/`, `agents/`, `commands/` at the repo root
 **and** declares `plugin.json` manifest keys pointing at the parallel generated

@@ -1,9 +1,9 @@
-# Monitors — opt-in, off by default (AG-0258)
+# Monitors — opt-in, off by default
 
 `monitors.json` declares the `aegis-cost` background watcher (`cost-watcher.sh`). It is
 **not** wired into the default `plugin.json` — a fresh install fires zero monitors by
-design. This is a deliberate, documented posture, not dead config; do not re-flag it as
-unused in a future audit.
+design. This is a deliberate, documented posture from the monitors-opt-in change, not
+dead config; do not re-flag it as unused in a future audit.
 
 To opt in, add to your own `.claude/settings.json` (or plugin `experimental` config):
 

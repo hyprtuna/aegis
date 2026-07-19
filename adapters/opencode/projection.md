@@ -11,7 +11,7 @@
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
 - **Bootstrap (verified, v0.0.4):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once at plugin-factory init (`aegis.js:50,128`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`aegis.js:176-179`) and injects into the **first USER message** (`aegis.js:171`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This confirms the superpowers-audit recommendations were already satisfied.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.
-- **Commands:** Generated `.opencode/commands/<name>.md`. `argument-hint` is a Claude-only command field (not documented for OpenCode's `config.command`) and is intentionally NOT promoted here (v0.1.3 AG-0014 D5) — it stays only on the Claude command carrier.
+- **Commands:** Generated `.opencode/commands/<name>.md`. `argument-hint` is a Claude-only command field (not documented for OpenCode's `config.command`) and is intentionally NOT promoted here (v0.1.3) — it stays only on the Claude command carrier.
 - **Rules:** Embedded in bootstrap text, NOT via `cfg.instructions[]` (per Superpowers' tested approach; avoids per-turn token cost).
 
 ## What OpenCode Will Load
@@ -22,7 +22,7 @@
 | `agents/<name>.md` | `.opencode/agents/<name>.md` |
 | `commands/<name>.md` | `.opencode/commands/<name>.md` |
 
-**Dogfooding double-registration (maintainer-only, v0.1.3 AG-0014 D6).** When cwd is
+**Dogfooding double-registration (maintainer-only, v0.1.3).** When cwd is
 the Aegis repo itself, OpenCode natively discovers the generated `.opencode/agents/*.md`
 and `.opencode/commands/*.md` files (unprefixed names) alongside the plugin's own
 `aegis-`-prefixed inline `cfg.agent`/`cfg.command` entries built by `buildAgentEntries()`/
