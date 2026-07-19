@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://aegis.dev/schemas/hook-intent.schema.json",
   "title": "Aegis Portable Hook Intent",
-  "description": "Schema for hooks/<name>.json — the machine binding (source of truth) for a portable hook intent (AG-0010). The sibling hooks/<name>.md is the human intent doc. The projector (scripts/project.mjs) reads these to generate the Claude .claude-plugin/plugin.json hooks block and the OpenCode compaction region in .opencode/plugins/aegis.js; the HOOK_INTENT validator rule enforces this contract. Hand-edits to the generated host files are validator failures.",
+  "description": "Schema for hooks/<name>.json — the machine binding (source of truth) for a portable hook intent. The sibling hooks/<name>.md is the human intent doc. The projector (scripts/project.mjs) reads these to generate the Claude .claude-plugin/plugin.json hooks block and the OpenCode compaction region in .opencode/plugins/aegis.js; the HOOK_INTENT validator rule enforces this contract. Hand-edits to the generated host files are validator failures.",
   "type": "object",
   "required": ["kind", "intent", "name", "description", "visibility", "platforms"],
   "additionalProperties": false,

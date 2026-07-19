@@ -11,7 +11,7 @@ disallowedTools: [Edit, Write]
 
 > **Pairs with the `research` skill** (`skills/core/research/SKILL.md`) — same options/trade-offs/recommendation capability; skill = inline form, this agent = subagent form. Distinct from `deep-diving` (traces one data-flow, no options).
 >
-> **Forward-note (v0.0.11):** to be renamed `research`; do **not** rename now.
+> **Forward-note:** to be renamed `research`; do **not** rename now.
 
 ## Status: researcher starting — deep investigation of topic; producing structured RESEARCH.md with findings and recommendation
 

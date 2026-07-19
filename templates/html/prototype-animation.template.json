@@ -4,7 +4,7 @@
   "family": "html",
   "version": "0.1.0",
   "source": "html-effectiveness:07-prototype-animation.html",
-  "description": "Standalone HTML animation prototype: a replayable completion micro-interaction with an easing-curve switcher and the copy-paste CSS that drives it. Interactive template — carries the AG-0011 D2 minimal-JS exception: self-contained inline JS replays the animation and swaps the easing curve, with no external resources.",
+  "description": "Standalone HTML animation prototype: a replayable completion micro-interaction with an easing-curve switcher and the copy-paste CSS that drives it. Interactive template — carries the interactive-template minimal-JS exception: self-contained inline JS replays the animation and swaps the easing curve, with no external resources.",
   "slots": [
     { "key": "title", "type": "string", "description": "Prototype title; used in <title> and the h1." },
     { "key": "stage", "type": "string", "description": "The animated demo element region; the prototype markup whose transitions are being shown." },

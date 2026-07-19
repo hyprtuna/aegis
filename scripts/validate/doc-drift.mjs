@@ -1,4 +1,4 @@
-// doc-drift.mjs — B1/B2/B3 (AG-0189/0190/0191): doc-drift validator.
+// doc-drift.mjs — doc-drift validator.
 //
 // Folds the standalone `scripts/validate-counts.mjs` surface-count drift logic
 // into the single-walk validator pass and adds an internal/references dead-link

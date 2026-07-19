@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// render-templates.mjs — per-template render harness (AG-0121, pulled into v0.0.8).
+// render-templates.mjs — per-template render harness (pulled into v0.0.8).
 //
 // Node + stdlib only. No browser, no happy-dom. For each template body under
 // templates/{html,markdown,json}/ that has a sibling <name>.template.json:
@@ -17,7 +17,7 @@
 
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
-// Shared SLOT regex + skip-list (AG-0147) — single source of truth, so the gate
+// Shared SLOT regex + skip-list — single source of truth, so the gate
 // (scripts/validate/template-index.mjs) and this render harness can never diverge
 // on hyphenated keys or on which files count as template bodies.
 import { htmlSlotRegex, isTemplateBodySkipped } from "../validate/_context.mjs";
@@ -179,7 +179,7 @@ if (!existsSync(indexPath)) {
   }
 }
 
-// ── Pass 3: UX-pattern markers present in the polished HTML templates (AG-0217) ─
+// ── Pass 3: UX-pattern markers present in the polished HTML templates ───────
 // The v0.0.14 HTML UX pattern set (docs/templates.md "HTML UX patterns"): scroll
 // anchors (scroll-margin), <details> collapsibles, accent border-left, and an
 // eyebrow/subtitle header. These assertions run on the RENDERED output (post

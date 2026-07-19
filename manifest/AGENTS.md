@@ -13,7 +13,7 @@
 - The schema's `additionalProperties: true` is intentional — it accepts host- or source-specific metadata under `x-<namespace>`. Do not invent new unscoped top-level keys.
 - Do not put canonical content here. This folder holds metadata only.
 
-## Model Alias Conventions (AG-0253)
+## Model Alias Conventions
 
 `models.json`'s `codex` and `opencode` columns deliberately **mirror each other** for every alias (including `fable`), each carrying the Claude model id with an `anthropic/` provider prefix (e.g. `anthropic/claude-fable-5`); the `claude` column carries the unprefixed Claude-native id (e.g. `claude-fable-5`) — the columns are not meant to string-equal each other. `scripts/project.mjs` only ever resolves the Claude-native id, and Codex has no per-agent model-override surface to diverge onto, so there is nothing for the `codex`/`opencode` columns to differ by across aliases — they stay per-alias identical to each other up to the `anthropic/` prefix. Future audits should NOT re-flag `fable.codex` (or any alias's `codex`/`opencode` entry) as a copy-paste bug. This note lives here rather than in `models.json` itself to avoid an invalid `//` comment and keep the change docs-only (no `manifest/` surface edit).
 

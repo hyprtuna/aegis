@@ -52,7 +52,7 @@ platforms: [claude, opencode, codex, cursor, zed]
 
 Some templates (notably HTML) may have no frontmatter at all — they are pure output skeletons.
 
-## Slot-declaration convention (AG-0147)
+## Slot-declaration convention
 
 Every body has a sibling `<name>.template.json` whose `slots[]` and optional
 `shape` must correspond **1:1** with the body's markers. The slot↔body gate
@@ -120,7 +120,7 @@ Body (HTML):
 
 The array slot `callSequence[]`, the field slots `callSequence.location` /
 `callSequence.description`, the `shape` key `callSequence[]`, and every body
-marker all share the base `callSequence`. (Before AG-0147 the `shape` key was
+marker all share the base `callSequence`. (Before this convention, the `shape` key was
 the element **type** name `step[]`, which did not match the body — that
 divergence is the historical clash this convention closes; migrated manifests
 now key `shape` by the collection base, not the type name.)
@@ -160,7 +160,7 @@ now key `shape` by the collection base, not the type name.)
   `aria-hidden`/decorative handling for purely-visual SVG. See the `ui-design`
   skill for the full a11y guidance — not duplicated here.
 
-### Interactive-template exception (AG-0011 D2)
+### Interactive-template exception
 
 Exactly **three** templates carve a documented exception to the zero-JS rule:
 
@@ -176,10 +176,10 @@ other HTML templates remain zero-JS. (No validator gates `<script>` count
 today; this is a doc constraint plus a note for any future check, which must
 allow these three by name.)
 
-### UX patterns (AG-0217)
+### UX patterns
 
-HTML deliverable templates apply a consistent UX pattern set (added once v0.0.9 gave
-them real producers):
+HTML deliverable templates apply a consistent UX pattern set (added once
+real producers existed for them):
 
 - **Scroll-margin anchors** — each `<h2>` section carries an `id` + `scroll-margin-top`
   so in-page links land cleanly below any sticky header.
@@ -196,8 +196,8 @@ remain. All patterns stay within the zero-JS / self-contained constraints above.
 
 ## Coverage
 
-HTML template coverage tracked in `.aegis/index/html-templates.md`. v0.0.1 = 3 →
-**v0.0.8 = full 20/20** (all reference kinds on disk), plus 14 Markdown + 16 JSON
-siblings per the AG-0011 D4 inventory cut. **v0.0.9** adds two producer-backed kinds
+HTML template coverage tracked in `.aegis/index/html-templates.md`. Started at 3 →
+grew to **full 20/20** (all reference kinds on disk), plus 14 Markdown + 16 JSON
+siblings per the inventory cut. A later pass added two producer-backed kinds
 outside the reference gallery (`plan-audit-report`, `research-report`), each with
 MD + JSON + HTML siblings → 22 HTML / 16 MD / 18 JSON bodies on disk.

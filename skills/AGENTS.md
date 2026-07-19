@@ -58,12 +58,12 @@ Rules (enforced by the `COMPOSITION` validator, `scripts/validate/composition.mj
 - **Real skills.** Every value in `requires` and `next` MUST name a skill that **exists in canonical** under its **current** name (no phase-label aliases, no renamed-away names).
 - **Real handoff.** Each `handoff` MUST name a real template kind from `manifest/template-index.json`, OR carry a `// REASON:` note (inline in the body) justifying a non-template artifact.
 
-Landed warn-only this release (graduates to hard-fail next, per the v0.0.6 convention).
+Landed warn-only this release (graduates to hard-fail next, per the usual convention for warn-only rules).
 
 ## Intensity levels (`x-aegis.intensity`)
 
 A skill may dial its effort with three intensity levels — `lite`, `full`, `ultra`. This is an
-**optional extension of the same `x-aegis` composition namespace** (AG-0214) — a sibling of
+**optional extension of the same `x-aegis` composition namespace** — a sibling of
 `pipeline`, **not** a parallel top-level field. It is fully **optional**: a skill that declares no
 `intensity` block behaves **exactly as today** — `full` is the implicit default.
 
@@ -142,7 +142,7 @@ independently invoked.
 **Validator consistency (mechanical enforcement).** `SKILL_SIZE` (`scripts/validate/skill-size.mjs`,
 warn-only) flags a `SKILL.md` body over 100 lines and scans `SKILL.md` only — `REFERENCE.md`,
 `EXAMPLES.md`, and `abilities/` are the sanctioned overflow and are never line-capped. (The former
-per-body 8 KB cap was removed in v0.2.0; the 100-line body warning is the only size cap today.)
+per-body 8 KB cap was removed once found to be bogus; the 100-line body warning is the only size cap today.)
 
 These tiers exist because skill bodies drift — sediment, no-op lines, premature-completion
 shortcuts — without a pruning discipline; see the ability above for the full treatment.

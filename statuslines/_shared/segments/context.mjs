@@ -1,14 +1,14 @@
 // context — context-window usage: a leading label + progress bar + percent.
 // Prefers the stdin-reported context_window.used_percentage; when it's
 // absent, falls back to a token-based percentage — (input + cache tokens) /
-// context_window_size, per claude-hud's getContextPercent fallback (AG-0259
-// D4). Threshold-colored via the shared bar renderer (lib/bar.mjs, D1/D2):
+// context_window_size, per claude-hud's getContextPercent fallback.
+// Threshold-colored via the shared bar renderer (lib/bar.mjs):
 // >=90 critical, >=70 warning when a preset declares `thresholds.context`,
 // else the theme's flat `contextBar` key. Renders even at 0% so the bar is a
 // stable anchor; only renders null when context_window is wholly absent (no
 // usage signal at all).
 //
-// Label (AG-0262 T2/D2): prepends `Context` so the segment reads
+// Label: prepends `Context` so the segment reads
 // `Context <bar> <pct>`, matching usage.mjs's `Usage`/`Weekly` labels. Routed
 // through ctx.t("context") for i18n (default "Context" when the descriptor
 // declares no override — ctx.t falls back to the raw key itself, so we swap

@@ -1,4 +1,4 @@
-// transcript.test.mjs — AG-0260 Tier-2 tests: the guarded transcript reader
+// transcript.test.mjs — Tier-2 tests: the guarded transcript reader
 // (lib/transcript.mjs), the runtime's gated pre-parse (descriptorNeedsTranscript
 // in runtime.mjs), and the enriched/new HUD segments that consume ctx.transcript.
 //
@@ -393,7 +393,7 @@ test("descriptorNeedsTranscript: absent/malformed descriptor -> false, never thr
 });
 
 // ── enriched segments: tools / agents / todos ───────────────────────────────
-// AG-0267: tools/agents now render ALL relevant activity (claude-hud parity),
+// tools/agents now render ALL relevant activity (claude-hud parity),
 // not just the single most-recent entry — see segments/tools.mjs and
 // segments/agents.mjs headers for the full model.
 

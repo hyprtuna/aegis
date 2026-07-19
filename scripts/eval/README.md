@@ -1,6 +1,6 @@
 # Aegis Eval Harness
 
-The **static lint arm** is live as of v0.1.2 (AG-0011). It loads every fixture
+The **static lint arm** is live as of v0.1.2. It loads every fixture
 under `fixtures/*.json` and asserts (a) required fields are present and (b)
 each `expectRoutesTo` path resolves to a real skill folder (a directory
 carrying `SKILL.md`) in the repo. No API calls, no network access, no cost.
@@ -60,7 +60,7 @@ scripts/eval/
 
 This is the **documented manual procedure** that exercises the claim the
 `react-todo-brainstorm` fixture encodes — that the forceful SessionStart gate
-folded into `skills/core/using-aegis/SKILL.md` (AG-0008) actually changes
+folded into `skills/core/using-aegis/SKILL.md` actually changes
 session behavior, not just static structure.
 
 **Procedure:**
@@ -78,7 +78,7 @@ matches the fixture's `criterion` field above.
 **Fail criterion:** the session starts writing React component code (or asks
 only a narrow clarifying question) without invoking either skill first.
 
-**Why this is the regression guard for Phase A (AG-0008).** The forceful gate
+**Why this is the regression guard for the bootstrap-forcefulness gate.** The forceful gate
 is prose injected into a session's bootstrap payload — there is no
 deterministic static check that a model actually obeys prose. This manual
 procedure is the intentional, honest substitute: run it once per release
@@ -102,7 +102,7 @@ Two arms of the eventual three-tier framework remain deferred past v0.1.2:
    output variance and catch regressions that a single deterministic run
    hides. The most expensive arm — highest sampling cost.
 
-Per `.aegis/plans/v0.0.6-plan.md` ("Locked Decisions" and "Honest Gaps"), these
+Per the private planning repo's "Locked Decisions" and "Honest Gaps" notes, these
 stay deferred because:
 
 - **No user API keys.** Aegis is plugin-first; users never run these scripts,

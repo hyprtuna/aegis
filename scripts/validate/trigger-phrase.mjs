@@ -1,4 +1,4 @@
-// trigger-phrase.mjs — A1 (AG-0187): every skill/agent `description` must carry a
+// trigger-phrase.mjs — every skill/agent `description` must carry a
 // "Use when…" trigger clause for reliable selection.
 //
 // For every skill `SKILL.md` (skills/**) and every agents/*.md (excluding

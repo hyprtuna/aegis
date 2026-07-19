@@ -1,4 +1,4 @@
-// bar.mjs — shared threshold-colored progress bar renderer (AG-0259).
+// bar.mjs — shared threshold-colored progress bar renderer.
 //
 // Extracted from context.mjs's original inline buildBar/pickKey so context.mjs
 // and usage.mjs share one fill-math + color-resolution implementation. Lives

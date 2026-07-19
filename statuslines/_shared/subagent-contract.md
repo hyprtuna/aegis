@@ -71,5 +71,5 @@ sanitized for C0 control characters.
 ## Cross-host gap
 
 Only Claude Code documents a `subagentStatusLine`. OpenCode, Codex, Cursor, and
-Zed have no equivalent at v0.0.4 — this is an honest gap recorded in the
+Zed have no equivalent — this is an honest gap recorded in the
 per-adapter projection notes, not silently dropped.

@@ -19,15 +19,15 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 | **Statusline presets**<br/><sub>statusline-presets</sub> | ✅ supported<br/>`docs/statusline.md` | ⛔ gap<br/>`adapters/opencode/projection.md#statuslines` | ⛔ gap<br/>`adapters/codex/projection.md#statuslines` | ⛔ gap<br/>`adapters/cursor/projection.md#statuslines` | ⛔ gap<br/>`adapters/zed/projection.md#statuslines` |
 | **Templates surface**<br/><sub>templates-surface</sub> | ✅ supported<br/>`rules/user-choice-discipline.md:75-84` | 🟡 partial<br/>`adapters/opencode/projection.md#templates-template-gap-still-open-on-opencode` | 🟡 partial<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | ⛔ gap |
 | **Model aliases**<br/><sub>model-aliases</sub> | ✅ supported<br/>`manifest/models.json` | ✅ supported<br/>`references/opencode-docs/docs/35-models.md:19` | 🟡 partial<br/>`manifest/models.json` | — n/a | — n/a |
-| **Provider-tagged prose forking**<br/><sub>provider-tagged-prose</sub> | ✅ supported<br/>`.aegis/plans/v0.0.5-plan.md#locked-decisions` | ✅ supported<br/>`.aegis/plans/v0.0.5-plan.md#locked-decisions` | 🟡 partial<br/>`.aegis/plans/v0.0.5-plan.md#locked-decisions` | ⛔ gap | ⛔ gap |
+| **Provider-tagged prose forking**<br/><sub>provider-tagged-prose</sub> | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | 🟡 partial<br/>`adapters/claude/projection.md#generated-tree-projection` | ⛔ gap | ⛔ gap |
 | **SessionStart hook**<br/><sub>session-start-hook</sub> | ✅ supported<br/>`.claude-plugin/plugin.json:99` | 🟡 partial<br/>`adapters/opencode/projection.md#approach-locked-decisions` | 🟡 partial<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap<br/>`adapters/cursor/projection.md#what-cursor-will-load` | ⛔ gap<br/>`adapters/zed/projection.md#unsupported-documented-gaps` |
-| **PreToolUse deny hook**<br/><sub>pre-tool-use-deny-hook</sub> | ✅ supported<br/>`hooks/pre-tool-use-deny.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
-| **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
-| **Prompt/agent judgment hooks**<br/><sub>judgment-hooks</sub> | ✅ supported<br/>`hooks/verification-before-completion.agent.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
-| **InstructionsLoaded hook**<br/><sub>instructions-loaded-hook</sub> | ✅ supported<br/>`hooks/instructions-loaded.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
-| **Prompt-injection scanner hook**<br/><sub>prompt-injection-guard-hook</sub> | ✅ supported<br/>`hooks/prompt-injection-guard.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
+| **PreToolUse deny hook**<br/><sub>pre-tool-use-deny-hook</sub> | ✅ supported<br/>`hooks/pre-tool-use-deny.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
+| **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
+| **Prompt/agent judgment hooks**<br/><sub>judgment-hooks</sub> | ✅ supported<br/>`hooks/verification-before-completion.agent.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
+| **InstructionsLoaded hook**<br/><sub>instructions-loaded-hook</sub> | ✅ supported<br/>`hooks/instructions-loaded.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
+| **Prompt-injection scanner hook**<br/><sub>prompt-injection-guard-hook</sub> | ✅ supported<br/>`hooks/prompt-injection-guard.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **MCP servers**<br/><sub>mcp-servers</sub> | ⛔ gap<br/>`adapters/claude/projection.md#unsupported-documented-gaps` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | 🟡 partial<br/>`adapters/codex/projection.md#surfaces--verification` | ⛔ gap | ⛔ gap |
-| **Native subagent memory**<br/><sub>native-subagent-memory</sub> | ✅ supported<br/>`adapters/claude/projection.md#persistent-memory-v030` | ⛔ gap<br/>`adapters/opencode/projection.md#unsupported-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
+| **Native subagent memory**<br/><sub>native-subagent-memory</sub> | ✅ supported<br/>`adapters/claude/projection.md#persistent-memory` | ⛔ gap<br/>`adapters/opencode/projection.md#unsupported-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
 
 ## Capability detail
 
@@ -77,7 +77,7 @@ Plugin-declared shell commands whose stdout lines arrive as session notification
 
 *Category: manifest*
 
-plugin.json declares dependencies with version constraints so a plugin holds an upstream at a tested range. Aegis emits an empty dependencies: [] skeleton in v0.0.5; the aegis-core/aegis-languages split is deferred to v0.0.6+.
+plugin.json declares dependencies with version constraints so a plugin holds an upstream at a tested range. Aegis emits an empty dependencies: [] skeleton for now; the aegis-core/aegis-languages split is deferred to a later release.
 
 ### ZIP / .skill distribution (`zip-skill-distribution`)
 
@@ -89,7 +89,7 @@ Additive distribution channel: dist/aegis.skill is a reproducible ZIP of the pro
 
 *Category: surface*
 
-8 statusline presets rendered by bulletproof zero-dependency Node ESM, wired into settings.json via the /aegis:statusline command. pr segment reads native statusline JSON with no gh shell-out. Shipped v0.0.4.
+8 statusline presets rendered by bulletproof zero-dependency Node ESM, wired into settings.json via the /aegis:statusline command. pr segment reads native statusline JSON with no gh shell-out.
 
 ### Templates surface (`templates-surface`)
 
@@ -113,7 +113,7 @@ Inline <claude>...</claude> / <opencode>...</opencode> blocks in skill bodies ke
 
 *Category: hooks*
 
-Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded. Shipped v0.0.1.
+Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded.
 
 ### PreToolUse deny hook (`pre-tool-use-deny-hook`)
 
@@ -149,7 +149,7 @@ Portable hook intent: advisory Claude PreToolUse scanner (enabled:false, opt-in)
 
 *Category: mcp*
 
-Model Context Protocol server entries. Claude/OpenCode/Cursor/Zed load native MCP config; Codex ships an empty mcp.json stub with real servers deferred to v0.0.5+.
+Model Context Protocol server entries. Claude/OpenCode/Cursor/Zed load native MCP config; Codex ships an empty mcp.json stub with real servers deferred to a later release.
 
 ### Native subagent memory (`native-subagent-memory`)
 

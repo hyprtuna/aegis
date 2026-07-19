@@ -121,6 +121,6 @@ bash scripts/unicode-safety-scan.sh         # zero-width/bidi (Trojan Source) Un
 bash scripts/personal-paths-scan.sh         # hardcoded /home/<you> personal paths in shipped content
 ```
 
-Each scan is stdlib bash (no deps) and exits non-zero on a hit. They are heuristic, not a substitute for real secret management — see `docs/security.md`. The validator catalog (every rule, its warn/error stage, remediation) lives in `docs/validators.md`. New validator rules added in v0.0.6 are **warn-only** and graduate to hard-fail in v0.0.7.
+Each scan is stdlib bash (no deps) and exits non-zero on a hit. They are heuristic, not a substitute for real secret management — see `docs/security.md`. The validator catalog (every rule, its warn/error stage, remediation) lives in `docs/validators.md`. Newer validator rules land **warn-only** and graduate to hard-fail a release later.
 
 **MCP connectors: ship none by default.** Aegis carries no `mcpServers` — adding one requires clearing the two-prong test (universal AND MCP genuinely beats a wrapped CLI/API). See `docs/mcp-policy.md` for the test, the per-session token rationale, and the 64-character tool-name gateway constraint.

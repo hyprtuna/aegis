@@ -275,7 +275,7 @@
 </head>
 <body>
   <!--
-    Interactive template — minimal self-contained JS permitted per AG-0011 D2;
+    Interactive template — minimal self-contained JS permitted per the interactive-template minimal-JS exception;
     no external resources. JS only drives the demo animation (replay/reset and
     easing-curve swap). No external src/href/CDN, no network, no tracking.
     The zero-JS rule still applies to the other 17 templates; see
@@ -365,7 +365,7 @@
   </div>
 
   <script>
-    // Self-contained demo driver (AG-0011 D2): replay the animation and swap easing.
+    // Self-contained demo driver (the interactive-template minimal-JS exception): replay the animation and swap easing.
     var task = document.getElementById('task');
     if (task) {
       task.addEventListener('click', function () {

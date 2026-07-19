@@ -1,4 +1,4 @@
-// agent-plugin-drop.mjs — AG-0224 (v0.1.0 Phase G3): flag subagent frontmatter
+// agent-plugin-drop.mjs — (v0.1.0): flag subagent frontmatter
 // fields that Claude SILENTLY DROPS when the agent is loaded from a plugin.
 //
 // Claude drops `hooks`, `mcpServers`, and `permissionMode` from a subagent's

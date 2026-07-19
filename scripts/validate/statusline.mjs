@@ -183,7 +183,7 @@ export function run(ctx) {
               }
             }
 
-            // Runtime footgun (warn-only, AG-0261): ctx.threshold() resolves the
+            // Runtime footgun (warn-only): ctx.threshold() resolves the
             // FIRST breakpoint with `at <= value`, which only picks the intended
             // (highest-severity-first) breakpoint when a metric's 'at' values are
             // authored strictly descending. Flag authoring order that would silently

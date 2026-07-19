@@ -1,4 +1,4 @@
-// worktree — dedicated git-worktree indicator (AG-0268).
+// worktree — dedicated git-worktree indicator.
 //
 // ADDITIVE, not a replacement: the `git` segment already surfaces the same
 // branch-bearing fields as a plain branch indicator (`⎇ <branch>`). This

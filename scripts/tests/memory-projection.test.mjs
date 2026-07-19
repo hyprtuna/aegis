@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// memory-projection.test.mjs — unit tests for x-claude.memory projection (AG-0236).
+// memory-projection.test.mjs — unit tests for x-claude.memory projection.
 //
 // Dependency-free, TAP-ish (matches scripts/test-projection.mjs style).
 // Assertions:

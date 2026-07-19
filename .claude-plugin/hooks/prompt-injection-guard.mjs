@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// aegis-hook-version: 0.1.3
+// aegis-hook-version: 0.1.4
 // prompt-injection-guard.mjs — Aegis advisory PreToolUse prompt-injection scanner.
 //
-// WHY THIS EXISTS (AG-0010 D7, release audit row 36): when a tool pulls in
+// WHY THIS EXISTS: when a tool pulls in
 // untrusted text (a file Read, a Bash command's output target, a WebFetch'd
 // page), that text can carry classic prompt-injection phrasing aimed at the
 // agent. This hook scans the tool input for those phrases and, on a hit, returns
 // ADVISORY context noting what it saw. It is STRICTLY advisory:
 //   - It never returns a permissionDecision and never blocks the call.
 //   - It always exits 0, even on malformed input or its own errors.
-//   - It ships enabled:false (D7) and is excluded from the default plugin.json
+//   - It ships enabled:false and is excluded from the default plugin.json
 //     hooks block; users opt in via .claude/settings.json (see docs/hooks.md).
 //
 // Contract (references/claude-code-docs/docs/hooks.md, PreToolUse): the tool-call
@@ -23,7 +23,7 @@
 
 import { readFileSync } from "node:fs";
 
-// AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0.
+// AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0.
 if (process.env.AEGIS_DISABLE === "1" ||
     (process.env.AEGIS_SKIP_HOOKS || "").split(",").map((s) => s.trim()).includes("prompt-injection-guard")) {
   process.exit(0);

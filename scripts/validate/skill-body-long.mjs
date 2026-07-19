@@ -1,6 +1,6 @@
 // skill-body-long.mjs — A5: canonical skill description-length warning.
 //
-// As of v0.0.14 (AG-0213) the body-length (>100-line) check moved to the
+// As of v0.0.14 the body-length (>100-line) check moved to the
 // dedicated skill-size.mjs rule (`SKILL_SIZE`) so the size cap has a single
 // owner and a skill over 100 lines produces exactly ONE size finding. This
 // module now owns ONLY the frontmatter description-length cap:

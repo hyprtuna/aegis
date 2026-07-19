@@ -1,4 +1,4 @@
-// segments.test.mjs — AG-0259 Tier-1 unit tests: shared bar renderer,
+// segments.test.mjs — Tier-1 unit tests: shared bar renderer,
 // reset-time formatter, and the upgraded usage/context segments.
 //
 // Unit-level assertions import the pure helpers directly (no child process
@@ -193,7 +193,7 @@ test("usage: neither window present -> null", () => {
   assert.equal(renderUsage(usageCtx({})), null);
 });
 
-// ── AG-0266: "(time)" not "(resets in time)"; joins with ctx.sep ────────────
+// ── "(time)" not "(resets in time)"; joins with ctx.sep ─────────────────────
 
 test("usage: reset renders as '(<time>)', not 'resets in'", () => {
   // usage.mjs calls ctx.fmt.reset(resets_at) with no explicit "now" override,
@@ -274,7 +274,7 @@ test("context segment: wholly absent context_window -> null", () => {
   assert.equal(renderContext(usageCtx({})), null);
 });
 
-// ── segments/context.mjs + context-detailed.mjs — Context label (AG-0262 T2) ──
+// ── segments/context.mjs + context-detailed.mjs — Context label ─────────────
 
 test("context segment: renders with the leading 'Context' label", () => {
   const ctx = usageCtx({ context_window: { used_percentage: 42 } });
@@ -297,7 +297,7 @@ test("context segment: i18n override replaces the default 'Context' label", () =
   assert.match(out, /^Contexto /);
 });
 
-// ── segments/worktree.mjs — AG-0268 dedicated worktree indicator ───────────
+// ── segments/worktree.mjs — dedicated worktree indicator ────────────────────
 
 test("worktree: worktree.branch present alone (no workspace.git_worktree) -> null (no distinct name to show)", () => {
   const ctx = usageCtx({ worktree: { branch: "feature-x" } });

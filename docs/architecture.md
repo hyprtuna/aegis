@@ -70,21 +70,21 @@ This pattern keeps skill discovery lean while subdividing internal logic natural
 
 | Host | First Projection | Status |
 |---|---|---|
-| Claude Code | Native plugin (`.claude-plugin/plugin.json` + `marketplace.json`) | Shipped v0.0.1 |
-| OpenCode | Native plugin (`.opencode/plugins/aegis.js` + git-spec install) | Shipped v0.0.2 |
-| Codex | Skills-first + `AGENTS.md` + MCP ([`adapters/codex/projection.md`](../adapters/codex/projection.md)) | Shipped v0.0.3 |
+| Claude Code | Native plugin (`.claude-plugin/plugin.json` + `marketplace.json`) | Shipped |
+| OpenCode | Native plugin (`.opencode/plugins/aegis.js` + git-spec install) | Shipped |
+| Codex | Skills-first + `AGENTS.md` + MCP ([`adapters/codex/projection.md`](../adapters/codex/projection.md)) | Shipped |
 | Cursor | Generated `.cursor/rules/*.mdc` + `AGENTS.md` + MCP | deferred (~v0.5.0) |
 | Zed | Generated `.rules` + `AGENTS.md` + MCP + ACP host | deferred (~v0.5.0) |
 
 Detailed projections in `adapters/<host>/projection.md`.
 
-### v0.0.5 host capability uptake
+### Host capability uptake
 
-v0.0.5 adopts high-value host capabilities surfaced in the host-docs scan, Claude-first, with honest gaps on the other hosts. The single source of truth for per-host capability status is [`manifest/capabilities.json`](../manifest/capabilities.json); the human-readable views ([`docs/harnesses.md`](harnesses.md) and [`docs/capability-matrix.md`](capability-matrix.md)) are **generated** from it by `scripts/sync-capabilities.mjs` and must not be hand-edited.
+Aegis adopts high-value host capabilities surfaced in the host-docs scan, Claude-first, with honest gaps on the other hosts. The single source of truth for per-host capability status is [`manifest/capabilities.json`](../manifest/capabilities.json); the human-readable views ([`docs/harnesses.md`](harnesses.md) and [`docs/capability-matrix.md`](capability-matrix.md)) are **generated** from it by `scripts/sync-capabilities.mjs` and must not be hand-edited.
 
 | Capability | Claude | OpenCode | Codex / Cursor / Zed |
 |---|---|---|---|
-| Generated-tree projection (`x-claude.*` flattened, `${TEMPLATE}` + model alias resolution, provider-tagged prose forked) | Supported (v0.0.5) | Filesystem-discovers canonical; literal `${TEMPLATE}` still a gap | per `capabilities.json` |
+| Generated-tree projection (`x-claude.*` flattened, `${TEMPLATE}` + model alias resolution, provider-tagged prose forked) | Supported | Filesystem-discovers canonical; literal `${TEMPLATE}` still a gap | per `capabilities.json` |
 | `x-claude.paths` skill glob activation | Supported | Gap | gap / n-a (Cursor/Zed deferred ~v0.5.0) |
 | `x-claude.agent` skill→subagent auto-dispatch | Supported | Partial | gap / n-a |
 | Agent `tools:` permission allowlist (from `manifest/permissions.json`) | Supported | Supported (`agent.<name>.permission`) | gap / n-a |
@@ -94,11 +94,11 @@ v0.0.5 adopts high-value host capabilities surfaced in the host-docs scan, Claud
 | `.skill` ZIP distribution (`dist/aegis.skill`) | Supported | Partial | partial / n-a |
 | Model aliases (`manifest/models.json`) | Supported | Supported | Codex partial / n-a |
 | Provider-tagged prose (`<claude>`/`<opencode>`) | Supported | Supported | partial |
-| `x-claude.memory` native subagent memory (v0.3.0) | Supported — `memory: project` emitted into generated Claude agent frontmatter; host auto-injects Read/Write/Edit + first 200 lines of `MEMORY.md`. See `rules/memory-discipline.md` + `skills/core/recall`. | Gap → `.aegis-memory/MEMORY.md` fallback via `recall` skill | gap / n-a |
+| `x-claude.memory` native subagent memory | Supported — `memory: project` emitted into generated Claude agent frontmatter; host auto-injects Read/Write/Edit + first 200 lines of `MEMORY.md`. See `rules/memory-discipline.md` + `skills/core/recall`. | Gap → `.aegis-memory/MEMORY.md` fallback via `recall` skill | gap / n-a |
 
 Where this table and `manifest/capabilities.json` could diverge, `capabilities.json` wins — it is the lint-enforced source (F1 in `scripts/validate-structure.mjs`).
 
-### Claude generated-tree projection (v0.0.5)
+### Claude generated-tree projection
 
 Claude no longer discovers canonical surfaces in place. `scripts/project.mjs` runs a `projectClaude()` step that generates a Claude-native tree under `adapters/claude/{skills,agents}/` and regenerates `.claude-plugin/plugin.json` to point its `skills`/`agents` keys at that tree (DH1). The generated tree is **committed** to the repo (DH2) — Aegis installs via git spec with no build step on the user's machine, so a gitignored tree would leave `plugin.json` pointing at files that don't exist. Canonical `skills/` and `agents/` remain the only authoring source; `project.mjs` is idempotent and deterministic, and `scripts/validate-structure.mjs` fails on any drift between canonical+manifest inputs and the committed tree (DH4). Per-host details and the full transform pipeline live in [`adapters/claude/projection.md`](../adapters/claude/projection.md).
 
@@ -136,20 +136,20 @@ The approved guidance folder list is enforced by `scripts/validate-structure.mjs
 
 ## Release Cadence
 
+Aegis built up in stages during pre-launch development: the full Anvil portable
+port and Claude plugin came first, followed by the OpenCode and Codex
+projections, statusline presets and templates surface expansion, the host-docs
+feature uptake (capability matrix, Claude generated-tree projection, agent
+permissions, monitors, `.skill` distribution), reference-derived hardening
+(validator split, warn-only rules, the security-scan triplet), portable hook
+intents, and full template coverage with multi-format output selection.
+
 | Release | Outcome |
 |---|---|
-| v0.0.1 | Foundation + full Anvil portable port + Claude plugin |
-| v0.0.2 | OpenCode projection |
-| v0.0.3 | Codex projection |
-| v0.0.4 | Statusline presets + templates surface expansion |
-| v0.0.5 | Host-docs feature uptake — capability matrix, Claude generated-tree projection, agent permissions, monitors, `.skill` dist |
-| v0.0.6 | Reference-derived hardening — validator split + warn-only rules + security triplet |
-| v0.0.7 | Portable hook intents |
-| v0.0.8 | Full template coverage (20 HTML) + multi-format output selection |
-| v0.1.0 | HTML coverage gate; stable plugin contract (3 active hosts) |
+| v0.1.0 | Public launch; HTML coverage gate; stable plugin contract (3 active hosts) |
 | v0.5.0 (deferred) | Cursor + Zed projections |
 
-See `.aegis/plans/_roadmap.md` for the authoritative roadmap.
+See [`docs/roadmap.md`](roadmap.md) for the current roadmap.
 
 ## Reference
 

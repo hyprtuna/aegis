@@ -65,11 +65,11 @@ catches per-segment errors and drops the offending segment.
   and render null until the host surfaces it. The gap is recorded in each module
   header and in `adapters/claude-code/projection.md`.
 
-## Composability (v0.0.14 — all optional, additive)
+## Composability (all optional, additive)
 
 The preset descriptor schema (`manifest/schemas/statusline.schema.json`) gained
 four OPTIONAL composability fields. A descriptor that declares none behaves
-exactly as before; every pre-v0.0.14 preset still validates and renders
+exactly as before; every preset predating this composability layer still validates and renders
 unchanged. The runtime honors them in `_shared/runtime.mjs` (`compose()` +
 `buildCtx()`); the validator (`scripts/validate/statusline.mjs`) checks them.
 The `statuslines/composable/` preset is the worked reference that exercises all
@@ -114,7 +114,7 @@ stdout — keep that invariant when adding cases.
 
 ## Cross-host gap
 
-At v0.0.4 only **Claude Code** has a real statusline projection. OpenCode,
+Currently only **Claude Code** has a real statusline projection. OpenCode,
 Codex, Cursor, and Zed have no native statusline (and no `subagentStatusLine`)
 equivalent — preset descriptors stay host-agnostic so a future hook can render
 them, but the gap is explicit, never silently dropped.

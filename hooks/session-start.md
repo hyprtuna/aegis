@@ -19,13 +19,13 @@ Aegis's SessionStart hook fires when an agent host opens a session, clears conte
 
 ## Host Implementations
 
-| Host | File | Status |
+| Host | File | Coverage |
 |---|---|---|
-| Claude Code | `.claude-plugin/hooks/session-start.sh` | v0.0.1 |
-| OpenCode | `.opencode/plugins/aegis.js` (chat.messages.transform) | v0.0.2 |
-| Codex | `.codex/plugins/aegis/hooks/session-start.sh` (SessionStart, bundled) | v0.2.1 |
-| Cursor | N/A (no hook contract) | v0.0.4 |
-| Zed | N/A (no hook contract) | v0.0.4 |
+| Claude Code | `.claude-plugin/hooks/session-start.sh` | supported |
+| OpenCode | `.opencode/plugins/aegis.js` (chat.messages.transform) | supported |
+| Codex | `.codex/plugins/aegis/hooks/session-start.sh` (SessionStart, bundled) | supported |
+| Cursor | N/A (no hook contract) | gap |
+| Zed | N/A (no hook contract) | gap |
 
 ## Bootstrap Payload
 
@@ -37,4 +37,4 @@ To keep the index current, edit the table in `skills/core/using-aegis/SKILL.md`;
 
 This hook is now bound for `claude` + `opencode` + `codex` (`platforms: [claude, opencode, codex]`). **Cursor and Zed have no portable session-start hook contract**, so the bootstrap does not auto-inject there — those hosts discover Aegis via filesystem/skill auto-discovery instead. The gap is recorded per host in `adapters/<host>/projection.md`. This is an honest gap (Iron Law 6), not a silent drop.
 
-**Codex note (v0.2.1):** The hook fires as a Codex `SessionStart` event. Runtime fire-and-deny verification is pending interactive Codex (the `codex exec` mode does not run plugin hooks); static + install validation have been performed.
+**Codex note:** The hook fires as a Codex `SessionStart` event. Runtime fire-and-deny verification is pending interactive Codex (the `codex exec` mode does not run plugin hooks); static + install validation have been performed.

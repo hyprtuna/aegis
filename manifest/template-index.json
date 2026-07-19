@@ -1,6 +1,6 @@
 {
   "$schema": "./schemas/template-index.schema.json",
-  "_comment": "Per-kind format index (AG-0011 / AG-0132). Authoritative answer to 'which formats does kind X ship, and which is the default?'. Read by the format-aware ${TEMPLATE} resolver (scripts/project.mjs) and the widened Q2 user-choice prompt (rules/user-choice-discipline.md). Index keys are KINDS; each format points at the kind's DEFAULT variant body. Sibling variants (e.g. markdown/plans/minimal.md, markdown/decisions/opencode.md, json/decisions/claude-code.json, the project/ family) are NOT separate index entries — they are resolved by skills directly, not through this index.",
+  "_comment": "Per-kind format index. Authoritative answer to 'which formats does kind X ship, and which is the default?'. Read by the format-aware ${TEMPLATE} resolver (scripts/project.mjs) and the widened Q2 user-choice prompt (rules/user-choice-discipline.md). Index keys are KINDS; each format points at the kind's DEFAULT variant body. Sibling variants (e.g. markdown/plans/minimal.md, markdown/decisions/opencode.md, json/decisions/claude-code.json, the project/ family) are NOT separate index entries — they are resolved by skills directly, not through this index.",
   "kinds": {
     "plans": {
       "description": "Implementation/release plan skeleton — frontmatter header plus task shape.",
@@ -224,7 +224,7 @@
     },
     "prototype-animation": {
       "designOnly": true,
-      "description": "Animation/easing prototype — replayable demo + easing switcher + copy-paste CSS. Interactive template (minimal self-contained JS, AG-0011 D2). HTML only.",
+      "description": "Animation/easing prototype — replayable demo + easing switcher + copy-paste CSS. Interactive template (minimal self-contained JS). HTML only.",
       "default": "html",
       "formats": {
         "html": "templates/html/prototype-animation.html"
@@ -232,7 +232,7 @@
     },
     "prototype-interaction": {
       "designOnly": true,
-      "description": "Interaction prototype — e.g. drag-to-reorder. Interactive template (minimal self-contained JS, AG-0011 D2). HTML demo; markdown behavior notes.",
+      "description": "Interaction prototype — e.g. drag-to-reorder. Interactive template (minimal self-contained JS). HTML demo; markdown behavior notes.",
       "default": "html",
       "formats": {
         "html": "templates/html/prototype-interaction.html",
@@ -241,7 +241,7 @@
     },
     "prompt-tuner": {
       "designOnly": true,
-      "description": "Prompt-tuning workbench — editable system prompt with live-filled preview. Interactive template (minimal self-contained JS, AG-0011 D2). HTML workbench; markdown prompt+legend; JSON prompt config.",
+      "description": "Prompt-tuning workbench — editable system prompt with live-filled preview. Interactive template (minimal self-contained JS). HTML workbench; markdown prompt+legend; JSON prompt config.",
       "default": "html",
       "formats": {
         "html": "templates/html/prompt-tuner.html",

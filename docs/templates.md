@@ -27,7 +27,7 @@ Markdown.
 
 Which formats a kind ships, and which one is its **default**, is not inferred
 from the directory tree — it is declared in a single authoritative file: the
-per-kind **format index** (below). On-disk coverage at v0.0.8 is **20 HTML +
+per-kind **format index** (below). On-disk coverage is **20 HTML +
 14 Markdown + 16 JSON** bodies across the reference-gallery kinds; the format
 choices follow the inventory cut (a Markdown sibling where the output
 is prose-shaped, a JSON sibling where it is data-shaped — not all three for every
@@ -222,7 +222,7 @@ emitting a dangling token, and `assertNoTemplateTokens` guards the projected
 output against any surviving `${TEMPLATE...}` literal.
 
 > The earlier limitation — resolution was markdown-only and wired for Codex only
-> — is **resolved as of v0.0.8.** The resolver now handles all three formats via
+> — is **resolved.** The resolver now handles all three formats via
 > the index across the active hosts. Cursor + Zed remain a known gap (deferred to
 > ~v0.5.0), documented in their adapter projection docs.
 
@@ -300,18 +300,18 @@ lives in `rules/templates.md`:
 
 Some kinds ship a body + index entry but have **no near-term producer** — no skill
 or agent emits them. Rather than letting them masquerade as unwired producers, they
-are flagged `designOnly: true` in `manifest/template-index.json` (the flag is
-schema-allowed as of v0.0.9). A design-only kind is an **expected orphan**: the
+are flagged `designOnly: true` in `manifest/template-index.json` (a
+schema-allowed flag). A design-only kind is an **expected orphan**: the
 producer-coverage validators treat it as intentional and do not warn that it lacks
 a producer.
 
-The ten design-only kinds as of v0.0.9:
+The ten design-only kinds:
 
 - **Pure-orphan visual kinds (8):** `slide-deck`, `triage-board`, `feature-flags`,
   `component-variants`, `prototype-animation`, `prototype-interaction`,
   `prompt-tuner`, `svg-illustrations` — design references with no producer planned.
 - **Producerless report kinds (2):** `status-report` and `incident-report` — the
-  surface audit confirmed no existing skill or agent emits either, and v0.0.9 does
+  surface audit confirmed no existing skill or agent emits either, and this pass does
   **not** mint net-new producers for them (out of scope). Flagged design-only until
   a real producer lands.
 

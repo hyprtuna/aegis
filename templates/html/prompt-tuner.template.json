@@ -4,7 +4,7 @@
   "family": "html",
   "version": "0.1.0",
   "source": "html-effectiveness:20-editor-prompt-tuner.html",
-  "description": "Standalone HTML prompt tuner: an editable system prompt with {{variable}} slots, a sample input, a live-filled preview, and quality metrics. Interactive template — carries the AG-0011 D2 minimal-JS exception: self-contained inline JS re-renders the filled preview from the variables as the prompt is edited, with no external resources.",
+  "description": "Standalone HTML prompt tuner: an editable system prompt with {{variable}} slots, a sample input, a live-filled preview, and quality metrics. Interactive template — carries the interactive-template minimal-JS exception: self-contained inline JS re-renders the filled preview from the variables as the prompt is edited, with no external resources.",
   "slots": [
     { "key": "title", "type": "string", "description": "Prompt title; used in <title> and the h1." },
     { "key": "systemPrompt", "type": "string", "description": "The editable system prompt; {{variable}} markers fill from the variables." },

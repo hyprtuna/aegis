@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// three-arm-baseline.mjs — static-lint arm, live (AG-0011, v0.1.2).
+// three-arm-baseline.mjs — static-lint arm, live (v0.1.2).
 //
 // Loads every fixture under ./fixtures/*.json and, per fixture, asserts:
 //   (a) required fields are present (id, prompt, expectRoutesTo, criterion), and

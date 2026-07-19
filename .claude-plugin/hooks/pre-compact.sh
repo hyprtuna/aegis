@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.3
+# aegis-hook-version: 0.1.4
 # pre-compact.sh — Aegis plugin PreCompact hook (Claude Code).
 #
-# WHY THIS EXISTS (AG-0010 D1/D3): compaction rewrites the conversation into a
+# WHY THIS EXISTS: compaction rewrites the conversation into a
 # lossy summary. Decisions, exact test names, and task anchors can fall out. This
 # hook fires before that rewrite to snapshot those anchors so the paired
 # post-compact hook can re-surface them.
@@ -17,7 +17,7 @@
 # hook degrades to a no-op and still exits 0.
 set -u
 
-# AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
+# AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
 if [ "${AEGIS_DISABLE:-}" = "1" ]; then exit 0; fi
 case ",${AEGIS_SKIP_HOOKS:-}," in *",pre-compact,"*) exit 0 ;; esac
 

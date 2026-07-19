@@ -20,7 +20,7 @@ Pin a specific release if you prefer:
 
 
 ```bash
-codex plugin add aegis@git+https://github.com/hyprtuna/aegis.git#v0.2.0
+codex plugin add aegis@git+https://github.com/hyprtuna/aegis.git#v0.1.0
 ```
 
 ## Verify

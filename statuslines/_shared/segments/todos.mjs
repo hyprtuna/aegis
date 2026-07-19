@@ -1,5 +1,5 @@
 // todos — in-progress todo + done/total, enriched from the Tier-2 transcript
-// when available (AG-0260 D3): `▸ <in-progress> (21/39)`. Falls back to
+// when available: `▸ <in-progress> (21/39)`. Falls back to
 // today's defensive stdin field when ctx.transcript is absent — no regression
 // for existing hosts.
 //

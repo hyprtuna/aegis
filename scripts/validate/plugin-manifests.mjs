@@ -1,10 +1,10 @@
 // plugin-manifests.mjs — section 9: Codex plugin manifest + Claude marketplace
 // manifest parse + version sync with package.json.
 //
-// AG-0233 Phase B: Codex plugin manifest moved from repo-root .codex-plugin/plugin.json
+// The Codex plugin manifest moved from repo-root .codex-plugin/plugin.json
 // to the plugin-root .codex/plugins/aegis/.codex-plugin/plugin.json. The validator
-// checks the new path. Also validates the two per-host marketplaces (AG-0255,
-// v0.3.4 — one per host, no leak): .agents/plugins/marketplace.json is Codex's
+// checks the new path. Also validates the two per-host marketplaces (v0.3.4 —
+// one per host, no leak): .agents/plugins/marketplace.json is Codex's
 // (OBJECT source form) and .claude-plugin/marketplace.json is Claude's (STRING
 // source form). The source-shape rule is inverted between them: Claude rejects
 // the object form; Codex rejects the string form.
@@ -18,7 +18,7 @@ export function run(ctx) {
   const errors = [];
   const warnings = [];
 
-  // AG-0233 Phase B: plugin manifest now lives inside the plugin root.
+  // The plugin manifest now lives inside the plugin root.
   // Old path (.codex-plugin/plugin.json at repo root) was deleted during migration.
   const codexPluginJson = join(REPO, ".codex/plugins/aegis/.codex-plugin/plugin.json");
   const claudePluginJson = join(REPO, ".claude-plugin/plugin.json");
@@ -56,7 +56,7 @@ export function run(ctx) {
             `.claude-plugin/marketplace.json plugins[0].version (${entryVersion}) does not match package.json (${pkgMeta.version})`,
           );
         }
-        // Claude marketplace: source MUST be a relative path STRING (AG-0255).
+        // Claude marketplace: source MUST be a relative path STRING.
         // Claude rejects the object {source, path} form (`plugins.0.source:
         // Invalid input`); it must not escape the marketplace root with "../".
         // A missing source is a bad hand-edit — the projector always writes one.
@@ -79,7 +79,7 @@ export function run(ctx) {
           `.claude-plugin/marketplace.json not found — run node scripts/project.mjs to generate`,
         );
       }
-      // Codex marketplace (AG-0233 D-05): .agents/plugins/marketplace.json
+      // Codex marketplace: .agents/plugins/marketplace.json
       if (existsSync(agentsMarketplaceJson)) {
         const m = JSON.parse(ctx.read(agentsMarketplaceJson));
         const entryVersion = m?.plugins?.[0]?.version;
@@ -88,8 +88,8 @@ export function run(ctx) {
             `.agents/plugins/marketplace.json plugins[0].version (${entryVersion}) does not match package.json (${pkgMeta.version})`,
           );
         }
-        // Codex requires the OBJECT {source, path} form with both keys as strings
-        // (AG-0255). A string, a missing source, or a malformed object all fail
+        // Codex requires the OBJECT {source, path} form with both keys as strings.
+        // A string, a missing source, or a malformed object all fail
         // `codex plugin add` at install time.
         const entrySource = m?.plugins?.[0]?.source;
         if (entrySource === undefined || entrySource === null) {

@@ -1,5 +1,5 @@
 // subagent-primitives.mjs — shared validation+coercion for the four native
-// plugin-subagent execution-profile fields (AG-0263 D-01): effort, isolation,
+// plugin-subagent execution-profile fields: effort, isolation,
 // maxTurns, background. Extracted from project.mjs's flattenXClaude() so the
 // logic is testable against the REAL parser-typed (string) inputs instead of
 // tautological local copies fed native literals (strict-review MEDIUM-1/HIGH).

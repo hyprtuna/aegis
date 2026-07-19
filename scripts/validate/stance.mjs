@@ -1,4 +1,4 @@
-// stance.mjs — D2 (AG-0197): cross-check the skeptical-stance opt-in field
+// stance.mjs — cross-check the skeptical-stance opt-in field
 // against the agent body's adversarial voice.
 //
 // `x-aegis.stance: skeptical` is the discoverable opt-in (see

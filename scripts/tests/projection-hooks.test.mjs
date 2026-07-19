@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// projection-hooks.test.mjs — AG-0010 B3 + C4 projection tests.
+// projection-hooks.test.mjs — hook-projection idempotency + shaping tests.
 //
 // Dependency-free, TAP-ish (matches scripts/test-projection.mjs style). Two test
 // families:

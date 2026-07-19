@@ -1,6 +1,5 @@
 // sanitize.mjs — strip ALL C0 control chars (0x00-0x1F, including ESC 0x1B and
-// TAB 0x09) and 0x7F (DEL) from untrusted stdin/transcript-derived strings
-// (AG-0260).
+// TAB 0x09) and 0x7F (DEL) from untrusted stdin/transcript-derived strings.
 //
 // Extracted out of runtime.mjs so statuslines/_shared/lib/transcript.mjs can
 // reuse the exact same implementation without importing runtime.mjs — runtime

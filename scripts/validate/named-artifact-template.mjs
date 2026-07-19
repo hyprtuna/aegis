@@ -1,4 +1,4 @@
-// named-artifact-template.mjs — v0.0.9 (AG-0160): named-artifact → template rule.
+// named-artifact-template.mjs — v0.0.9: named-artifact → template rule.
 //
 // Rule (rules/templates.md): any skill/agent that emits a NAMED artifact MUST
 // reference a template kind via a `${TEMPLATE:<kind>}` reference OR carry a

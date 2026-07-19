@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // description-shape.test.mjs — unit tests for the DESCRIPTION_SHAPE validator
-// (AG-0010, v0.1.2).
+// (v0.1.2).
 //
 // Dependency-free, TAP-ish (matches scripts/test-projection.mjs style). Builds
 // a minimal ctx stub mirroring the scripts/validate/_context.mjs surface the

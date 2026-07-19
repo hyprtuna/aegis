@@ -18,7 +18,7 @@
 import { readdirSync, statSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-// ── Shared template helpers (AG-0147) ───────────────────────────────────────
+// ── Shared template helpers ──────────────────────────────────────────────────
 // ONE source of truth for two things that previously lived (and diverged) in
 // both scripts/validate/template-index.mjs and scripts/tests/render-templates.mjs:
 //

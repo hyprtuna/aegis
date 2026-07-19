@@ -62,7 +62,7 @@ const CASES = [
   ["curl -o (no pipe)", { tool_name: "Bash", tool_input: { command: "curl https://example.com -o out.json" } }, "allow"],
   ["npm test", { tool_name: "Bash", tool_input: { command: "npm test" } }, "allow"],
   ["Grep", { tool_name: "Grep", tool_input: { pattern: "x" } }, "allow"],
-  // ---- git guard (AG-0225) ----
+  // ---- protected-branch git guard ----
   // protected-branch push (named destination, branch-independent) → deny
   ["push origin main", { tool_name: "Bash", tool_input: { command: "git push origin main" } }, "deny"],
   ["push HEAD:main", { tool_name: "Bash", tool_input: { command: "git push origin HEAD:main" } }, "deny"],

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.3
+# aegis-hook-version: 0.1.4
 # post-compact.sh — Aegis plugin PostCompact hook (Claude Code).
 #
-# WHY THIS EXISTS (AG-0010 D1/D3): after compaction the agent resumes against a
+# WHY THIS EXISTS: after compaction the agent resumes against a
 # lossy summary. This hook re-surfaces the anchors that the paired pre-compact
 # hook snapshotted (decisions, exact test names, task anchors) so the agent
 # re-enters the work with them in view.
@@ -16,7 +16,7 @@
 # no-op (durable cross-process state is out of scope for v0.0.7).
 set -u
 
-# AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
+# AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
 if [ "${AEGIS_DISABLE:-}" = "1" ]; then exit 0; fi
 case ",${AEGIS_SKIP_HOOKS:-}," in *",post-compact,"*) exit 0 ;; esac
 

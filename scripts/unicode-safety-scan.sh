@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # unicode-safety-scan.sh — flag dangerous Unicode in shipped content.
 #
-# One class (AG-0231 / 2026-06-14 audit O-15; AG-0237 relaxed emoji policy):
+# One class (from a hardening pass and audit; a later pass relaxed the emoji policy):
 #
 #   1. INVISIBLE / BIDI controls — zero-width chars and bidirectional overrides
 #      (the "Trojan Source" class). These are NEVER legitimate in source or prose
@@ -23,7 +23,7 @@ cd "${ROOT}"
 # This scanner needs PCRE (`grep -P`, the \x{...} codepoint classes below) — GNU
 # grep only. On BSD/macOS grep, -P is unsupported and would error; without this
 # probe the error gets swallowed and the scan would silently report "clean"
-# (a false-negative in a security gate). Fail LOUD instead. (AG-0231 review fix.)
+# (a false-negative in a security gate). Fail LOUD instead.
 if ! printf 'a' | grep -qP 'a' 2>/dev/null; then
   echo "unicode-safety-scan: requires GNU grep with -P (PCRE); not available here." >&2
   echo "  Install GNU grep (e.g. 'ggrep' on macOS via coreutils/grep) and retry." >&2

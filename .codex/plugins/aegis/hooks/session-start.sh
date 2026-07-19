@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.3
+# aegis-hook-version: 0.1.4
 # Aegis SessionStart bootstrap.
 # Emits Claude-compatible JSON announcing Aegis discovery.
 
 set -euo pipefail
 
-# AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
+# AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
 if [ "${AEGIS_DISABLE:-}" = "1" ]; then exit 0; fi
 case ",${AEGIS_SKIP_HOOKS:-}," in *",session-start,"*) exit 0 ;; esac
 

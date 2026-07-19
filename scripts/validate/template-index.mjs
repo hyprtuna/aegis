@@ -1,5 +1,5 @@
 // template-index.mjs — section: integrity of manifest/template-index.json
-// against on-disk template bodies and the per-template slot manifests (AG-0135).
+// against on-disk template bodies and the per-template slot manifests.
 //
 // Checks:
 //   1. Path existence (ERROR) — every formats.{html,markdown,json} path in the
@@ -15,7 +15,7 @@
 //      release phases register their kinds.
 //   4. Slot↔body cross-check (ERROR) — for each template body with a sibling
 //      <name>.template.json, this is a FULL-PATH 1:1 correspondence check
-//      (AG-0147, v0.0.12). It enforces the slot-declaration convention documented
+//      (v0.0.12). It enforces the slot-declaration convention documented
 //      in templates/AGENTS.md ("Slot-declaration convention"):
 //        - forward: every declared slot key appears in the body. An array slot
 //          `<base>[]` is satisfied by either a `<base>` repeat marker OR any
@@ -95,7 +95,7 @@ export function run(ctx) {
 
   const indexPath = join(REPO, "manifest", "template-index.json");
   if (!existsSync(indexPath)) {
-    errors.push("missing manifest/template-index.json (required by AG-0132/AG-0133).");
+    errors.push("missing manifest/template-index.json (required by the ${TEMPLATE} resolver).");
     return { errors, warnings };
   }
   let index;
@@ -114,7 +114,7 @@ export function run(ctx) {
   const referenced = new Set();
 
   // Checks 1 + 2.
-  // designOnly (v0.0.9, AG-0162): a kind flagged `designOnly: true` ships as a
+  // designOnly (v0.0.9): a kind flagged `designOnly: true` ships as a
   // design reference with no near-term producer — an EXPECTED orphan. This file
   // checks body/path integrity (1, 2, 4) and orphan BODIES (3), none of which
   // is producer-coverage, so designOnly does not change those checks; the

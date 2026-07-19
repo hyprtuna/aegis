@@ -296,7 +296,7 @@ test("mergeGroups absent: default dot separator used", async () => {
   assert.ok(out.includes("·"), `expected default separator, got: ${out}`);
 });
 
-// ── AG-0266: per-descriptor `separator` glyph + ctx.sep ──────────────────────
+// ── per-descriptor `separator` glyph + ctx.sep ───────────────────────────────
 
 test("separator: descriptor.separator glyph composes segments joined by ' <glyph> '", async () => {
   const descriptor = { segments: [["model", "project"]], separator: "|" };

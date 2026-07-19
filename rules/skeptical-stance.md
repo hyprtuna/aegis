@@ -49,7 +49,7 @@ Three agents carry the skeptical stance today:
 
 ## Strict-reviewer successor
 
-Per v0.0.10's review-agent consolidation, the former `strict-reviewer` agent was
+Per an earlier review-agent consolidation, the former `strict-reviewer` agent was
 folded into **`code-reviewer --strict`**: the adversarial lock-in / irreversible-
 decision lens with `min_confidence: 0` (no finding dropped for low confidence).
 `code-reviewer --strict` is the strict-reviewer successor; there is no separate

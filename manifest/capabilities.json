@@ -95,7 +95,7 @@
     {
       "id": "plugin-dependencies",
       "title": "Plugin dependencies and semver constraints",
-      "description": "plugin.json declares dependencies with version constraints so a plugin holds an upstream at a tested range. Aegis emits an empty dependencies: [] skeleton in v0.0.5; the aegis-core/aegis-languages split is deferred to v0.0.6+.",
+      "description": "plugin.json declares dependencies with version constraints so a plugin holds an upstream at a tested range. Aegis emits an empty dependencies: [] skeleton for now; the aegis-core/aegis-languages split is deferred to a later release.",
       "category": "manifest",
       "hosts": {
         "claude": { "status": "partial", "evidence": "references/claude-code-docs/docs/plugin-dependencies.md:16", "since": "v0.0.5" },
@@ -121,7 +121,7 @@
     {
       "id": "statusline-presets",
       "title": "Statusline presets",
-      "description": "8 statusline presets rendered by bulletproof zero-dependency Node ESM, wired into settings.json via the /aegis:statusline command. pr segment reads native statusline JSON with no gh shell-out. Shipped v0.0.4.",
+      "description": "8 statusline presets rendered by bulletproof zero-dependency Node ESM, wired into settings.json via the /aegis:statusline command. pr segment reads native statusline JSON with no gh shell-out.",
       "category": "surface",
       "hosts": {
         "claude": { "status": "supported", "evidence": "docs/statusline.md", "since": "v0.0.4" },
@@ -163,9 +163,9 @@
       "description": "Inline <claude>...</claude> / <opencode>...</opencode> blocks in skill bodies kept for the matching host and stripped elsewhere at projection time. Soft cap of 3 blocks per file (validator warns above).",
       "category": "runtime",
       "hosts": {
-        "claude": { "status": "supported", "evidence": ".aegis/plans/v0.0.5-plan.md#locked-decisions", "since": "v0.0.5" },
-        "opencode": { "status": "supported", "evidence": ".aegis/plans/v0.0.5-plan.md#locked-decisions", "since": "v0.0.5" },
-        "codex": { "status": "partial", "evidence": ".aegis/plans/v0.0.5-plan.md#locked-decisions", "since": "v0.0.5" },
+        "claude": { "status": "supported", "evidence": "adapters/claude/projection.md#generated-tree-projection", "since": "v0.0.5" },
+        "opencode": { "status": "supported", "evidence": "adapters/claude/projection.md#generated-tree-projection", "since": "v0.0.5" },
+        "codex": { "status": "partial", "evidence": "adapters/claude/projection.md#generated-tree-projection", "since": "v0.0.5" },
         "cursor": { "status": "gap" },
         "zed": { "status": "gap" }
       }
@@ -173,7 +173,7 @@
     {
       "id": "session-start-hook",
       "title": "SessionStart hook",
-      "description": "Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded. Shipped v0.0.1.",
+      "description": "Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded.",
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json:99", "since": "v0.0.1" },
@@ -190,10 +190,10 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/pre-tool-use-deny.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
+        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
+        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
       }
     },
     {
@@ -203,10 +203,10 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/pre-compact.json", "since": "v0.0.7" },
-        "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010", "since": "v0.0.7" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
+        "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#hook-capability-matrix", "since": "v0.0.7" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
+        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
+        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
       }
     },
     {
@@ -216,10 +216,10 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/verification-before-completion.agent.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
+        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
+        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
       }
     },
     {
@@ -229,10 +229,10 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/instructions-loaded.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
+        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
+        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
       }
     },
     {
@@ -242,16 +242,16 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/prompt-injection-guard.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
+        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
+        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
       }
     },
     {
       "id": "mcp-servers",
       "title": "MCP servers",
-      "description": "Model Context Protocol server entries. Claude/OpenCode/Cursor/Zed load native MCP config; Codex ships an empty mcp.json stub with real servers deferred to v0.0.5+.",
+      "description": "Model Context Protocol server entries. Claude/OpenCode/Cursor/Zed load native MCP config; Codex ships an empty mcp.json stub with real servers deferred to a later release.",
       "category": "mcp",
       "hosts": {
         "claude": { "status": "gap", "evidence": "adapters/claude/projection.md#unsupported-documented-gaps" },
@@ -267,7 +267,7 @@
       "description": "x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall skill. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/recall for the 3-layer retrieval workflow.",
       "category": "frontmatter",
       "hosts": {
-        "claude": { "status": "supported", "evidence": "adapters/claude/projection.md#persistent-memory-v030", "since": "v0.3.0" },
+        "claude": { "status": "supported", "evidence": "adapters/claude/projection.md#persistent-memory", "since": "v0.3.0" },
         "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "n/a" },

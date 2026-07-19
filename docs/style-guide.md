@@ -19,14 +19,14 @@ expand it deliberately, one reviewed term at a time, per release.
 
 ## Warn → error rollout
 
-- **v0.0.6 (now): warn-only.** `validate-prose.mjs` prints every hit (file, line,
+- **Currently: warn-only.** `validate-prose.mjs` prints every hit (file, line,
   term) and exits `0`. It is NOT wired into `scripts/validate-structure.mjs` and
   never blocks a build. Existing canonical content may already contain some of these
-  words; that is expected and tolerated this release. Clearing them is a separate
+  words; that is expected and tolerated for now. Clearing them is a separate
   techdebt sweep, not a release blocker.
 - **`--strict` flag (reserved):** running with `--strict` exits non-zero on any hit.
-  Reserved for the v0.0.7 graduation; not used in CI yet.
-- **v0.0.7 (planned): graduate to error.** Once canonical content has been swept
+  Reserved for a future graduation; not used in CI yet.
+- **Planned: graduate to error.** Once canonical content has been swept
   clean, the strict behaviour becomes the default and the check joins the standard
   pre-PR gate.
 

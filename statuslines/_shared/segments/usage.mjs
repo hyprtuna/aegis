@@ -1,6 +1,6 @@
 // usage — Claude.ai subscription rate-limit usage (5h / 7d windows), rendered
-// as threshold-colored bars + percent + relative reset timers (AG-0259 D3-D5,
-// AG-0266 dropped the "resets in" prefix):
+// as threshold-colored bars + percent + relative reset timers (a later pass
+// dropped the "resets in" prefix):
 //   Usage <bar> 37% (2h 55m) · Weekly <bar> 62% (2d 10h)
 // Present only for Pro/Max subscribers after the first API response; each
 // window is independently optional and read from rate_limits.{five_hour,
@@ -8,7 +8,7 @@
 // `resets_at` is absent or already past (formatReset returns ""). Bars render
 // even at 0% used_percentage — a stable anchor, matching context.mjs — and the
 // whole segment renders null only when neither window is present. The two
-// windows join with `ctx.sep` (AG-0266) so they honor the line's
+// windows join with `ctx.sep` so they honor the line's
 // descriptor-declared separator instead of a hardcoded dot.
 import { renderBar, resolveBarColor } from "../lib/bar.mjs";
 

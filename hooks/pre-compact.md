@@ -20,12 +20,12 @@ Compaction rewrites the conversation into a shorter summary. The summary is loss
 
 | Host | File | Status |
 |---|---|---|
-| Claude Code | `.claude-plugin/hooks/pre-compact.sh` | v0.0.7 |
+| Claude Code | `.claude-plugin/hooks/pre-compact.sh` | supported |
 | OpenCode | `.opencode/plugins/aegis.js` (session.compacting, phase pre) | partial (no-op placeholder) |
-| Codex | `.codex/plugins/aegis/hooks/pre-compact.sh` (PreCompact, bundled) | v0.2.1 |
+| Codex | `.codex/plugins/aegis/hooks/pre-compact.sh` (PreCompact, bundled) | supported |
 | Cursor | N/A (no hook contract) | — |
 | Zed | N/A (no hook contract) | — |
 
 ## Contract Notes
 
-Claude `PreCompact` input carries `trigger` (`manual` for `/compact`, `auto` for context-window overflow) and `custom_instructions`. The event supports `command` dispatch only (decisions.md D3). Exiting non-zero (code 2) would block compaction — this hook never does that; it exits 0 and degrades to a no-op when no capture store is available, since durable cross-process state is out of scope for v0.0.7.
+Claude `PreCompact` input carries `trigger` (`manual` for `/compact`, `auto` for context-window overflow) and `custom_instructions`. The event supports `command` dispatch only (decisions.md D3). Exiting non-zero (code 2) would block compaction — this hook never does that; it exits 0 and degrades to a no-op when no capture store is available, since durable cross-process state remains out of scope.

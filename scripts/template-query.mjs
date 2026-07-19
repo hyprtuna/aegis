@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // template-query.mjs — MAINTAINER-ONLY template introspection over
-// manifest/template-index.json (AG-0218, v0.0.14 Phase D).
+// manifest/template-index.json.
 //
 // Iron Law 1: this is NOT a user CLI. It is a maintainer helper that answers the
 // three discovery questions agents/maintainers ask about the template surface,

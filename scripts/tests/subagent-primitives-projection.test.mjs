@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // subagent-primitives-projection.test.mjs — unit tests for x-claude native subagent
-// execution-profile fields (effort/isolation/maxTurns/background) projection (AG-0263).
+// execution-profile fields (effort/isolation/maxTurns/background) projection.
 //
 // Dependency-free, TAP-ish (matches scripts/test-projection.mjs style).
 // Assertions:

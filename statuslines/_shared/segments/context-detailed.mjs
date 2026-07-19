@@ -1,6 +1,6 @@
 // context-detailed — Context label + bar + percent + UNCONDITIONAL token
 // breakdown "(in: Xk, cache: Yk, out: Zk)". Reuses context.mjs's bar builder,
-// its AG-0259 token-fallback percent (computeContextPct), and its AG-0262 T2
+// its token-fallback percent (computeContextPct), and its
 // `Context` label (contextLabel) so this segment and `context` never disagree
 // on the reported label or percentage.
 // Token breakdown derives from context_window.current_usage; when current_usage

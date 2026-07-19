@@ -1,4 +1,4 @@
-// claude-md — count of CLAUDE.md/AGENTS.md context files (AG-0260 D4).
+// claude-md — count of CLAUDE.md/AGENTS.md context files.
 //
 // FILESYSTEM-derived, NOT transcript-derived: walks from the session's cwd
 // upward to the repo root (short-circuiting at the first `.git` directory

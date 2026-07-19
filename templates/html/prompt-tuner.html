@@ -243,7 +243,7 @@
 </head>
 <body>
   <!--
-    Interactive template — minimal self-contained JS permitted per AG-0011 D2;
+    Interactive template — minimal self-contained JS permitted per the interactive-template minimal-JS exception;
     no external resources. JS only drives the live preview: it re-renders the
     filled prompt from the variables as you edit the system prompt. No external
     src/href/CDN, no network, no tracking. The zero-JS rule still applies to the
@@ -322,7 +322,7 @@ Write a reply that is {{tone}}, no more than 120 words, and ends with a single c
   </div>
 
   <script>
-  // Self-contained prompt-tuner driver (AG-0011 D2): live-fill preview + copy.
+  // Self-contained prompt-tuner driver (the interactive-template minimal-JS exception): live-fill preview + copy.
   (function () {
     "use strict";
 
