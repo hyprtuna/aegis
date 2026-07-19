@@ -32,7 +32,6 @@ Generated from `manifest/capabilities.json`. See [capability-matrix.md](capabili
 | `compaction-hooks` | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap | ⛔ gap |
 | `judgment-hooks` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
 | `instructions-loaded-hook` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
-| `file-cwd-changed-hooks` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
 | `prompt-injection-guard-hook` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
 | `mcp-servers` | ⛔ gap | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |
 | `native-subagent-memory` | ✅ supported | ⛔ gap | ⛔ gap | — n/a | — n/a |

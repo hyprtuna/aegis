@@ -2,6 +2,33 @@
 
 **Status:** v0.0.5 — shipped. Headline host.
 
+## Discovery Model (v0.1.3)
+
+Aegis ships populated canonical `skills/`, `agents/`, `commands/` at the repo root
+**and** declares `plugin.json` manifest keys pointing at the parallel generated
+`adapters/claude/…` trees. Which one Claude Code actually loads depends on the install
+path:
+
+- **Marketplace install (`/plugin marketplace add` + `/plugin install`) — the only
+  supported path (see `docs/getting-started.md`).** The `skills`/`agents`/`commands`
+  manifest keys **replace** Claude's default root-folder scan. On Claude Code v2.1.140+
+  this leaves one cosmetic side effect: an "ignored default folder" warning per root
+  surface folder, since those folders exist but are not the declared scan target.
+  Surfaces still load correctly from the generated tree — warning only, not a defect.
+- **`--plugin-dir /path/to/aegis` — a maintainer footgun, never a documented user
+  path.** Under `--plugin-dir`, the manifest keys **add to** rather than replace the
+  default scan, so every canonical skill/agent/command double-loads alongside its
+  generated `adapters/claude/…` counterpart. Do not use `--plugin-dir` to load Aegis;
+  it exists in this doc only so a maintainer debugging with it understands the double-load
+  is expected, not a bug to chase.
+
+The manifest keys stay pointed at the generated tree (not canonical) because the Claude
+projection is not a no-op — see "Generated-Tree Projection" below. Pointing Claude at
+un-projected canonical would ship skills with unresolved `${TEMPLATE:*}` tokens, no
+injected `tools:`/`memory:`, and no Invoke-via blockquote. See `adapters/AGENTS.md`'s Iron
+Rule for why `adapters/claude/{skills,agents,commands}/` is a sanctioned generated
+exception, not hand-copied canonical.
+
 ## What Claude Code Loads
 
 | Aegis canonical | Claude native path | Notes |
@@ -239,6 +266,4 @@ Claude-only — keyed by `name` per D10. The scanner is opt-in (`enabled: false`
 | `no-rationalization` | supported | `PreToolUse` → prompt | Flags rationalized skips on Bash calls. |
 | `verification-before-completion` | supported | `PreToolUse` → agent | Ad-hoc verifier subagent (prompt, not agent-name, D4). |
 | `instructions-loaded` | supported | `InstructionsLoaded` → command | Reports loaded-rule count + silent drops. |
-| `file-changed` | supported | `FileChanged` → command | Advisory lint/format reminder per language overlay. |
-| `cwd-changed` | supported | `CwdChanged` → command | Advisory directory-context note. |
 | `prompt-injection-guard` | supported (opt-in) | `PreToolUse` → command | `enabled:false`; advisory scanner, excluded from the default `hooks` block (D7). Opt in via `.claude/settings.json`; see `docs/hooks.md`. |

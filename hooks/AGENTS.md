@@ -81,7 +81,7 @@ Battle-tested rules for any shipped hook implementation under `.claude-plugin/ho
    case ",${AEGIS_SKIP_HOOKS:-}," in *",<hook-name>,"*) exit 0 ;; esac
    ```
 
-   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=cwd-changed,file-changed` disables named ones. Applied to the six lifecycle hooks + `prompt-injection-guard.mjs` (JS variant). **Exception — `pre-tool-use-deny` (the security boundary) does NOT honor the global disable.** It has its own scoped, auditable overrides (`AEGIS_ALLOW_GIT_GUARD`, the `# aegis:allow-git` marker, and `plugin.deny`/`plugin.gitGuard` config), so a blanket debug switch can never silently drop the rm-rf / secret-read / git guardrail.
+   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=session-start,instructions-loaded` disables named ones. Applied to the lifecycle hooks + `prompt-injection-guard.mjs` (JS variant). **Exception — `pre-tool-use-deny` (the security boundary) does NOT honor the global disable.** It has its own scoped, auditable overrides (`AEGIS_ALLOW_GIT_GUARD`, the `# aegis:allow-git` marker, and `plugin.deny`/`plugin.gitGuard` config), so a blanket debug switch can never silently drop the rm-rf / secret-read / git guardrail.
 
 2. **Fail open; always exit 0 (advisory + lifecycle hooks).** Any internal error → exit 0 with no output ("no opinion"), never crash the user's turn. On oversized or truncated stdin, emit empty stdout + exit 0 — never echo a mid-stream-truncated JSON payload. (The deny hook also fails open.)
 

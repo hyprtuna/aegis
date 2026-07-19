@@ -236,19 +236,6 @@
       }
     },
     {
-      "id": "file-cwd-changed-hooks",
-      "title": "FileChanged/CwdChanged hooks",
- "description": "Portable hook intent: Claude FileChanged/CwdChanged command hooks emitting advisory lint/format reminders keyed to the language-overlay matcher table. Advisory only — never block. No counterpart on other hosts.",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/file-changed.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010" }
-      }
-    },
-    {
       "id": "prompt-injection-guard-hook",
       "title": "Prompt-injection scanner hook",
  "description": "Portable hook intent: advisory Claude PreToolUse scanner (enabled:false, opt-in) that flags prompt-injection phrasing in tool input and emits advisory context only — never blocks. Excluded from the default hooks block; users opt in via .claude/settings.json. Claude-only.",

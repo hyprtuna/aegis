@@ -25,7 +25,6 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 | **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
 | **Prompt/agent judgment hooks**<br/><sub>judgment-hooks</sub> | ✅ supported<br/>`hooks/verification-before-completion.agent.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
 | **InstructionsLoaded hook**<br/><sub>instructions-loaded-hook</sub> | ✅ supported<br/>`hooks/instructions-loaded.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
-| **FileChanged/CwdChanged hooks**<br/><sub>file-cwd-changed-hooks</sub> | ✅ supported<br/>`hooks/file-changed.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
 | **Prompt-injection scanner hook**<br/><sub>prompt-injection-guard-hook</sub> | ✅ supported<br/>`hooks/prompt-injection-guard.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix-v007-ag-0010` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix-v007-ag-0010` |
 | **MCP servers**<br/><sub>mcp-servers</sub> | ⛔ gap<br/>`adapters/claude/projection.md#unsupported-documented-gaps` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | 🟡 partial<br/>`adapters/codex/projection.md#surfaces--verification` | ⛔ gap | ⛔ gap |
 | **Native subagent memory**<br/><sub>native-subagent-memory</sub> | ✅ supported<br/>`adapters/claude/projection.md#persistent-memory-v030` | ⛔ gap<br/>`adapters/opencode/projection.md#unsupported-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
@@ -139,12 +138,6 @@ Portable hook intent: Claude PreToolUse prompt-type and agent-type judgment hook
 *Category: hooks*
 
 Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.
-
-### FileChanged/CwdChanged hooks (`file-cwd-changed-hooks`)
-
-*Category: hooks*
-
-Portable hook intent: Claude FileChanged/CwdChanged command hooks emitting advisory lint/format reminders keyed to the language-overlay matcher table. Advisory only — never block. No counterpart on other hosts.
 
 ### Prompt-injection scanner hook (`prompt-injection-guard-hook`)
 

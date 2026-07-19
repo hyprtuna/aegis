@@ -11,9 +11,7 @@ Coordinate Python work through migrated Aegis abilities and rule overlays.
 ## Activation
 
 This overlay activates on the shared matcher table `**/*.py` (plus the project
-markers in `x-claude.paths`) — `**/*.py` is the same glob the `file-changed` hook
-(`hooks/file-changed.json` `trigger.paths`) watches, so `paths:`-based skill
-activation and the FileChanged lint/format reminder fire on one set.
+markers in `x-claude.paths`) via `paths:`-based skill activation.
 
 ## Abilities
 - `abilities/python-development.md`

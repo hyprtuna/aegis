@@ -40,6 +40,18 @@ cloned this repository.
 5. Troubleshooting: if `/skills` shows no `aegis:` entries, run `/plugin list`
    and confirm `aegis` is present; if it is missing, repeat step 2.
 
+**Marketplace install only.** Steps 1–2 above (`/plugin marketplace add` +
+`/plugin install`) are the only supported Claude Code install path. Aegis's
+`plugin.json` declares `skills`/`agents`/`commands` keys pointing at the
+generated `adapters/claude/…` tree (see [`adapters/claude/projection.md`](../adapters/claude/projection.md)),
+which **replaces** Claude's default root-folder scan under a marketplace
+install — the only residual is a cosmetic "ignored default folder" warning on
+Claude Code v2.1.140+. Loading Aegis via `claude --plugin-dir /path/to/aegis`
+instead is a **maintainer footgun, not a supported user path**: `--plugin-dir`
+*adds* to the default scan rather than replacing it, so every canonical
+skill/agent/command double-loads alongside its generated counterpart. Always
+install via the marketplace flow above.
+
 ## OpenCode
 
 1. Symlink the plugin file into OpenCode's global plugin directory (adjust

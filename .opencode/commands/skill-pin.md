@@ -1,6 +1,5 @@
 ---
 description: 'Pin a skill so it surfaces in the slash menu Pinned section'
-argument-hint: '<name>'
 ---
 
 Pin a named skill to your per-user shortcuts list.

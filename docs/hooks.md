@@ -50,8 +50,7 @@ Judgment hooks may carry a cosmetic filename infix — `verify-no-secrets-touche
 ### `intent` enum
 
 `session-start`, `pre-compact`, `post-compact`, `instructions-loaded`,
-`file-changed`, `cwd-changed`, `prompt-injection-guard`, `pre-tool-use-deny`,
-`prompt-type`, `agent-type`.
+`prompt-injection-guard`, `pre-tool-use-deny`, `prompt-type`, `agent-type`.
 
 Command intents map one-to-one to a host event. The two judgment categories —
 `prompt-type` and `agent-type` — are keyed by `name` (D10) and bind to
@@ -72,7 +71,11 @@ Command intents map one-to-one to a host event. The two judgment categories —
 
 Event enum (verified against `references/claude-code-docs/docs/hooks.md`, D2):
 `SessionStart`, `PreToolUse`, `UserPromptSubmit`, `PreCompact`, `PostCompact`,
-`InstructionsLoaded`, `FileChanged`, `CwdChanged`.
+`InstructionsLoaded`. `FileChanged` and `CwdChanged` remain in the schema enum
+as permitted-not-required forward-compat entries — no shipped intent binds
+them as of v0.1.3; both were removed as non-functional (neither could deliver
+its intended effect: `FileChanged`'s matcher only accepts literal filenames,
+and both events' `additionalContext` output is not injected into the model).
 
 ### Dispatch types
 
@@ -100,11 +103,9 @@ unsupported dispatch with an event is rejected.
 | `PreCompact` | `command` only |
 | `PostCompact` | `command` only |
 | `InstructionsLoaded` | `command` only |
-| `FileChanged` | `command` only |
-| `CwdChanged` | `command` only |
 
 So `prompt-type` and `agent-type` judgment hooks bind to `PreToolUse`; the
-compaction, instructions, and file/cwd intents are all `command` dispatch.
+compaction and instructions intents are all `command` dispatch.
 
 ## OpenCode binding (`x-opencode`)
 

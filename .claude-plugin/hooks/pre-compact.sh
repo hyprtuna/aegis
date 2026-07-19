@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.2
+# aegis-hook-version: 0.1.3
 # pre-compact.sh — Aegis plugin PreCompact hook (Claude Code).
 #
 # WHY THIS EXISTS (AG-0010 D1/D3): compaction rewrites the conversation into a

@@ -192,7 +192,6 @@ function buildCommandEntries(dir) {
       description: fm.description,
       template: body.trim(),
     };
-    if (fm["argument-hint"]) entry["argument-hint"] = fm["argument-hint"];
     entries[`aegis-${name}`] = entry;
   }
   return entries;

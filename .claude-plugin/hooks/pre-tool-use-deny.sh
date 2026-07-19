@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.2
+# aegis-hook-version: 0.1.3
 # pre-tool-use-deny.sh — Aegis plugin PreToolUse hook (Claude Code).
 #
 # WHY THIS EXISTS (decisions.md D5 correction): Claude plugins cannot ship a

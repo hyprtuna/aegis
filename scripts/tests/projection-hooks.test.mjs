@@ -66,7 +66,7 @@ test("B3: plugin.json hooks block carries the expected event bindings", () => {
   const plugin = JSON.parse(readFileSync(GENERATED[0], "utf8"));
   const hooks = plugin.hooks ?? {};
   const events = Object.keys(hooks);
-  for (const ev of ["SessionStart", "PreToolUse", "PreCompact", "PostCompact", "InstructionsLoaded", "FileChanged", "CwdChanged"]) {
+  for (const ev of ["SessionStart", "PreToolUse", "PreCompact", "PostCompact", "InstructionsLoaded"]) {
     assert.ok(events.includes(ev), `expected event ${ev} in plugin.json hooks, got: ${events.join(", ")}`);
   }
   // PreToolUse must contain the deny COMMAND hook binding.

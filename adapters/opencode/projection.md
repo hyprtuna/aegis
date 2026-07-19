@@ -11,7 +11,7 @@
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
 - **Bootstrap (verified, v0.0.4):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once at plugin-factory init (`aegis.js:50,128`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`aegis.js:176-179`) and injects into the **first USER message** (`aegis.js:171`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This confirms the superpowers-audit recommendations were already satisfied.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.
-- **Commands:** Generated `.opencode/commands/<name>.md` with `argument-hint` promoted from `x-claude.argument-hint`.
+- **Commands:** Generated `.opencode/commands/<name>.md`. `argument-hint` is a Claude-only command field (not documented for OpenCode's `config.command`) and is intentionally NOT promoted here (v0.1.3) — it stays only on the Claude command carrier.
 - **Rules:** Embedded in bootstrap text, NOT via `cfg.instructions[]` (per Superpowers' tested approach; avoids per-turn token cost).
 
 ## What OpenCode Will Load
@@ -21,6 +21,18 @@
 | `skills/<scope>/<name>/SKILL.md` | `.opencode/skills/<name>/SKILL.md` (or via `skills.paths` config pointing at canonical) |
 | `agents/<name>.md` | `.opencode/agents/<name>.md` |
 | `commands/<name>.md` | `.opencode/commands/<name>.md` |
+
+**Dogfooding double-registration (maintainer-only, v0.1.3).** When cwd is
+the Aegis repo itself, OpenCode natively discovers the generated `.opencode/agents/*.md`
+and `.opencode/commands/*.md` files (unprefixed names) alongside the plugin's own
+`aegis-`-prefixed inline `cfg.agent`/`cfg.command` entries built by `buildAgentEntries()`/
+`buildCommandEntries()` (`.opencode/plugins/aegis.js:162-199`) — so a maintainer running
+OpenCode inside the clone sees each agent/command twice (once unprefixed via native
+discovery, once `aegis-`-prefixed via the plugin). This only bites maintainers dogfooding
+in the repo, never end users installing via the git-spec plugin install (who never have
+`.opencode/agents|commands/` in their own project). It is inherent to shipping the
+generated `.opencode/` tree inside the same repo that also loads as a plugin; no code
+change removes it without breaking end-user distribution. Honest gap, not a silent drop.
 | `rules/<name>.md` | Concatenated into `AGENTS.md` or referenced via `instructions:` glob |
 | Hooks | Plugin `.opencode/plugins/aegis.js` event handlers |
 | Permissions | Per-agent `agent.<name>.permission` + global `permission` deny, applied at runtime by the `config(cfg)` hook from `manifest/permissions.json` (v0.0.5) |
@@ -109,8 +121,6 @@ event is a `gap` — documented here, never silently dropped.
 | `no-rationalization` | gap | — | No LLM-evaluated hook primitive; Claude-only. |
 | `verification-before-completion` | gap | — | No agent-dispatch hook primitive; Claude-only. |
 | `instructions-loaded` | gap | — | No `InstructionsLoaded` counterpart. |
-| `file-changed` | gap | — | No `FileChanged` counterpart. |
-| `cwd-changed` | gap | — | No `CwdChanged` counterpart. |
 | `prompt-injection-guard` | gap | — | No PreToolUse hook event; the advisory scanner is Claude-only. |
 
 ## Statuslines

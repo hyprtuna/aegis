@@ -1,7 +1,7 @@
 {
   "name": "aegis",
   "displayName": "Aegis",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
   "author": {
     "name": "Aegis Contributors"
@@ -70,26 +70,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/instructions-loaded.sh"
-          }
-        ]
-      }
-    ],
-    "FileChanged": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/file-changed.sh"
-          }
-        ]
-      }
-    ],
-    "CwdChanged": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/cwd-changed.sh"
           }
         ]
       }

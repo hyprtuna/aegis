@@ -69,8 +69,6 @@ every portable hook intent is a `gap` — documented here, never silently droppe
 | `no-rationalization` | gap | No LLM-evaluated hook primitive. |
 | `verification-before-completion` | gap | No agent-dispatch hook primitive. |
 | `instructions-loaded` | gap | No `InstructionsLoaded` counterpart. |
-| `file-changed` | gap | No verified `FileChanged` counterpart. |
-| `cwd-changed` | gap | No verified `CwdChanged` counterpart. |
 | `prompt-injection-guard` | gap | No verified PreToolUse hook event; advisory scanner is Claude-only. |
 
 ## Statuslines
