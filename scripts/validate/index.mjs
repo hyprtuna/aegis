@@ -58,6 +58,11 @@ import * as agentPluginDrop from "./agent-plugin-drop.mjs";
 // marker (arrow or conjugated process verb) in a `description:` field.
 import * as descriptionShape from "./description-shape.mjs";
 
+// v0.1.4 — shipped-ref guard (warn-only): flags AG-NNNN ticket references
+// (all files) and pre-launch v0.0/0.2/0.3.x version stamps (.md only) that
+// should not reach the public tree post-launch.
+import * as shippedRef from "./shipped-ref.mjs";
+
 // Ordered to match the original monolith's section sequence (1 → 12).
 const RULES = [
   rootFiles,           // 1
@@ -95,6 +100,8 @@ const RULES = [
   agentPluginDrop,       // AGENT_PLUGIN_DROP (x-claude.{hooks,mcpServers,permissionMode} silently dropped for plugin subagents)
   // v0.1.2 warn-only:
   descriptionShape,      // DESCRIPTION_SHAPE (arrow or conjugated process verb in a description; graduates to hard-fail in v0.1.3)
+  // v0.1.4 warn-only:
+  shippedRef,            // SHIPPED_REF (AG-NNNN ticket refs + pre-launch v0.0/0.2/0.3.x .md version stamps; graduates to hard-fail in v0.2.0)
 ];
 
 export function main() {

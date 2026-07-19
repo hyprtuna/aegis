@@ -379,6 +379,51 @@ now; commands are a small, capped set (~15) reviewed by hand, and extending
 the rule there is a candidate for a future release, not a gap being silently
 carried.
 
+## New v0.1.4 rules
+
+### `SHIPPED_REF` — pre-launch ticket / version residue guard (warn-only)
+
+Module: `scripts/validate/shipped-ref.mjs`. Follows a pre-launch residue sweep
+that scrubbed every internal ticket id and stale internal version stamp out of
+the shipped tree; this rule is the guard that keeps it clean. Reuses the
+shared ctx walk (no second walk). Two independent checks:
+
+1. **`AG-[0-9]{4}`** (uppercase ticket ids) — flagged in **all** scanned
+   files, any extension. Case-sensitive by design: the lowercase
+   `.aegis/specs/features/ag-NNNN-<slug>/` path-citation form never matches.
+2. **Pre-launch internal version stamp** `v0.(0|2|3).N` — flagged in **`.md`
+   files only**. The current public series (`v0.1.x`) and host-version refs
+   (e.g. `v2.1.105`) never match the pattern. Non-`.md` code-comment stamps
+   (`scripts/**.mjs`, `statuslines/**.mjs`, `*.template.json`) are
+   deliberately out of scope for now — see the graduation note below.
+
+**Exclusions:** dot-dirs and `references/` are already excluded by the shared
+ctx walk. This rule additionally exempts `CHANGELOG.md` (public history
+starts at v0.1.0) and the whole `scripts/tests/` directory, which legitimately
+plants example `AG-NNNN` / `v0.x.y` strings as test fixtures (including this
+rule's own unit test, `scripts/tests/shipped-ref.test.mjs`). The allowlist is
+intentionally empty: after the residue sweep, zero legitimate refs remain in
+the scanned surface, so no allowlist entries are required — add one only with
+written justification.
+
+**Stage:** **warn-only** in v0.1.4 (new-rule cadence). It **graduates to
+hard-fail in the 0.2.0 release** (written without the `v0.` prefix in this
+sentence on purpose — that exact prefix-plus-digit shape is what this very
+rule's version-stamp check flags, and this line lives in a scanned `.md`
+file), preconditioned on canonical staying warning-free from v0.1.4 through
+that release.
+
+**Remediation:** remove the ticket id, or rewrite the version-specific phrase
+version-neutrally (e.g. "an earlier release", "a prior hardening pass").
+
+**Necessary, not sufficient.** A clean `SHIPPED_REF` pass does NOT prove the
+shipped tree is free of internal-planning residue — it is a narrow mechanical
+proxy for exactly two patterns (an uppercase ticket-id shape and a pre-launch
+version-stamp shape). Other residue forms — internal codenames, unscrubbed
+worktree/branch names in prose, private-repo file paths outside the
+`ag-NNNN`-lowercase citation form — pass the rule clean even though they may
+still leak internal planning context.
+
 ## Standalone gates
 
 These two scripts are **not** wired into `validate-structure.mjs`. Run them
