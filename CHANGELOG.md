@@ -6,6 +6,13 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.3] — 2026-07-19
+
+- **Removed two non-functional hooks** — `FileChanged` (its matcher cannot express the intended watch) and `CwdChanged` (its context never reached the agent); both are gone from all shipped surfaces (docs, host projections, language-skill activation notes). They remain in the schema enum as forward-compat reservations only.
+- **Marketplace-install guidance** — documented that Aegis must be installed via `/plugin marketplace add` (not `--plugin-dir`, which double-loads), and reconciled the adapter guidance to state that `adapters/claude/` is the generated Claude-native projection (the sanctioned exception to the no-duplication rule).
+- **Opt-in cost monitor documented** (`adapters/claude/monitors/README.md`) — off by default.
+- Dropped the undocumented `argument-hint` field from the OpenCode command projection (kept on Claude); documented the dogfooding double-registration.
+
 ## [v0.1.2] — 2026-07-19
 
 - **Forceful skill-invocation bootstrap.** The injected SessionStart guidance now carries a compact, host-neutral skill-invocation gate plus a Red Flags table (ported from the superpowers pattern), so a relevant skill is invoked instead of being rationalized away.
