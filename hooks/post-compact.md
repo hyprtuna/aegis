@@ -20,9 +20,9 @@ After compaction, the agent resumes against a freshly summarized transcript. The
 
 | Host | File | Status |
 |---|---|---|
-| Claude Code | `.claude-plugin/hooks/post-compact.sh` | v0.0.7 |
+| Claude Code | `.claude-plugin/hooks/post-compact.sh` | supported |
 | OpenCode | `.opencode/plugins/aegis.js` (session.compacting, phase post) | partial (no-op placeholder) |
-| Codex | `.codex/plugins/aegis/hooks/post-compact.sh` (PostCompact, bundled) | v0.2.1 |
+| Codex | `.codex/plugins/aegis/hooks/post-compact.sh` (PostCompact, bundled) | supported |
 | Cursor | N/A (no hook contract) | — |
 | Zed | N/A (no hook contract) | — |
 

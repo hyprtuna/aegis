@@ -1,6 +1,6 @@
 {
   "name": "hud",
-  "description": "Richer HUD palette (AG-0259) — teal/cyan banner accent, distinct blue usage bar, green->yellow->red context/usage escalation. Pairs with `thresholds.{context,usage}` breakpoints declared by a preset.",
+  "description": "Richer HUD palette — teal/cyan banner accent, distinct blue usage bar, green->yellow->red context/usage escalation. Pairs with `thresholds.{context,usage}` breakpoints declared by a preset.",
   "source": "aegis:hud",
   "colors": {
     "label": "#5eead4",

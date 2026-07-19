@@ -1,4 +1,4 @@
-// transcript.mjs — bounded, cached, guarded JSONL transcript reader (AG-0260).
+// transcript.mjs — bounded, cached, guarded JSONL transcript reader.
 //
 // Ports a narrow slice of claude-hud's src/transcript.ts (tool_use/tool_result
 // pairing by id, Task/Agent tool_use -> agent, TodoWrite tool_use -> todos,
@@ -13,7 +13,7 @@
 // (not awaited), so parsing here would either block every segment or race.
 // See statuslines/AGENTS.md and the v0.3.6 plan's "Architecture note".
 //
-// Bounded read (AG-0261 strict-review fix): a transcript grows every turn, so
+// Bounded read (a strict-review fix): a transcript grows every turn, so
 // the mtime+size cache key misses on every turn and this function actually
 // reads the file from disk each call. To keep that read inside Claude Code's
 // synchronous statusline time budget, files at or under MAX_READ_BYTES (2MiB)
@@ -29,7 +29,7 @@
 // Contract: readTranscript(path) -> TranscriptSummary | null.
 //   TranscriptSummary = {
 //     tools: [{ name, count, status: 'running'|'completed'|'error', target? }],
-//       -- ordered by RECENCY, most-recently-used LAST (AG-0262 T3/D3); NOT
+//       -- ordered by RECENCY, most-recently-used LAST; NOT
 //          sorted by count. A consumer wanting "current activity" takes the
 //          last entry rather than the highest-count ("dominant") one.
 //     agents: [{ type, model?, description?, durationMs?, status: 'running'|'completed' }],
@@ -37,9 +37,9 @@
 //     prompt: string | null,
 //       -- the last GENUINE user turn; harness envelopes (slash-command
 //          invocations, `<local-command-stdout>` blocks) are skipped by
-//          content shape, never echoed (AG-0262 T1/D1).
+//          content shape, never echoed.
 //          Currently UNCONSUMED (the prompt-echo segment that read it was
-//          retired in v0.3.10, AG-0275) — retained here as reusable.
+//          retired in v0.3.10) — retained here as reusable.
 //   }
 // Returns null on ANY failure: missing/empty path, not a string, realpath
 // failure, stat failure, not a regular file, or a read error (whole-file or
@@ -65,8 +65,8 @@ import { sanitize } from "./sanitize.mjs";
 
 const CACHE_VERSION = 1;
 const CACHE_DIR = resolveCacheDir();
-const MAX_CACHE_FILES = 64; // best-effort trim ceiling (AG-0261)
-const MAX_READ_BYTES = 2 * 1024 * 1024; // trailing-window read ceiling (AG-0261)
+const MAX_CACHE_FILES = 64; // best-effort trim ceiling
+const MAX_READ_BYTES = 2 * 1024 * 1024; // trailing-window read ceiling
 const MAX_TOOLS = 20; // claude-hud cap
 const MAX_AGENTS = 10; // claude-hud cap
 const NAME_MAX_LEN = 64;
@@ -78,7 +78,7 @@ const PROMPT_MAX_LEN = 240;
 // resolveCacheDir() -> a per-user cache base, guarded end to end (a failure
 // here must never throw — worst case we fall back to a shared tmpdir path,
 // and any subsequent read/write failure against that path is separately
-// swallowed by readCache()/writeCache()). Preference order (AG-0261):
+// swallowed by readCache()/writeCache()). Preference order:
 //   1. $XDG_CACHE_HOME/aegis-statusline
 //   2. <homedir>/.cache/aegis-statusline
 //   3. <tmpdir>/aegis-statusline-<uid>  (homedir unusable)
@@ -107,7 +107,7 @@ function resolveCacheDir() {
 // trimCacheDir(dir) -> best-effort: when the cache dir holds more than
 // MAX_CACHE_FILES entries, delete the oldest (by mtime) until back at the
 // ceiling. Wrapped end to end — a cleanup failure must never fail the
-// read/parse that triggered it (AG-0261).
+// read/parse that triggered it.
 function trimCacheDir(dir) {
   try {
     const entries = readdirSync(dir).filter((f) => f.endsWith(".json"));
@@ -144,7 +144,7 @@ export function _setReadImplForTests(fn) {
   readTranscriptFile = typeof fn === "function" ? fn : readFileSync;
 }
 
-// Test-only injection point for the trailing-window read (AG-0261), mirroring
+// Test-only injection point for the trailing-window read, mirroring
 // _setReadImplForTests above. Defaults to the real openSync/readSync/closeSync
 // implementation; never used for the cache file itself.
 let readTranscriptTail = defaultReadTail;
@@ -263,7 +263,7 @@ function parseTranscriptText(raw) {
       // string-content `user` turns — these are NOT flagged `isMeta` (verified
       // against a live transcript), so we filter by content shape instead:
       // skip any trimmed content starting with `<command-`, `<local-command-`,
-      // `<task-notification`, or `<system-reminder` (AG-0262 T1/D1, AG-0265).
+      // `<task-notification`, or `<system-reminder`.
       // We only overwrite `lastPrompt` for a surviving (genuine) turn, so an
       // envelope never clobbers the last real prompt.
       if (entry.type === "user" && typeof content === "string") {
@@ -330,7 +330,7 @@ function parseTranscriptText(raw) {
   // Cap to the last N raw events, then aggregate tools by name -> count. The
   // most recently observed status/target for a name wins (reflects the tool's
   // current activity, not its first call). The OUTPUT array is ordered by
-  // recency — most-recently-used LAST (AG-0262 T3/D3) — so a consumer that
+  // recency — most-recently-used LAST — so a consumer that
   // wants "what's happening now" (tools.mjs) can just take the last entry,
   // instead of the highest-count ("dominant") one, which let one stale error
   // on a high-count tool (e.g. Bash) redden an otherwise-healthy aggregate.

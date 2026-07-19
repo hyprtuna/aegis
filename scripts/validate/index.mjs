@@ -26,35 +26,35 @@ import * as capabilities from "./capabilities.mjs";
 import * as claudeDrift from "./claude-drift.mjs";
 import * as capabilityDocsSync from "./capability-docs-sync.mjs";
 
-// v0.0.6 (AG-0009) — warn-only hardening rules.
+// v0.0.6 — warn-only hardening rules.
 import * as toolNameLeak from "./tool-name-leak.mjs";
 import * as agentNameCollision from "./agent-name-collision.mjs";
 import * as skillBodyLong from "./skill-body-long.mjs";
 import * as bucketReadme from "./bucket-readme.mjs";
 import * as lockfile from "./lockfile.mjs";
 
-// v0.0.9 (AG-0160) — named-artifact → template rule (warn-only).
+// v0.0.9 — named-artifact → template rule (warn-only).
 import * as namedArtifactTemplate from "./named-artifact-template.mjs";
 
-// v0.0.12 (AG-0187/0189/0197) — trigger-phrase lint (warn-only), doc-drift
+// v0.0.12 — trigger-phrase lint (warn-only), doc-drift
 // (count = error, dead-link = error), stance cross-check (warn-only).
 import * as triggerPhrase from "./trigger-phrase.mjs";
 import * as docDrift from "./doc-drift.mjs";
 import * as stance from "./stance.mjs";
 
-// v0.0.13 (AG-0201) — acyclic-composition validator (warn-only).
+// v0.0.13 — acyclic-composition validator (warn-only).
 import * as composition from "./composition.mjs";
 
-// v0.0.14 (AG-0213) — canonical SKILL.md body size cap (warn-only). Owns the
+// v0.0.14 — canonical SKILL.md body size cap (warn-only). Owns the
 // >100-line finding; skill-body-long.mjs now emits SKILL_DESC_LONG only.
 import * as skillSize from "./skill-size.mjs";
 
-// v0.1.0 (AG-0224) — plugin-subagent silent-drop trap (warn-only): flags
+// v0.1.0 — plugin-subagent silent-drop trap (warn-only): flags
 // x-claude.{hooks,mcpServers,permissionMode} on agents (Claude drops them for
 // plugin-loaded subagents).
 import * as agentPluginDrop from "./agent-plugin-drop.mjs";
 
-// v0.1.2 (AG-0010) — description-shape lint (warn-only): flags a mechanism
+// v0.1.2 — description-shape lint (warn-only): flags a mechanism
 // marker (arrow or conjugated process verb) in a `description:` field.
 import * as descriptionShape from "./description-shape.mjs";
 
@@ -66,34 +66,34 @@ const RULES = [
   manifest,            // 6, 7
   statusline,          // 7b
   templates,           // 7c
-  templateIndex,       // 7d (AG-0135) — template-index integrity + slot↔body cross-check
+  templateIndex,       // 7d — template-index integrity + slot↔body cross-check
   codex,               // 8 + FIX-V5/V6/V7/V8
   pluginManifests,     // 9
-  hookIntent,          // 9b (AG-0010 D9) — HARD-FAIL contract validator
+  hookIntent,          // 9b — HARD-FAIL contract validator
   codexAgents,         // 10
   permissions,         // v0.0.5 pass A
   capabilities,        // v0.0.5 passes B, C
   claudeDrift,         // v0.0.5 pass D
   capabilityDocsSync,  // 12
-  // v0.0.6 (AG-0009) warn-only hardening rules:
+  // v0.0.6 warn-only hardening rules:
   toolNameLeak,        // A3
   agentNameCollision,  // A4
   skillBodyLong,       // A5 (desc-length only; body-size moved to skillSize)
   bucketReadme,        // A6
   lockfile,            // C1
-  // v0.0.9 (AG-0160) warn-only:
+  // v0.0.9 warn-only:
   namedArtifactTemplate, // NAMED_ARTIFACT_TEMPLATE
-  // v0.0.12 (AG-0187/0189/0197):
+  // v0.0.12:
   triggerPhrase,         // TRIGGER_PHRASE (warn-only; hard-fail in v0.0.13)
   docDrift,              // DOC_DRIFT (count = error, dead-link = error)
   stance,                // STANCE (warn-only)
-  // v0.0.13 (AG-0201) warn-only:
+  // v0.0.13 warn-only:
   composition,           // COMPOSITION (acyclic + existence + handoff; warn-only, hard-fail next release)
-  // v0.0.14 (AG-0213) warn-only:
+  // v0.0.14 warn-only:
   skillSize,             // SKILL_SIZE (canonical SKILL.md >100-line body cap; sole owner of the size finding)
-  // v0.1.0 (AG-0224) warn-only:
+  // v0.1.0 warn-only:
   agentPluginDrop,       // AGENT_PLUGIN_DROP (x-claude.{hooks,mcpServers,permissionMode} silently dropped for plugin subagents)
-  // v0.1.2 (AG-0010) warn-only:
+  // v0.1.2 warn-only:
   descriptionShape,      // DESCRIPTION_SHAPE (arrow or conjugated process verb in a description; graduates to hard-fail in v0.1.3)
 ];
 

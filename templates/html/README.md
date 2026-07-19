@@ -6,7 +6,7 @@ slot manifest. These are the stakeholder-deliverable family: open them in a
 browser, no build step, no external `src`/`href`/CDN.
 
 Reference-gallery coverage is the full `references/html-effectiveness/` gallery —
-**20/20** as of v0.0.8. v0.0.9 adds two further producer-backed kinds outside the
+**20/20**. A later pass added two further producer-backed kinds outside the
 gallery (`plan-audit-report`, `research-report`). See `../../docs/templates.md` for
 the authoring guide, the per-kind format index (`manifest/template-index.json`), and
 the `${TEMPLATE:<kind>:<format>}` resolver. Coverage history lives in

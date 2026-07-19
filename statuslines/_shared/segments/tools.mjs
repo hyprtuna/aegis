@@ -1,12 +1,12 @@
 // tools — ALL relevant tool activity, enriched from the Tier-2 transcript when
-// available (AG-0267 claude-hud parity): running tools first (`◐ <name>`,
+// available (claude-hud parity): running tools first (`◐ <name>`,
 // last 2), then completed/error tools sorted by count DESC (top 4, `<icon>
 // <name> ×<count>`), then a `+N more` overflow marker. Falls back to today's
 // defensive stdin field when ctx.transcript is absent (parse gated off, parse
 // failed, or the host never surfaces a transcript_path) — no regression for
 // existing hosts.
 //
-// Supersedes the AG-0262 "most-recent activity, not dominant-by-count" model:
+// Supersedes the earlier "most-recent activity, not dominant-by-count" model:
 // that model showed exactly one tool (the most-recently-touched), which lost
 // the "what else has been happening" picture claude-hud's dense HUD provides.
 // Per-entry status/color is preserved from that change — a stale error on one

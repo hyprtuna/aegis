@@ -1,5 +1,5 @@
-// task-banner — current in-progress task banner, transcript-derived
-// (AG-0260). Surfaces the active todo item (`ctx.transcript.todos.inProgress`)
+// task-banner — current in-progress task banner, transcript-derived.
+// Surfaces the active todo item (`ctx.transcript.todos.inProgress`)
 // as a short "working on X" banner. Renders null when the transcript is
 // absent, gated off, parse-failed, or there is no in-progress todo.
 const MAX_LEN = 60;

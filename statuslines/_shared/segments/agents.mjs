@@ -1,12 +1,12 @@
 // agents — ALL relevant sub-agent activity, one per line, enriched from the
-// Tier-2 transcript when available (AG-0267 claude-hud parity): running
+// Tier-2 transcript when available (claude-hud parity): running
 // agents plus the last 2 completed, capped at 3 with running agents
 // prioritized and never dropped for completed ones, each rendered on its OWN
 // line via `\n`. Falls back to today's stdin `agent.name` field (--agent /
 // agent settings) when ctx.transcript is absent — no regression for existing
 // hosts.
 //
-// Supersedes the AG-0260 single-most-recent-agent model: that model rendered
+// Supersedes the earlier single-most-recent-agent model: that model rendered
 // exactly one line (the last agent touched); claude-hud's dense HUD shows the
 // whole in-flight + recently-finished picture instead.
 //

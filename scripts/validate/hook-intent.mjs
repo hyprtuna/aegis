@@ -1,4 +1,4 @@
-// hook-intent.mjs — AG-0010 D9: the HOOK_INTENT contract validator (HARD-FAIL).
+// hook-intent.mjs — the HOOK_INTENT contract validator (HARD-FAIL).
 //
 // Hand-rolled (no ajv), stdlib only, mirrors statusline.mjs. Validates canonical
 // hooks/*.json against the contract decisions.md encodes:
@@ -33,7 +33,7 @@ const CLAUDE_EVENTS = new Set([
   "InstructionsLoaded", "FileChanged", "CwdChanged",
 ]);
 const OPENCODE_EVENTS = new Set(["session.start", "session.compacting", "chat.messages.transform"]);
-// Codex hook events (verified against codex 0.141.0, AG-0239).
+// Codex hook events (verified against codex 0.141.0).
 const CODEX_EVENTS = new Set([
   "SessionStart", "SubagentStart", "PreToolUse", "PermissionRequest", "PostToolUse",
   "PreCompact", "PostCompact", "UserPromptSubmit", "SubagentStop", "Stop",
@@ -184,7 +184,7 @@ export function run(ctx) {
       }
     }
 
-    // ── x-codex host-binding completeness + event validation (AG-0239) ────────
+    // ── x-codex host-binding completeness + event validation ──────────────────
     if (platforms.includes("codex")) {
       const xcodex = intent["x-codex"];
       if (!xcodex || typeof xcodex !== "object") {

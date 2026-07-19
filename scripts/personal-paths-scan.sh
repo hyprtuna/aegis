@@ -4,7 +4,7 @@
 # A canonical surface that ships to hosts must not bake in a maintainer's machine
 # path (e.g. /home/<you>/..., /Users/<you>/...). Such paths leak the author's
 # username and break for every other user. This scans the shipped surfaces and
-# exits 1 on a hit, 0 if clean. (AG-0231 / 2026-06-14 audit O-15; ECC parallel.)
+# exits 1 on a hit, 0 if clean. (Added in the same hardening pass as the unicode-safety scan.)
 #
 # Placeholder paths are allowed: /home/user, /home/u, /Users/you, etc. A line
 # carrying the marker `aegis-allow-path-sample` is an intentional example and is
@@ -26,8 +26,8 @@ PATTERN='(/home/|/Users/|\\Users\\)[A-Za-z0-9._-]+(/|\\)'
 # Placeholder names that are clearly examples, not a real machine. Lines whose
 # home path uses one of these are exempt.
 # Kept to UNAMBIGUOUS placeholders only — tokens that double as plausible real
-# usernames (dev, developer, me, name, home, root) were removed (AG-0231 review
-# fix) so a genuine `/home/dev/...` leak is not silently exempted. For an example
+# usernames (dev, developer, me, name, home, root) were removed
+# so a genuine `/home/dev/...` leak is not silently exempted. For an example
 # path that legitimately uses one of those, mark the line `aegis-allow-path-sample`.
 ALLOW='(/home/|/Users/|\\Users\\)(user|users|u|you|youruser|username|example|examples|foo|bar|baz|someone|path|project|your-?user)(/|\\)'
 

@@ -1,4 +1,4 @@
-// skill-size.mjs — v0.0.14 (AG-0213): canonical SKILL.md body size cap.
+// skill-size.mjs — v0.0.14: canonical SKILL.md body size cap.
 //
 // THE single owner of the >100-line body-size warning. This rule replaces the
 // body-length half of the former skill-body-long.mjs check: that module now

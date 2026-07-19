@@ -27,12 +27,12 @@ const KNOWN_BUCKETS = new Set([
   "Task-only",
 ]);
 
-// Read-only buckets MUST disallow Edit/Write (agent-safety metadata, AG-0192/93).
+// Read-only buckets MUST disallow Edit/Write (agent-safety metadata, the model+disallow drift guard).
 // Every other (mutating/doer) bucket must NOT carry that disallow.
 const RO_BUCKETS = new Set(["RO", "RO-web", "RO-bash"]);
 
-// Known model tiers (canonical aliases) every agent must declare (AG-0192/93).
-// `fable` (Claude Fable 5) added AG-0222 (v0.1.0). `best` is an aliasOf synonym, not a
+// Known model tiers (canonical aliases) every agent must declare.
+// `fable` (Claude Fable 5) was added in v0.1.0. `best` is an aliasOf synonym, not a
 // declarable tier (agents declare canonical tiers; synonyms resolve through models.json).
 const KNOWN_MODEL_TIERS = new Set(["opus", "sonnet", "haiku", "fable"]);
 
@@ -204,7 +204,7 @@ export function validatePermissions(REPO) {
   const agentEntries = perms.agents && typeof perms.agents === "object" ? perms.agents : {};
 
   // Load manifest/models.json so generated `model:` IDs can be checked against the
-  // resolved manifest alias (model + disallow drift, AG-0193). A missing/malformed
+  // resolved manifest alias (model + disallow drift guard). A missing/malformed
   // models manifest is non-fatal here — the coverage check still validates the alias
   // tier; drift resolution simply falls back to comparing the raw alias.
   let models = null;
@@ -275,7 +275,7 @@ export function validatePermissions(REPO) {
   // --- Check 2b: model + disallowedTools COVERAGE (agent-safety metadata) ---
   // Every agent must declare a claude.model from the known tier set, and a
   // disallowedTools array consistent with its bucket: read-only buckets MUST
-  // disallow Edit,Write; mutating/doer buckets MUST NOT. (AG-0192/AG-0193)
+  // disallow Edit,Write; mutating/doer buckets MUST NOT.
   for (const [name, entry] of Object.entries(agentEntries)) {
     if (!entry || typeof entry !== "object" || !entry.claude || typeof entry.claude !== "object") {
       continue; // schema check already flagged it

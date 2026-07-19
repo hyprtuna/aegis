@@ -94,7 +94,7 @@ function quoteIfNeeded(v) {
   // like a flow sequence (`[preset]`) must NOT be exempted: real arrays are
   // emitted element-by-element above (emitFrontmatter line ~76), so any bracket-
   // shaped value reaching here is a STRING (e.g. an argument-hint) and must be
-  // quoted, else YAML re-reads it as an array (AG-0257 strict-review M2).
+  // quoted, else YAML re-reads it as an array (a strict-review fix).
   if (/^[a-zA-Z0-9_./-]+$/.test(s)) return s;
   if (s.includes("'")) return `"${s.replace(/"/g, '\\"')}"`;
   return `'${s}'`;
@@ -128,9 +128,9 @@ function injectInvocationBlockquote(body, hint, name) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Template directive resolution (v0.0.4 ag-0007; format-aware v0.0.8 AG-0133)
+// Template directive resolution (introduced v0.0.4; format-aware as of v0.0.8)
 //
-// Two forms, both resolved through manifest/template-index.json (AG-0132):
+// Two forms, both resolved through manifest/template-index.json:
 //   - `${TEMPLATE:<kind>}`          → the kind's `default` format body
 //   - `${TEMPLATE:<kind>:<format>}` → the explicit <format> body for that kind
 //
@@ -181,7 +181,7 @@ function loadTemplateIndex() {
   if (_templateIndexCache) return _templateIndexCache;
   const path = join(REPO, "manifest", "template-index.json");
   if (!existsSync(path)) {
-    throw new Error("missing manifest/template-index.json — required by the ${TEMPLATE} resolver (AG-0132).");
+    throw new Error("missing manifest/template-index.json — required by the ${TEMPLATE} resolver.");
   }
   let parsed;
   try {
@@ -346,10 +346,10 @@ function projectCommands() {
 //   - canonical commands        → .codex/plugins/aegis/skills/aegis-<name>/SKILL.md (thin dispatcher)
 //   - canonical rules           → .codex-plugin/AGENTS.md (concatenated)
 //
-// Constraints (locked in ag-0005 decisions.md):
+// Constraints (locked in the Codex skill-projection decisions record):
 //   - aegis- prefix on every projected skill (collision avoidance across plugins
 //     AND with Codex reserved names default/worker/explorer)
-// Note: the per-body 8 KB cap was removed in AG-0233 (v0.2.0). The real Codex
+// Note: the per-body 8 KB cap was removed once it was found to be bogus. The real Codex
 // budget is ~8,000 chars on the skills LIST (descriptions), not per-body. See
 // .aegis/research/codex-modernization.research.md §1.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -460,7 +460,7 @@ function projectCodexRules() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Codex plugin manifest + MCP stub (AG-0233 Phase B — D-04/D-06)
+// Codex plugin manifest + MCP stub
 //
 // Emits the official plugin manifest at the plugin-root location:
 //   .codex/plugins/aegis/.codex-plugin/plugin.json
@@ -491,8 +491,8 @@ function projectCodexPluginManifest() {
   };
 
   // Build the official plugin.json with component pointers.
-  // keywords replaces tags (D-04). skills + mcpServers are mandatory pointers.
-  // hooks added in v0.2.1 (AG-0239) when the hooks bundle is projected.
+  // keywords replaces tags. skills + mcpServers are mandatory pointers.
+  // hooks added in v0.2.1 when the hooks bundle is projected.
   const manifest = {
     name: CODEX_MANIFEST_DEFAULTS.name,
     version: PKG_VERSION,
@@ -521,7 +521,7 @@ function projectCodexPluginManifest() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Marketplace manifests — ONE PER HOST, no cross-host leak (AG-0255, v0.3.4).
+// Marketplace manifests — ONE PER HOST, no cross-host leak (v0.3.4).
 //
 // Codex → .agents/plugins/marketplace.json : OBJECT source form
 //   { source: "local", path: "./.codex/plugins/aegis" } — required by
@@ -535,7 +535,7 @@ function projectCodexPluginManifest() {
 //
 // Before v0.3.4 both files were written in the Codex object shape, which broke
 // `claude plugin validate .` and left Aegis with no installable Claude
-// marketplace (AG-0255).
+// marketplace.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function projectCodexMarketplaces() {
@@ -555,7 +555,7 @@ function projectCodexMarketplaces() {
     plugins: [marketplaceEntry],
   };
 
-  // Codex canonical marketplace — the sole Codex discovery path (D-05).
+  // Codex canonical marketplace — the sole Codex discovery path.
   const agentsPluginsDir = join(REPO, ".agents", "plugins");
   mkdirSync(agentsPluginsDir, { recursive: true });
   writeFileSync(
@@ -595,7 +595,7 @@ function projectClaudeMarketplace() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Codex hooks projection (AG-0239, v0.2.1)
+// Codex hooks projection (v0.2.1)
 //
 // Emits .codex/plugins/aegis/hooks/hooks.json in Codex matcher-group shape and
 // bundles the referenced hook scripts (copied from .claude-plugin/hooks/ and
@@ -866,7 +866,7 @@ function projectCodex(hookIntents) {
 
   // Ship the markdown, html, and json templates into the Codex plugin tree so
   // the bundled-path references emitted by resolveTemplateDirectives() resolve
-  // on Codex (AG-0004 A5). Also fixes the pre-existing latent gap where
+  // on Codex. Also fixes the pre-existing latent gap where
   // :json bundled-pointers (design-system, plan-audit-report) referenced
   // templates/json/... that never shipped on Codex.
   const codexTemplatesRoot = join(REPO, ".codex/plugins/aegis/templates");
@@ -888,24 +888,24 @@ function projectCodex(hookIntents) {
     join(codexManifestDir, "template-index.json"),
   );
 
-  // Emit the official plugin manifest + MCP stub at plugin-root (B1/B2, D-04/D-06).
+  // Emit the official plugin manifest + MCP stub at plugin-root.
   // Deletes the old repo-root .codex-plugin/plugin.json and .codex-plugin/mcp.json.
-  // hooks pointer added in v0.2.1 (AG-0239) — always present now.
+  // hooks pointer added in v0.2.1 — always present now.
   projectCodexPluginManifest();
 
   // Emit .agents/plugins/marketplace.json (canonical) and correct
-  // .claude-plugin/marketplace.json to use the object source form (B3, D-05).
+  // .claude-plugin/marketplace.json to use the object source form.
   projectCodexMarketplaces();
 
   // Project hook intents to .codex/plugins/aegis/hooks/hooks.json + bundle scripts
-  // (AG-0239, v0.2.1). Must run after projectCodexPluginManifest (hooks pointer wired).
+  // (v0.2.1). Must run after projectCodexPluginManifest (hooks pointer wired).
   const hooks = projectCodexHooks(hookIntents ?? []);
 
   return { skills, agents, commands, rules, templates, hooks };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Statusline projection (v0.0.4, ag-0006)
+// Statusline projection (v0.0.4)
 //
 // For each canonical preset under statuslines/<name>/statusline.json, emit a tiny
 // generated shim `adapters/claude/statuslines/<name>.mjs` that imports the shared
@@ -988,7 +988,7 @@ function projectStatuslines() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Claude generated-tree projection (v0.0.5, ag-0008 DH1..DH7)
+// Claude generated-tree projection (v0.0.5)
 //
 // Generates a Claude-native surface tree under adapters/claude/{skills,agents}/
 // from canonical skills/ and agents/, then regenerates the GENERATED blocks of
@@ -999,7 +999,7 @@ function projectStatuslines() {
 // Per-surface transform pipeline (DH6 build order):
 //   1. resolveTemplateDirectives(body, { host: "claude" })  ← inline(<2KB)/Read branch
 //   2. provider-tagged prose fork: keep <claude>…</claude> inner text, delete
-//      <opencode>…</opencode> and any other host's blocks (AG-0029)
+//      <opencode>…</opencode> and any other host's blocks
 //   3. injectInvocationBlockquote(body, x-claude.primitiveHint, name) — re-inject
 //      the Claude-only Invoke-via primitive-disambiguation blockquote (Phase F);
 //      canonical bodies are host-neutral, only Claude rebuilds + prepends it.
@@ -1030,7 +1030,7 @@ function resolveClaudeModel(alias) {
   return claudeId;
 }
 
-// Fork provider-tagged prose (AG-0029): keep the inner text of <claude>…</claude>
+// Fork provider-tagged prose: keep the inner text of <claude>…</claude>
 // blocks (tags stripped), delete <opencode>…</opencode> and any other host's
 // tagged blocks entirely. Multiline-aware. Soft cap: >3 blocks → console.warn.
 const PROVIDER_TAGS = ["claude", "opencode", "codex", "cursor", "zed"];
@@ -1077,7 +1077,7 @@ function claudeSkillFrontmatter(fm) {
   return out;
 }
 
-// Build Claude-native COMMAND frontmatter (AG-0257): description + argument-hint
+// Build Claude-native COMMAND frontmatter: description + argument-hint
 // (promoted from x-claude.argument-hint by flattenXClaude) + any allowed-tools.
 // A command's invocation name comes from its FILENAME, so `name` is intentionally
 // omitted (matches the working claude-hud reference). Drops kind/visibility/
@@ -1138,7 +1138,7 @@ function flattenXClaude(fm, out) {
     // effort / isolation / maxTurns / background — native plugin-subagent execution
     // profile (cc-docs sub-agents.md, plugins-reference.md). Claude-only; parseFrontmatter
     // stores these as STRINGS (no coercion), so validation+coercion is delegated to the
-    // shared, testable module (AG-0263 D-01; strict-review HIGH fix — the coerced value,
+    // shared, testable module (a strict-review HIGH fix — the coerced value,
     // not the raw string, is what gets emitted).
     if (SUBAGENT_PRIMITIVE_KEYS.has(k)) {
       out[k] = validateSubagentPrimitive(k, v);
@@ -1244,10 +1244,10 @@ function projectClaude(hookIntents) {
     const outBody = claudeBody(body, `agent ${name}`, fm["x-claude"]?.primitiveHint, name);
     const outFm = claudeSkillFrontmatter(fm);
 
-    // Inject tools/model/disallowedTools from manifest/permissions.json (B1/AG-0045,
-    // model+disallow AG-0192/AG-0194). permissions is the SOLE source for agent
-    // tools/model/disallow — never canonical frontmatter (D3 single-source). Agents
-    // must never carry hooks/mcpServers/permissionMode (plugins-reference.md:70 / D9).
+    // Inject tools/model/disallowedTools from manifest/permissions.json.
+    // permissions is the SOLE source for agent tools/model/disallow — never
+    // canonical frontmatter (single-source of truth). Agents must never carry
+    // hooks/mcpServers/permissionMode (plugins-reference.md:70).
     const perm = PERMISSIONS.agents?.[name]?.claude;
     if (perm?.tools) outFm.tools = perm.tools;
     // model: the manifest carries a canonical alias (opus/sonnet/haiku); resolve it
@@ -1295,7 +1295,7 @@ function projectClaude(hookIntents) {
 
   // ── Commands ──────────────────────────────────────────────────────────────
   // Project canonical commands/<name>.md → adapters/claude/commands/<name>.md with
-  // Claude-native frontmatter (AG-0257). Without a projected tree + a plugin.json
+  // Claude-native frontmatter. Without a projected tree + a plugin.json
   // `commands` key, Claude default-scans the raw canonical files, whose non-native
   // frontmatter (kind/x-claude/…) leaves them listed in the plugin panel but NOT
   // invokable (/aegis:<cmd> → "Unknown command"). Claude-only surface.
@@ -1364,7 +1364,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
   // entry ONE LEVEL DEEP for <name>/SKILL.md and ADDS them to the default `skills/`
   // scan (plugins-reference #path-behavior-rules). Listing the individual 82 skill
   // dirs made Claude look for `<skill>/<name>/SKILL.md` (one level too deep) so
-  // ZERO registered (AG-0256). Bucket roots resolve to <name>/SKILL.md at depth 1,
+  // ZERO registered. Bucket roots resolve to <name>/SKILL.md at depth 1,
   // so all skills load. Order-preserving dedup — new buckets flow through
   // automatically, no hardcoded list.
   const skills = [...new Set(emittedSkills.map((s) => s.scope))].map(
@@ -1382,7 +1382,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
     .sort()
     .map((name) => `./adapters/claude/agents/${name}.md`);
 
-  // commands: one FILE entry per generated command (AG-0257), mirroring the
+  // commands: one FILE entry per generated command, mirroring the
   // `agents` array form. Declaring `commands` REPLACES the default root commands/
   // scan, so the generated Claude-native tree (flattened frontmatter) is the only
   // discovered command surface — the raw canonical commands/ (non-native
@@ -1391,13 +1391,13 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
     .sort()
     .map((name) => `./adapters/claude/commands/${name}.md`);
 
-  // hooks: generated from canonical hooks/*.json (AG-0010 D6). Replaces the
-  // previously hand-maintained block; enabled:false intents are excluded (D7).
+  // hooks: generated from canonical hooks/*.json. Replaces the
+  // previously hand-maintained block; enabled:false intents are excluded.
   const hooks = generateClaudeHooksBlock(hookIntents ?? []);
 
-  // userConfig (AG-0028/C1). Schema per plugins-reference.md:550 requires
+  // userConfig. Schema per plugins-reference.md:550 requires
   // type/title/description; default is optional. Keep it minimal.
-  // promptInjectionScanner (AG-0010 D7): opt-in toggle for the advisory scanner
+  // promptInjectionScanner: opt-in toggle for the advisory scanner
   // hook that ships disabled; users flip this in their own settings.json.
   const userConfig = {
     preferredLanguageOverlay: {
@@ -1448,7 +1448,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Portable hook intents (v0.0.7, AG-0010 D6/D7/D8)
+// Portable hook intents (v0.0.7)
 //
 // Canonical hook bindings live in flat hooks/<name>.json (the machine binding;
 // the sibling hooks/<name>.md is the human intent doc). loadHookIntents() globs
@@ -1459,7 +1459,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 // .opencode/plugins/aegis.js (Phase A ships a no-op placeholder; Phase B fills it).
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Glob hooks/*.json (non-recursive, D1), JSON.parse, hand-validate the minimal
+// Glob hooks/*.json (non-recursive), JSON.parse, hand-validate the minimal
 // shape the projector relies on (fail loud on malformed), return sorted by name.
 function loadHookIntents() {
   const hooksDir = join(REPO, "hooks");
@@ -1480,7 +1480,7 @@ function loadHookIntents() {
     if (typeof intent.name !== "string" || !intent.name) {
       throw new Error(`hooks/${file}: missing string "name"`);
     }
-    // Filename base, minus the cosmetic ".prompt"/".agent" infix (D10): a file
+    // Filename base, minus the cosmetic ".prompt"/".agent" infix: a file
     // named verify-no-secrets-touched.prompt.json declares name
     // "verify-no-secrets-touched". The intent field is the authoritative
     // discriminator; the infix is presentational only.
@@ -1527,10 +1527,10 @@ function loadHookIntents() {
 // The Claude hooks-block generator (generateClaudeHooksBlock) now lives in the
 // shared lib scripts/lib/hook-projection.mjs (imported at the top of this file)
 // and is imported by the HOOK_INTENT validator too — single source of truth, no
-// mirror (AG-0010 D6).
+// mirror.
 
 // Derive the set of Claude command-hook script paths (absolute) from intents, so
-// every dispatch:"command" hook auto-stamps without a hardcoded list (D-foundation).
+// every dispatch:"command" hook auto-stamps without a hardcoded list.
 function hookFilesFromIntents(intents) {
   const paths = [];
   for (const intent of intents) {
@@ -1556,12 +1556,12 @@ function injectOpencodeCompactionBridge(text, _intents) {
       "OpenCode aegis.js is missing the AEGIS:HOOKS-GEN marker region — cannot inject compaction bridge.",
     );
   }
-  // Placeholder body. Shape verified (AG-0235): input {sessionID} -> output
+  // Placeholder body. Shape verified: input {sessionID} -> output
   // {context:string[], prompt?}. No phase param — single hook, no pre/post split.
   // Phase dispatch deferred until the pre/post semantics gap is resolved.
   const body = [
     OPENCODE_HOOKS_GEN_START,
-    "const aegisCompaction = async (_input, _output) => { /* no-op: pre/post phase split deferred (AG-0235) */ };",
+    "const aegisCompaction = async (_input, _output) => { /* no-op: pre/post phase split deferred */ };",
     OPENCODE_HOOKS_GEN_END,
   ].join("\n");
   const before = text.slice(0, startIdx);
@@ -1620,7 +1620,7 @@ function stampHookContent(content, commentToken, version) {
 
 // Stamp every projected command hook. The file list is DERIVED from the canonical
 // intents (every x-claude.dispatch:"command" command path), so a new .sh/.mjs hook
-// auto-stamps with no hardcoded list to maintain (AG-0010 D-foundation).
+// auto-stamps with no hardcoded list to maintain.
 function projectHooks(intents) {
   const HOOK_FILES = hookFilesFromIntents(intents ?? []);
   let stamped = 0;
@@ -1695,12 +1695,12 @@ console.log("");
 console.log("Generated by projectClaude():");
 console.log("  - adapters/claude/skills/<scope>/<name>/SKILL.md (+ abilities/references/rules siblings)");
 console.log("  - adapters/claude/agents/<name>.md (tools/disallowedTools from manifest/permissions.json)");
-console.log("  - adapters/claude/commands/<name>.md (Claude-native frontmatter; AG-0257)");
+console.log("  - adapters/claude/commands/<name>.md (Claude-native frontmatter)");
 console.log("  - .claude-plugin/plugin.json → skills, commands, hooks, agents, userConfig, dependencies blocks");
 console.log("");
 console.log("Generated by generateClaudeHooksBlock() / projectOpencodeHooks():");
-console.log("  - .claude-plugin/plugin.json → hooks block from canonical hooks/*.json (AG-0010 D6)");
-console.log("  - .opencode/plugins/aegis.js → AEGIS:HOOKS-GEN compaction region (AG-0010 D8)");
+console.log("  - .claude-plugin/plugin.json → hooks block from canonical hooks/*.json");
+console.log("  - .opencode/plugins/aegis.js → AEGIS:HOOKS-GEN compaction region");
 console.log("");
 console.log("Generated by projectHooks():");
 console.log("  - command hooks under .claude-plugin/hooks/ → aegis-hook-version stamp after shebang (D1)");
@@ -1711,15 +1711,15 @@ console.log("  - .opencode/plugins/aegis.js (except the AEGIS:HOOKS-GEN region)"
 console.log("  - .opencode/INSTALL.md");
 console.log("  - .codex/INSTALL.md");
 console.log("");
-console.log("Generated by projectCodexPluginManifest() + projectCodexMarketplaces() (AG-0233 Phase B):");
+console.log("Generated by projectCodexPluginManifest() + projectCodexMarketplaces():");
 console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/hooks/mcpServers pointers + keywords)");
 console.log("  - .codex/plugins/aegis/.mcp.json (empty mcpServers stub)");
 console.log("  - .agents/plugins/marketplace.json (Codex marketplace, object source form)");
 console.log("");
-console.log("Generated by projectClaudeMarketplace() (AG-0255, v0.3.4):");
+console.log("Generated by projectClaudeMarketplace() (v0.3.4):");
 console.log("  - .claude-plugin/marketplace.json (Claude marketplace, string source \"./\")");
 console.log("");
-console.log("Generated by projectCodexHooks() (AG-0239, v0.2.1):");
+console.log("Generated by projectCodexHooks() (v0.2.1):");
 console.log("  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, 4 events)");
 console.log("  - .codex/plugins/aegis/hooks/*.sh (bundled scripts, version-stamped)");
 console.log("  - .codex/plugins/aegis/hooks/permissions.json (deny-config, script-relative resolution)");

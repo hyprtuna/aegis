@@ -45,7 +45,7 @@
         "pipeline": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Composition metadata (AG-0199). All keys optional; absence means an atomic skill. The COMPOSITION validator asserts the requires/next graph is acyclic, that every named skill exists in canonical, and that each handoff resolves to a real template kind (or carries a `// REASON:`).",
+          "description": "Composition metadata. All keys optional; absence means an atomic skill. The COMPOSITION validator asserts the requires/next graph is acyclic, that every named skill exists in canonical, and that each handoff resolves to a real template kind (or carries a `// REASON:`).",
           "properties": {
             "requires": {
               "type": "array",
@@ -68,7 +68,7 @@
         "intensity": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Skill intensity-level metadata (AG-0214), an optional extension of the x-aegis composition namespace. Absence means the skill behaves exactly as today (implicit 'full'). When present, the skill body branches per declared level. The COMPOSITION validator checks `default` and `levels` are drawn from the known set {lite, full, ultra} and that `default` is one of the declared `levels`.",
+          "description": "Skill intensity-level metadata, an optional extension of the x-aegis composition namespace. Absence means the skill behaves exactly as today (implicit 'full'). When present, the skill body branches per declared level. The COMPOSITION validator checks `default` and `levels` are drawn from the known set {lite, full, ultra} and that `default` is one of the declared `levels`.",
           "properties": {
             "default": {
               "type": "string",

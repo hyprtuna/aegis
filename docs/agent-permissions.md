@@ -107,7 +107,7 @@ grants it). (Decision D3.)
 OpenCode does **not** honour a `permission:` block in agent markdown frontmatter —
 that data lives in `opencode.json` under `agent.<name>.permission`. The Aegis
 OpenCode plugin (`.opencode/plugins/aegis.js`) already exposes a `config(cfg)`
-hook (used since v0.0.2 for `skills.paths`); the permissions projector extends
+hook (used from early on for `skills.paths`); the permissions projector extends
 that same hook to merge each agent's `permission` block from the manifest, plus
 the global deny block (below). See `adapters/opencode/projection.md`.
 (Decisions D4 / D5.)
@@ -149,12 +149,13 @@ Projection:
   for secret-file reads (`.env`, `secrets/**`, `~/.ssh/**`, …) and destructive Bash
   (`rm -rf /`, `curl … | sh`). The per-agent `tools` allowlist is the primary
   boundary; this hook is the defense-in-depth deny layer.
-  - **Known limits (v0.0.6 hardening):** the hook matches by path basename/segment
+  - **Known limits:** the hook matches by path basename/segment
     and literal command pattern, so it guards against accidental/model-driven
     leaks, not a determined adversary — symlink/realpath indirection and shell
     token-splitting (`rm$IFS-rf /`, base64-decode-pipe) can evade it. These gaps are
     recorded as known-allow cases in `scripts/test-deny-hook.mjs`; realpath
-    normalization and shell-token canonicalization are deferred to v0.0.6. The
+    normalization and shell-token canonicalization remain deferred to a future
+    hardening pass. The
     host-enforced `tools` allowlist remains the real boundary regardless.
 - **OpenCode:** into the global `permission` block (`read.{**/.env: deny, ...}`,
   applied to all agents — not redeclared per agent).

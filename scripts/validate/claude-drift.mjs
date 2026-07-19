@@ -85,7 +85,7 @@ export function run(ctx) {
       const resolvePluginPath = (p) => join(REPO, p.replace(/^\.\//, ""));
       for (const sp of Array.isArray(pj.skills) ? pj.skills : []) {
         const full = resolvePluginPath(sp);
-        // AG-0256: skills entries are BUCKET ROOTS. Claude scans each one level
+        // skills entries are BUCKET ROOTS. Claude scans each one level
         // deep for <name>/SKILL.md, so a valid bucket is a directory that holds
         // at least one such child. (A per-skill dir with a direct SKILL.md would
         // register nothing under Claude's scan, so it is NOT accepted here.)
@@ -108,10 +108,10 @@ export function run(ctx) {
           errors.push(`claude-drift: plugin.json skills path not statable: ${sp}`);
         }
       }
-      // AG-0256 coverage guard: every scope bucket that HAS skills on disk must
+      // Coverage guard: every scope bucket that HAS skills on disk must
       // be listed in plugin.json skills. A dropped bucket passes the per-entry
       // loop above (it just isn't iterated) yet silently registers zero skills
-      // for that scope — the exact failure AG-0256 exists to prevent.
+      // for that scope — the exact failure this guard exists to prevent.
       const listedBuckets = new Set(
         (Array.isArray(pj.skills) ? pj.skills : []).map((p) =>
           p.replace(/^\.\//, "").replace(/\/$/, ""),
@@ -145,14 +145,14 @@ export function run(ctx) {
           errors.push(`claude-drift: plugin.json agents path does not resolve: ${ap}`);
         }
       }
-      // AG-0257: every plugin.json commands path resolves.
+      // Every plugin.json commands path resolves.
       for (const cp of Array.isArray(pj.commands) ? pj.commands : []) {
         const full = resolvePluginPath(cp);
         if (!existsSync(full)) {
           errors.push(`claude-drift: plugin.json commands path does not resolve: ${cp}`);
         }
       }
-      // AG-0257 parity: every generated command must be listed in plugin.json
+      // Parity check: every generated command must be listed in plugin.json
       // commands, else it lists-but-doesn't-invoke (the bug this projection fixes).
       const listedCommands = new Set(
         (Array.isArray(pj.commands) ? pj.commands : []).map((p) => p.replace(/^\.\//, "")),
@@ -181,7 +181,7 @@ export function run(ctx) {
     "name", "description", "model", "effort", "maxTurns", "tools",
     "disallowedTools", "skills", "memory", "background", "isolation",
   ]);
-  // AG-0257: generated Claude commands carry only Claude-native command keys.
+  // Generated Claude commands carry only Claude-native command keys.
   const ALLOWED_COMMAND_KEYS = new Set(["description", "argument-hint", "allowed-tools"]);
   // The token check targets the GENERATED tree (skills/ + agents/ + commands/), not
   // hand-authored projection notes (adapters/claude/projection.md documents the

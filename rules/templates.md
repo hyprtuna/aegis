@@ -75,9 +75,9 @@ The contract:
 ### Enforcement
 
 `scripts/validate/named-artifact-template.mjs` (`NAMED_ARTIFACT_TEMPLATE`) checks this rule. It
-is **warn-only** in v0.0.9 — it surfaces producers that emit a named artifact without a template
+is currently **warn-only** — it surfaces producers that emit a named artifact without a template
 reference or a `// REASON:` note, but does not fail the build. It graduates to **hard-fail** in a
-later release, consistent with the v0.0.6 → v0.0.7 warn → error convention recorded in
+later release, consistent with the usual warn → error convention recorded in
 `AGENTS.md`.
 
 Kinds flagged `designOnly: true` in `manifest/template-index.json` are **expected-orphan**: they

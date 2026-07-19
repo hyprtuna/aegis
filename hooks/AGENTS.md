@@ -6,7 +6,7 @@
 
 Each host's implementation lives in its native location (`.claude-plugin/hooks/`, `.opencode/plugins/*.js`, etc.), not here.
 
-## Flat layout + `.json`/`.md` pairing (AG-0010 D1)
+## Flat layout + `.json`/`.md` pairing
 
 The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The old `sessions/`/`tools/`/`prompts/` subdirectory sketch is **superseded** — there are no subfolders. The projector and the `HOOK_INTENT` validator glob `hooks/*.json` non-recursively.
 
@@ -57,7 +57,7 @@ platforms: [claude, opencode]
 
 Some lifecycle events are recognized but **not yet bound by any Aegis intent**. Recorded here as honest gaps (Iron Law #6), not silently dropped:
 
-- **`UserPromptSubmit`** — present in the `x-claude.event` enum of `manifest/schemas/hook-intent.schema.json` for forward-compatibility, but **no `hooks/*.json` intent uses it**. Status: **reserved/deferred**. Kept in the enum (v0.0.10 decision) because removing a schema enum entry is a wider blast radius than documenting it; a future prompt-stage intent can bind it without a schema change.
+- **`UserPromptSubmit`** — present in the `x-claude.event` enum of `manifest/schemas/hook-intent.schema.json` for forward-compatibility, but **no `hooks/*.json` intent uses it**. Status: **reserved/deferred**. Kept in the enum because removing a schema enum entry is a wider blast radius than documenting it; a future prompt-stage intent can bind it without a schema change.
 - **`MessageDisplay`**, **`AgentStart`**, **`AgentEnd`** — host events with **no Aegis intent and no schema enum entry**. Status: **unimplemented/deferred**. No portable intent currently maps to them; if a future capability needs one, add the enum entry and a `hooks/<name>.json` binding in the same change.
 
 These are tracked deferrals, not bugs. The `HOOK_INTENT` validator does not require an intent per event — it validates the intents that *do* exist against the schema.
@@ -70,7 +70,7 @@ These are tracked deferrals, not bugs. The `HOOK_INTENT` validator does not requ
 - The generated host files (plugin.json `hooks` block, aegis.js `AEGIS:HOOKS-GEN` region) are projector-owned — never hand-edit them; edit the canonical `.json` and re-run `node scripts/project.mjs`.
 - Aegis is plugin-first — hooks must work without a binary install.
 
-## Hook-authoring hardening (AG-0223)
+## Hook-authoring hardening
 
 Battle-tested rules for any shipped hook implementation under `.claude-plugin/hooks/*`. Sources: oh-my-claudecode, ECC, claude-code-docs, agentmemory (2026-06-14 reference-refresh audit, O-7/O-12).
 
@@ -93,4 +93,4 @@ Battle-tested rules for any shipped hook implementation under `.claude-plugin/ho
 
 6. **Project key = git basename.** A project-scoped hook resolves the project as `AEGIS_PROJECT_NAME` env → `git rev-parse --show-toplevel` basename → `basename(cwd)`, never a raw full-path match (which silently filters by cwd) — agentmemory #687.
 
-7. **"Am I inside Claude" detection (AG-0232/G8).** If a hook or statusline ever needs to detect a Claude session, prefer `CLAUDE_CODE_CHILD_SESSION` (true only in Claude-spawned subprocesses) over `CLAUDECODE` (false-positives in IDE/tmux/MCP terminals) — cc-docs `env-vars.md:137`. *No Aegis runtime gates on this today; rule applies when one is added.*
+7. **"Am I inside Claude" detection.** If a hook or statusline ever needs to detect a Claude session, prefer `CLAUDE_CODE_CHILD_SESSION` (true only in Claude-spawned subprocesses) over `CLAUDECODE` (false-positives in IDE/tmux/MCP terminals) — cc-docs `env-vars.md:137`. *No Aegis runtime gates on this today; rule applies when one is added.*

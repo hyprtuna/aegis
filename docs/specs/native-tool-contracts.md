@@ -2,23 +2,23 @@
 
 What each target host natively supports and how Aegis projects into it. Synthesizes `.aegis/research/{claude-code,opencode,codex,cursor,zed}-{docs,native-tools}.research.md`.
 
-## Claude Code (v0.0.1 target)
+## Claude Code
 
 | Aegis surface | Claude native | Required fields | Notes |
 |---|---|---|---|
 | Skill | `skills/<name>/SKILL.md` | `description` | Auto-discovered from plugin `skills/`. |
 | Subagent | `agents/<name>.md` | `name`, `description` | Plugin agents lose `hooks`/`mcpServers`/`permissionMode`. |
 | Slash command | `commands/<name>.md` (= skill) | `description` | Namespaced `/aegis:<name>`. |
-| Hook | `hooks/hooks.json` (plugin) or inline `hooks` in `plugin.json` | event + matcher + handler | v0.0.1 ships ONE: `SessionStart`. |
+| Hook | `hooks/hooks.json` (plugin) or inline `hooks` in `plugin.json` | event + matcher + handler | Started with ONE: `SessionStart`. |
 | Statusline | `settings.json` `statusLine.command` | script path | Deferred. |
-| MCP | `.mcp.json` or `mcpServers` in plugin.json | type + command/url | Out of scope v0.0.1. |
+| MCP | `.mcp.json` or `mcpServers` in plugin.json | type + command/url | Out of scope initially. |
 | Marketplace | `.claude-plugin/marketplace.json` | name, owner, plugins[] | Reserved names: `anthropic-*`, `claude-*-marketplace`. |
 
 **Constraints:**
 - Plugin paths must be relative, start with `./`, resolve under `${CLAUDE_PLUGIN_ROOT}`.
 - Plugin-root `CLAUDE.md` is NOT loaded — guidance must be a skill.
 
-## OpenCode (v0.0.2 target)
+## OpenCode
 
 | Aegis surface | OpenCode native | Notes |
 |---|---|---|
@@ -32,7 +32,7 @@ What each target host natively supports and how Aegis projects into it. Synthesi
 
 **Gap from Claude:** No statusline plugin slot. UserPromptSubmit, Notification, Stop, SubagentStop hooks have no direct counterpart (see `anvil/src/opencode-plugin/hooks/map.ts` OC_OUT_OF_SCOPE_HOOKS).
 
-## Codex (v0.0.3 target; updated v0.2.0 — AG-0233 D-07)
+## Codex (updated in a later modernization pass)
 
 Verified (V) — 2026-06-20 against official Codex docs + live codex 0.141.0.
 See `.aegis/research/codex-modernization.research.md §2`.
@@ -53,9 +53,9 @@ See `.aegis/research/codex-modernization.research.md §2`.
 
 **Multi-agent feature flags:** `[features] multi_agent` is **stable and on by default** (codex 0.141.0). `multi_agent_v2` exists in the feature list but is **under development, off by default** — do not rely on it. `plugin_hooks` has been **removed** (hooks functionality is now unified under `[features] hooks`).
 
-**Strategy:** Skill-first. Ship skills + AGENTS.md + MCP + hooks. Native subagent (`.toml`) projection (D-02) was REVERSED — native `.toml` agents are not plugin-distributable; Aegis folds agents into skills for plugin distribution (verified 2026-06-20). Hooks projection to Codex `hooks/hooks.json` (D-03) **IMPLEMENTED in v0.2.1 (AG-0239)**: 4 intents projected (SessionStart, PreToolUse, PreCompact, PostCompact); scripts bundled; deny contract is Claude-compatible (verified 2026-06-20). Runtime fire-and-deny test is a pending interactive owner step (`codex exec` does not run plugin hooks). 1 intent remains an honest gap (no Codex event: InstructionsLoaded). The FileChanged/CwdChanged intents were removed as non-functional in v0.1.3 and no longer count toward this gap.
+**Strategy:** Skill-first. Ship skills + AGENTS.md + MCP + hooks. Native subagent (`.toml`) projection (D-02) was REVERSED — native `.toml` agents are not plugin-distributable; Aegis folds agents into skills for plugin distribution (verified 2026-06-20). Hooks projection to Codex `hooks/hooks.json` (D-03) **IMPLEMENTED**: 4 intents projected (SessionStart, PreToolUse, PreCompact, PostCompact); scripts bundled; deny contract is Claude-compatible (verified 2026-06-20). Runtime fire-and-deny test is a pending interactive owner step (`codex exec` does not run plugin hooks). 1 intent remains an honest gap (no Codex event: InstructionsLoaded). The FileChanged/CwdChanged intents were removed as non-functional in v0.1.3 and no longer count toward this gap.
 
-## Cursor (v0.0.4 target)
+## Cursor
 
 | Aegis surface | Cursor native | Status |
 |---|---|---|
@@ -68,7 +68,7 @@ See `.aegis/research/codex-modernization.research.md §2`.
 
 **Strategy:** Rules-only. Project canonical skill content into MDC rule files. Hooks projected best-effort with explicit disclosure.
 
-## Zed (v0.0.4 target)
+## Zed
 
 | Aegis surface | Zed native | Status |
 |---|---|---|

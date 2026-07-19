@@ -268,7 +268,7 @@ Potential savings: ~XX,XXX tokens (XX% of current overhead)
 
 ## Phase 5 — Behavioral Signs (Qualitative)
 
-Phases 1–4 answer "how much budget exists" from token math. This phase answers "what state is the session in right now," read directly from observable behavior — no token count required. It complements the inventory rather than replacing it, and closes the gap left when the context-window MONITOR was retired in v0.3.5: the monitor could never know the real ceiling (it varies by model and host), but behavioral signs need no ceiling at all. Use inventory for pre-flight planning; use behavioral signs for continuous in-session awareness, since state can shift mid-session even when the pre-flight inventory looked fine.
+Phases 1–4 answer "how much budget exists" from token math. This phase answers "what state is the session in right now," read directly from observable behavior — no token count required. It complements the inventory rather than replacing it, and closes the gap left when the context-window MONITOR was retired: the monitor could never know the real ceiling (it varies by model and host), but behavioral signs need no ceiling at all. Use inventory for pre-flight planning; use behavioral signs for continuous in-session awareness, since state can shift mid-session even when the pre-flight inventory looked fine.
 
 | Tier | Signals | Action |
 |---|---|---|
@@ -713,7 +713,7 @@ Three agents carry the skeptical stance today:
 
 ## Strict-reviewer successor
 
-Per v0.0.10's review-agent consolidation, the former `strict-reviewer` agent was
+Per an earlier review-agent consolidation, the former `strict-reviewer` agent was
 folded into **`code-reviewer --strict`**: the adversarial lock-in / irreversible-
 decision lens with `min_confidence: 0` (no finding dropped for low confidence).
 `code-reviewer --strict` is the strict-reviewer successor; there is no separate
@@ -834,9 +834,9 @@ The contract:
 ### Enforcement
 
 `scripts/validate/named-artifact-template.mjs` (`NAMED_ARTIFACT_TEMPLATE`) checks this rule. It
-is **warn-only** in v0.0.9 — it surfaces producers that emit a named artifact without a template
+is currently **warn-only** — it surfaces producers that emit a named artifact without a template
 reference or a `// REASON:` note, but does not fail the build. It graduates to **hard-fail** in a
-later release, consistent with the v0.0.6 → v0.0.7 warn → error convention recorded in
+later release, consistent with the usual warn → error convention recorded in
 `AGENTS.md`.
 
 Kinds flagged `designOnly: true` in `manifest/template-index.json` are **expected-orphan**: they

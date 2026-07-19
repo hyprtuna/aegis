@@ -76,7 +76,7 @@ Potential savings: ~XX,XXX tokens (XX% of current overhead)
 
 ## Phase 5 — Behavioral Signs (Qualitative)
 
-Phases 1–4 answer "how much budget exists" from token math. This phase answers "what state is the session in right now," read directly from observable behavior — no token count required. It complements the inventory rather than replacing it, and closes the gap left when the context-window MONITOR was retired in v0.3.5: the monitor could never know the real ceiling (it varies by model and host), but behavioral signs need no ceiling at all. Use inventory for pre-flight planning; use behavioral signs for continuous in-session awareness, since state can shift mid-session even when the pre-flight inventory looked fine.
+Phases 1–4 answer "how much budget exists" from token math. This phase answers "what state is the session in right now," read directly from observable behavior — no token count required. It complements the inventory rather than replacing it, and closes the gap left when the context-window MONITOR was retired: the monitor could never know the real ceiling (it varies by model and host), but behavioral signs need no ceiling at all. Use inventory for pre-flight planning; use behavioral signs for continuous in-session awareness, since state can shift mid-session even when the pre-flight inventory looked fine.
 
 | Tier | Signals | Action |
 |---|---|---|

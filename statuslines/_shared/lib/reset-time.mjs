@@ -1,5 +1,4 @@
-// reset-time.mjs — relative-time formatter for rate-limit reset timestamps
-// (AG-0259, decisions D3/D4).
+// reset-time.mjs — relative-time formatter for rate-limit reset timestamps.
 //
 // Ports claude-hud's epoch-unit heuristic (references/claude-hud/src/
 // external-usage.ts `parseDateValue`: a value > 1e12 is already milliseconds,

@@ -1,5 +1,5 @@
 // templates.mjs — section 7c: hard-error on any template body missing a sibling
-// <name>.template.json (graduated from warning → error in v0.0.8 / AG-0121, once
+// <name>.template.json (graduated from warning → error in v0.0.8, once
 // every shipped body carries a manifest); hard-error on any present manifest that
 // is malformed.
 import { existsSync } from "node:fs";
@@ -43,7 +43,7 @@ export function run(ctx) {
         // A template body file — require a sibling manifest (hard error as of v0.0.8).
         const manifestPath = file.replace(TEMPLATE_EXT, ".template.json");
         if (!existsSync(manifestPath)) {
-          errors.push(`template missing sibling manifest (hard error as of v0.0.8 / AG-0121): ${rel}`);
+          errors.push(`template missing sibling manifest (hard error as of v0.0.8): ${rel}`);
         }
       }
     }

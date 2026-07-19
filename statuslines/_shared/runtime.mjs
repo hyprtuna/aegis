@@ -35,10 +35,10 @@
 //     color:   (text, key) => string   // theme.colorize, color-by-theme-key
 //     sanitize:(text) => string         // strip ALL C0 control chars incl. ESC and TAB, plus DEL
 //     fmt:     { k, pct, usd, dur, reset } // small shared formatters
-//     sep:     " <glyph> "              // resolved separator (AG-0266): descriptor.separator
+//     sep:     " <glyph> "              // resolved separator: descriptor.separator
 //                 (default "·") wrapped in a space + theme-colored. compose() uses this as the
 //                 line joiner; segments read it to match sub-part joins to the line's separator.
-//     transcript: <TranscriptSummary | null> // AG-0260 Tier-2: pre-parsed
+//     transcript: <TranscriptSummary | null> // Tier-2: pre-parsed
 //                 once in run() (see lib/transcript.mjs), gated by
 //                 descriptorNeedsTranscript(). null when absent/ungated/
 //                 parse-failed. Tier-2 segments (tools/agents/todos/
@@ -76,12 +76,12 @@ const STDIN_TIMEOUT_MS = 400;
 // sanitize: strip ALL C0 control chars (0x00-0x1F, including ESC 0x1B and TAB
 // 0x09) and 0x7F (DEL) from untrusted stdin-derived strings. See
 // lib/sanitize.mjs for the full rationale (ESC/TAB injection). Extracted there
-// (AG-0260) so lib/transcript.mjs can reuse it without a circular import back
+// (extracted so lib/transcript.mjs can reuse it without a circular import back
 // into this module; re-exported here so existing `import { sanitize } from
 // "./runtime.mjs"` call sites (e.g. subagent-runtime.mjs) keep working.
 export { sanitize };
 
-// Tier-2 gate (AG-0260 D6): the runtime only pre-parses the transcript when
+// Tier-2 gate: the runtime only pre-parses the transcript when
 // the active descriptor includes at least one transcript-derived segment, so
 // non-HUD presets pay zero transcript-read cost.
 const TRANSCRIPT_SEGMENT_IDS = new Set(["tools", "agents", "todos", "task-banner"]);
@@ -122,7 +122,7 @@ const fmt = {
     return `${m}m ${s}s`;
   },
   // epoch (s or ms, unit auto-detected) -> relative reset string, "" when
-  // absent/past/NaN. Delegates to lib/reset-time.mjs (AG-0259 D2/D4).
+  // absent/past/NaN. Delegates to lib/reset-time.mjs.
   reset(resetAt) {
     return formatReset(resetAt);
   },
@@ -255,7 +255,7 @@ function applyOrder(lineSpec, order) {
 }
 
 // ── build the ctx object handed to each segment ─────────────────────────────
-// `transcript` (AG-0260) is the pre-parsed TranscriptSummary from run(), or
+// `transcript` is the pre-parsed TranscriptSummary from run(), or
 // null when absent/gated-off/parse-failed. Tier-2 segments read it
 // synchronously via ctx.transcript; it is never fetched inside a segment.
 export function buildCtx(data, theme, descriptor = {}, transcript = null) {
@@ -273,7 +273,7 @@ export function buildCtx(data, theme, descriptor = {}, transcript = null) {
     // v0.0.14 composability — always present, no-op when the descriptor omits them.
     t: makeTranslator(descriptor),
     threshold: makeThresholdResolver(descriptor),
-    // AG-0266: the resolved inter-segment separator (glyph wrapped in a single
+    // The resolved inter-segment separator (glyph wrapped in a single
     // space on each side, theme-colored). compose() uses this as the line
     // joiner; segments (e.g. usage.mjs) read it to match the line's joiner
     // between their own sub-parts. Defaults to the pre-existing " · ".
@@ -367,7 +367,7 @@ export async function run(descriptorPath = process.argv[2], themeOverride = proc
     const themeName = themeOverride || descriptor.theme || "mono";
     const theme = loadTheme(themeName);
 
-    // AG-0260 Tier-2: pre-parse the transcript ONCE, here — never inside a
+    // Tier-2: pre-parse the transcript ONCE, here — never inside a
     // segment's render() (compose() calls render synchronously). Gated (D6):
     // only when a transcript_path is present AND the descriptor actually
     // wants transcript detail. This whole step is inside run()'s top-level

@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-# AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
+# AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
 if [ "${AEGIS_DISABLE:-}" = "1" ]; then exit 0; fi
 case ",${AEGIS_SKIP_HOOKS:-}," in *",session-start,"*) exit 0 ;; esac
 

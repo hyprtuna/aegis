@@ -1,4 +1,4 @@
-// composition.mjs — v0.0.13 (AG-0201): acyclic-composition validator.
+// composition.mjs — v0.0.13: acyclic-composition validator.
 //
 // Skills may declare a composition block under the x-aegis namespace:
 //
@@ -19,7 +19,7 @@
 //       (manifest/template-index.json) OR the skill body carries a `// REASON:`
 //       note justifying a non-template artifact.
 //
-// v0.0.14 (AG-0214) EXTENDS this rule with skill-INTENSITY validation, an
+// v0.0.14 EXTENDS this rule with skill-INTENSITY validation, an
 // optional extension of the same x-aegis namespace (NOT a parallel field):
 //
 //   x-aegis:
@@ -248,7 +248,7 @@ export function run(ctx) {
       pipelines.push({ name, rel: rel(p), pipeline, body: split.body });
     }
 
-    // INTENSITY (AG-0214) — validate the optional x-aegis.intensity block when
+    // INTENSITY — validate the optional x-aegis.intensity block when
     // present. A skill that declares none is the implicit-'full' default and is
     // skipped entirely (no false positives). Warn-only, like the rest of this rule.
     const intensity = parseIntensity(split.fm);

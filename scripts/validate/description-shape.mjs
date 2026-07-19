@@ -1,4 +1,4 @@
-// description-shape.mjs — AG-0010: every skill/agent `description` should read
+// description-shape.mjs — every skill/agent `description` should read
 // as a pure WHEN-to-use trigger, not a WHAT-it-does mechanism summary.
 //
 // For every skill `SKILL.md` (skills/**) and every agents/*.md (excluding

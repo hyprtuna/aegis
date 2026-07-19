@@ -113,8 +113,8 @@ test("E1: opencode plugin config() applies per-agent + global permissions", asyn
   );
 });
 
-// ── AG-0256: Claude skills declared as bucket roots (one-level scan) ─────────
-test("AG-0256: plugin.json skills lists bucket roots, not per-skill dirs", () => {
+// ── Claude skills declared as bucket roots (one-level scan) ─────────────────
+test("plugin.json skills lists bucket roots, not per-skill dirs", () => {
   const p = JSON.parse(read(".claude-plugin/plugin.json"));
   assert.ok(Array.isArray(p.skills), "plugin.json skills must be an array");
   // Every entry is a bucket root: ./adapters/claude/skills/<scope>/ (2 path
@@ -130,15 +130,15 @@ test("AG-0256: plugin.json skills lists bucket roots, not per-skill dirs", () =>
   assert.ok(p.skills.length <= 10, `expected a few bucket roots, got ${p.skills.length}`);
 });
 
-// ── AG-0257: commands projected to a Claude-native tree + declared ──────────
-test("AG-0257: plugin.json commands lists generated Claude command files", () => {
+// ── Commands projected to a Claude-native tree + declared ───────────────────
+test("plugin.json commands lists generated Claude command files", () => {
   const p = JSON.parse(read(".claude-plugin/plugin.json"));
   assert.ok(Array.isArray(p.commands) && p.commands.length > 0, "plugin.json commands must be a non-empty array");
   for (const c of p.commands) {
     assert.match(c, /^\.\/adapters\/claude\/commands\/[^/]+\.md$/, `commands entry "${c}" must be a generated Claude command file path`);
   }
 });
-test("AG-0257: generated command frontmatter is Claude-native (no kind/x-claude/name)", () => {
+test("generated command frontmatter is Claude-native (no kind/x-claude/name)", () => {
   const c = read("adapters/claude/commands/statusline.md");
   const fm = c.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
   assert.match(fm, /^description:/m, "expected a description");
@@ -151,8 +151,8 @@ test("AG-0257: generated command frontmatter is Claude-native (no kind/x-claude/
   assert.ok(!/^platforms:/m.test(fm), "must not carry canonical `platforms:`");
 });
 
-// ── AG-0255: per-host marketplace source shapes (no cross-host leak) ─────────
-test("AG-0255: Claude marketplace uses a string source; Codex uses an object", () => {
+// ── Per-host marketplace source shapes (no cross-host leak) ─────────────────
+test("Claude marketplace uses a string source; Codex uses an object", () => {
   const claude = JSON.parse(read(".claude-plugin/marketplace.json"));
   const claudeSrc = claude?.plugins?.[0]?.source;
   assert.equal(typeof claudeSrc, "string", ".claude-plugin/marketplace.json source must be a string (Claude rejects the object form)");

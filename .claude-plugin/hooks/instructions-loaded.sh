@@ -2,7 +2,7 @@
 # aegis-hook-version: 0.1.3
 # instructions-loaded.sh — Aegis InstructionsLoaded hook (Claude Code).
 #
-# WHY THIS EXISTS (AG-0010 D1/D3): InstructionsLoaded fires once per CLAUDE.md or
+# WHY THIS EXISTS: InstructionsLoaded fires once per CLAUDE.md or
 # .claude/rules/*.md file as it enters context — at session start (load_reason
 # session_start) and again on lazy loads (nested_traversal, path_glob_match,
 # include, compact). The aegis-doctor skill consumes this to report how many rule
@@ -18,7 +18,7 @@
 # echo an advisory additionalContext line. Exit 0 always; never block.
 set -u
 
-# AEGIS_SKIP guard (AG-0223): global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
+# AEGIS_SKIP guard: global disable / per-hook opt-out → no-op exit 0. Safe under set -e.
 if [ "${AEGIS_DISABLE:-}" = "1" ]; then exit 0; fi
 case ",${AEGIS_SKIP_HOOKS:-}," in *",instructions-loaded,"*) exit 0 ;; esac
 

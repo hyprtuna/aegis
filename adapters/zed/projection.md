@@ -92,9 +92,9 @@ gaps for what remains unverified there).
 | Hooks | No | Document. |
 | Subagents | Only via embedded external agent | Document. |
 | Structured questions | No | Document — the ACP path has its own honest gap (question tool disabled unless `OPENCODE_ENABLE_QUESTION_TOOL=1`), see above. |
-| `@rules/<file>.md` agent hotlinks (v0.0.13) | No `@`-include resolution | Three skeptical agents (`code-reviewer`, `code-quality-reviewer`, `doc-verifier`) reference `@rules/skeptical-stance.md` for Claude auto-inheritance; Zed (and its ACP-embedded agents) ship the literal `@rules/...` as prose. Each agent keeps a one-line inline stance summary so the doctrine survives. Honest gap, not a silent drop. |
+| `@rules/<file>.md` agent hotlinks | No `@`-include resolution | Three skeptical agents (`code-reviewer`, `code-quality-reviewer`, `doc-verifier`) reference `@rules/skeptical-stance.md` for Claude auto-inheritance; Zed (and its ACP-embedded agents) ship the literal `@rules/...` as prose. Each agent keeps a one-line inline stance summary so the doctrine survives. Honest gap, not a silent drop. |
 
-## Hook capability matrix (v0.0.7, AG-0010)
+## Hook capability matrix
 
 Zed exposes **no hook contract at all** — there is no extension point for lifecycle
 hooks, and the ACP boundary does not pass an embedded agent's hooks through to Zed.
@@ -134,9 +134,9 @@ write enforcement prose into `.rules` that Zed won't honour. (Decision D6.)
   (`agent.<name>.permission`) — reachable through Zed only via the embedded
   external agent; see those `adapters/<host>/projection.md`.
 
-## v0.0.5 Claude-only uptakes (gaps)
+## Claude-only uptakes (gaps)
 
-The v0.0.5 release adds Claude-first capabilities with no Zed counterpart;
+Several Claude-first capabilities have no Zed counterpart;
 `manifest/capabilities.json` is the authoritative per-capability host-status matrix.
 
 - **`userConfig` install prompts** — no Zed plugin-enable-time config prompts.

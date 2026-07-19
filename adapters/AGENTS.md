@@ -48,8 +48,8 @@ adapters/
 
 | Host | Status | Plan |
 |---|---|---|
-| Claude Code | v0.0.1 — shipped | Detailed in this folder |
-| OpenCode | v0.0.2 | Documented projection notes; impl deferred |
-| Codex | v0.0.3 | Documented projection notes; impl deferred |
-| Cursor | deferred (~v0.5.0) | Documented projection notes; impl deferred from v0.0.8 (AG-0011 D1) |
-| Zed | deferred (~v0.5.0) | Documented projection notes; impl deferred from v0.0.8 (AG-0011 D1) |
+| Claude Code | shipped | Detailed in this folder |
+| OpenCode | shipped | Documented projection notes; impl deferred |
+| Codex | shipped | Documented projection notes; impl deferred |
+| Cursor | deferred (~v0.5.0, see `docs/roadmap.md`) | Documented projection notes; implementation deferred |
+| Zed | deferred (~v0.5.0, see `docs/roadmap.md`) | Documented projection notes; implementation deferred |

@@ -26,7 +26,7 @@ For stakeholder-facing deliverables that benefit from layout, hierarchy, and vis
   `prototype-interaction`, `prompt-tuner`), and `aria-hidden` on purely-decorative
   SVG. See the `ui-design` skill for the full a11y guidance.
 
-**v0.0.1 templates (3):**
+**Initial templates (3):**
 - `templates/html/implementation-plan.html`
 - `templates/html/code-review.html`
 - `templates/html/status-report.html`

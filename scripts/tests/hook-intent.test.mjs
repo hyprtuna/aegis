@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// hook-intent.test.mjs — unit tests for the HOOK_INTENT validator (AG-0010 D9).
+// hook-intent.test.mjs — unit tests for the HOOK_INTENT validator.
 //
 // Dependency-free, TAP-ish (matches scripts/test-projection.mjs style). Builds a
 // throwaway hooks/ fixture dir under a temp REPO, runs scripts/validate/hook-intent.mjs

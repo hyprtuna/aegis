@@ -24,7 +24,7 @@ taxonomy (audit §2/§4) and the review-cluster hierarchy.
 2. Is it a multi-phase, gated sequence with hand-off artifacts between phases? → **WORKFLOW** (a skill folder under `skills/workflows/`).
 3. Is it an entry point that composes/sequences *multiple* skills, or a utility with no skill of its own? → **COMMAND** (and only if a skill can't express it — the command budget is ~15).
 
-A skill is **not** promoted to a command just to "have a slash command" — skills already auto-expose as `/<skill-name>`. Adding a single-skill wrapper command is forbidden (see `AGENTS.md` §commands); v0.0.10 deleted eight such wrappers.
+A skill is **not** promoted to a command just to "have a slash command" — skills already auto-expose as `/<skill-name>`. Adding a single-skill wrapper command is forbidden (see `AGENTS.md` §commands); an earlier cleanup pass deleted eight such wrappers.
 
 ## The phase-ordered gated-workflow convention
 

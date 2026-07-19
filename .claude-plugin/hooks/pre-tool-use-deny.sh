@@ -91,14 +91,14 @@ case "$TOOL" in
       deny "Aegis: piping a download into a shell is denied (plugin.deny)."
     fi
 
-    # ---- git guard (AG-0225) --------------------------------------------------
+    # ---- protected-branch git guard --------------------------------------------
     # Block commit/push to protected branches and destructive git ops. Config
     # (protected branches, op flags, override env/marker) is read from
     # plugin.gitGuard in the manifest, falling back to safe defaults so a missing
     # or malformed config NEVER crashes the session (fail open). Mirrors hr-dev's
     # git-guard: regex classification, auditable override, "do not work around"
     # messaging. Only commands that actually invoke git are inspected.
-    # Best-effort limit (AG-0231 review): branch resolution uses the tool-call cwd,
+    # Best-effort limit: branch resolution uses the tool-call cwd,
     # so `git -C <other-repo> commit/push` is classified by op but NOT branch-checked
     # against the -C target. Defense-in-depth, not a sandbox; documented as a gap.
     if printf '%s' "$CMD" | grep -Eq '(^|[[:space:];&|(])git([[:space:]]|$)'; then

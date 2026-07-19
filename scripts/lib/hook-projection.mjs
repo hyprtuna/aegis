@@ -1,4 +1,4 @@
-// hook-projection.mjs — shared Claude hooks-block generator (AG-0010 D6).
+// hook-projection.mjs — shared Claude hooks-block generator.
 //
 // The single source of truth for building the .claude-plugin/plugin.json `hooks`
 // object from canonical hook intents. Both the projector (scripts/project.mjs)
