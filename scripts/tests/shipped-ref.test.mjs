@@ -10,6 +10,13 @@
 // committed test file does not itself trip a real SHIPPED_REF scan of the
 // repo (which additionally exempts the whole scripts/tests/ directory as a
 // belt-and-braces second guard — see shipped-ref.mjs's isExempt()).
+//
+// Also covers: the `.aegis/` exemption (the private planning-repo clone,
+// which the shared ctx walk deliberately does NOT skip but this rule must —
+// no `.aegis/` checkout exists in this worktree to exercise it live, so the
+// fixture-based coverage here is the only proof) and the AG_REF boundary
+// guard (acronym-suffixed tokens like FLAG-0001/TAG-2024/DIAG-1234 must not
+// false-flag).
 // Run: node scripts/tests/shipped-ref.test.mjs (exit 1 on any failure).
 // Node 20+ stdlib only.
 
@@ -29,6 +36,10 @@ const PLANTED_VERSION_STAMP = "v0." + "3.99";
 const CLEAN_PUBLIC_VERSION = "v0." + "1.5";
 const LOWERCASE_AG_PATH_TOKEN = "ag-" + "0008";
 const MJS_VERSION_COMMENT = "v0." + "0.5";
+const STANDALONE_AG_REF = "AG-" + "0001";
+const FLAG_TOKEN = "FLAG-" + "0001";
+const TAG_TOKEN = "TAG-" + "2024";
+const DIAG_TOKEN = "DIAG-" + "1234";
 
 function makeCtx(REPO, files) {
   const rel = (p) => relative(REPO, p);
@@ -167,6 +178,85 @@ test("CHANGELOG.md is exempt from both checks", () => {
     const { errors, warnings } = runShippedRef(ctx);
     assert.equal(errors.length, 0);
     assert.equal(warnings.length, 0, "CHANGELOG.md must be exempt (public history starts at v0.1.0)");
+  } finally {
+    rmSync(REPO, { recursive: true, force: true });
+  }
+});
+
+// ── GOOD fixture: .aegis/ (private planning repo) is exempt ────────────────
+
+test(".aegis/ is exempt from both checks (the private planning-repo clone)", () => {
+  const REPO = mkdtempSync(join(tmpdir(), "aegis-shipped-ref-test-"));
+  try {
+    const p = writeFile(
+      REPO,
+      ".aegis/tasks/" + STANDALONE_AG_REF + "-x.md",
+      `${STANDALONE_AG_REF} — ${PLANTED_VERSION_STAMP} plan.\n`,
+    );
+    const ctx = makeCtx(REPO, [p]);
+    const { errors, warnings } = runShippedRef(ctx);
+    assert.equal(errors.length, 0);
+    assert.equal(
+      warnings.length,
+      0,
+      ".aegis/ is the private planning repo (a maintainer clone is full of legitimate AG-NNNN tickets and internal version stamps) and must be exempt, even though the shared ctx walk deliberately includes it",
+    );
+  } finally {
+    rmSync(REPO, { recursive: true, force: true });
+  }
+});
+
+test("a top-level .aegis path (no trailing slash) is also exempt", () => {
+  const REPO = mkdtempSync(join(tmpdir(), "aegis-shipped-ref-test-"));
+  try {
+    // Exercise the exact-match branch of isExempt() (`rel === ".aegis"`), not
+    // just the prefix branch — a plain file literally named `.aegis` would
+    // otherwise slip through if only startsWith(".aegis/") were checked.
+    const p = writeFile(REPO, ".aegis", `${STANDALONE_AG_REF}\n`);
+    const ctx = makeCtx(REPO, [p]);
+    const { warnings } = runShippedRef(ctx);
+    assert.equal(warnings.length, 0);
+  } finally {
+    rmSync(REPO, { recursive: true, force: true });
+  }
+});
+
+// ── Boundary guard: acronym-suffixed tokens must NOT false-flag ────────────
+
+test("acronym-suffixed tokens (FLAG-0001, TAG-2024, DIAG-1234) do NOT flag", () => {
+  const REPO = mkdtempSync(join(tmpdir(), "aegis-shipped-ref-test-"));
+  try {
+    const p = writeFile(
+      REPO,
+      "docs/acronyms.md",
+      `${FLAG_TOKEN} and ${TAG_TOKEN} and ${DIAG_TOKEN} are ordinary tokens, not tickets.\n`,
+    );
+    const ctx = makeCtx(REPO, [p]);
+    const { errors, warnings } = runShippedRef(ctx);
+    assert.equal(errors.length, 0);
+    assert.equal(
+      warnings.length,
+      0,
+      "AG_REF must be boundary-guarded so acronym-suffixed tokens ending in AG-NNNN don't false-flag",
+    );
+  } finally {
+    rmSync(REPO, { recursive: true, force: true });
+  }
+});
+
+test("a standalone AG-NNNN ref still flags even on a line with acronym-suffixed tokens", () => {
+  const REPO = mkdtempSync(join(tmpdir(), "aegis-shipped-ref-test-"));
+  try {
+    const p = writeFile(
+      REPO,
+      "docs/mixed.md",
+      `${FLAG_TOKEN} is fine but ${STANDALONE_AG_REF} is a real ticket ref.\n`,
+    );
+    const ctx = makeCtx(REPO, [p]);
+    const { errors, warnings } = runShippedRef(ctx);
+    assert.equal(errors.length, 0);
+    assert.equal(warnings.length, 1, "the standalone AG-NNNN ref on the same line must still be caught");
+    assert.match(warnings[0], new RegExp(STANDALONE_AG_REF));
   } finally {
     rmSync(REPO, { recursive: true, force: true });
   }

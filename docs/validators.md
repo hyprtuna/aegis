@@ -388,8 +388,10 @@ that scrubbed every internal ticket id and stale internal version stamp out of
 the shipped tree; this rule is the guard that keeps it clean. Reuses the
 shared ctx walk (no second walk). Two independent checks:
 
-1. **`AG-[0-9]{4}`** (uppercase ticket ids) — flagged in **all** scanned
-   files, any extension. Case-sensitive by design: the lowercase
+1. **`AG-[0-9]{4}`** (uppercase ticket ids), boundary-guarded
+   (`(?<![A-Za-z0-9])AG-[0-9]{4}\b`) so an acronym-suffixed token like
+   `FLAG-0001`/`TAG-2024`/`DIAG-1234` does not false-flag — flagged in **all**
+   scanned files, any extension. Case-sensitive by design: the lowercase
    `.aegis/specs/features/ag-NNNN-<slug>/` path-citation form never matches.
 2. **Pre-launch internal version stamp** `v0.(0|2|3).N` — flagged in **`.md`
    files only**. The current public series (`v0.1.x`) and host-version refs
@@ -397,14 +399,24 @@ shared ctx walk (no second walk). Two independent checks:
    (`scripts/**.mjs`, `statuslines/**.mjs`, `*.template.json`) are
    deliberately out of scope for now — see the graduation note below.
 
-**Exclusions:** dot-dirs and `references/` are already excluded by the shared
-ctx walk. This rule additionally exempts `CHANGELOG.md` (public history
+**Exclusions:** `references/` and most dot-dirs are already excluded by the
+shared ctx walk — but NOT all of them: `scripts/validate/_context.mjs`
+deliberately walks `.aegis` and `.claude-plugin` (most other validators need
+to see them), so this rule must re-exclude `.aegis` itself. `.aegis` is the
+private planning-repo clone (a separate gitignored git remote — see root
+`AGENTS.md`'s "Two-repo model") and on a maintainer's main checkout is full of
+legitimate `AG-NNNN` tickets and `v0.0/0.2/0.3.x` internal plans; scanning it
+would flood false warnings and, at the 0.2.0 hard-fail graduation, would
+hard-break `validate-structure` for every maintainer. `.claude-plugin/` is
+left unexempted — it is generated from already-scrubbed canonical and
+verified clean of `AG-` refs; if that regresses, fix the canonical source, not
+this rule. This rule additionally exempts `CHANGELOG.md` (public history
 starts at v0.1.0) and the whole `scripts/tests/` directory, which legitimately
 plants example `AG-NNNN` / `v0.x.y` strings as test fixtures (including this
 rule's own unit test, `scripts/tests/shipped-ref.test.mjs`). The allowlist is
 intentionally empty: after the residue sweep, zero legitimate refs remain in
-the scanned surface, so no allowlist entries are required — add one only with
-written justification.
+the scanned public surface, so no allowlist entries are required — add one
+only with written justification.
 
 **Stage:** **warn-only** in v0.1.4 (new-rule cadence). It **graduates to
 hard-fail in the 0.2.0 release** (written without the `v0.` prefix in this
