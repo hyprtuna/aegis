@@ -26,7 +26,6 @@ skills/
 
 ```yaml
 ---
-kind: skill
 name: stable-kebab-slug
 description: One-line trigger-style description.
 visibility: user | internal
@@ -136,7 +135,7 @@ in exactly one place, `skills/core/skill-creation/abilities/authoring-doctrine.m
 than restating it here.
 
 **Iron Law 4 applies to every overflow tier.** The parent `SKILL.md` is the only registered skill;
-`REFERENCE.md`, `EXAMPLES.md`, and `abilities/*` carry no 5-field frontmatter and are never
+`REFERENCE.md`, `EXAMPLES.md`, and `abilities/*` carry no 4-field frontmatter and are never
 independently invoked.
 
 **Validator consistency (mechanical enforcement).** `SKILL_SIZE` (`scripts/validate/skill-size.mjs`,

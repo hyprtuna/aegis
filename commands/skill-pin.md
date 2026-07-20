@@ -1,5 +1,4 @@
 ---
-kind: command
 name: skill-pin
 description: Pin a skill so it surfaces in the slash menu Pinned section
 visibility: user

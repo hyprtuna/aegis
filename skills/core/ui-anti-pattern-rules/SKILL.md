@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: ui-anti-pattern-rules
 description: Use when editing UI surfaces (TSX/JSX/Vue/HTML/CSS/SCSS/Svelte) — 15 anti-pattern rules covering color, typography, accessibility, layout.
 visibility: internal

@@ -37,7 +37,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "haiku",
+        "model": "fast",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -55,7 +55,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -74,7 +74,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -93,7 +93,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -112,7 +112,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "opus",
+        "model": "deep",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -131,7 +131,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -149,7 +149,7 @@
       "bucket": "RO",
       "claude": {
         "tools": ["Read", "Grep", "Glob"],
-        "model": "opus",
+        "model": "deep",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -180,7 +180,7 @@
           "Bash(cargo test*)",
           "Bash(pytest*)"
         ],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -221,7 +221,7 @@
           "Bash(cargo test*)",
           "Bash(pytest*)"
         ],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -250,7 +250,7 @@
       "bucket": "RO-web",
       "claude": {
         "tools": ["Read", "Grep", "Glob", "WebFetch", "WebSearch"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -271,7 +271,7 @@
       "bucket": "RO-web",
       "claude": {
         "tools": ["Read", "Grep", "Glob", "WebFetch", "WebSearch"],
-        "model": "sonnet",
+        "model": "balanced",
         "disallowedTools": ["Edit", "Write"]
       },
       "opencode": {
@@ -292,7 +292,7 @@
       "bucket": "RW",
       "claude": {
         "tools": ["Read", "Edit", "Grep", "Glob"],
-        "model": "sonnet"
+        "model": "balanced"
       },
       "opencode": {
         "*": "deny",
@@ -322,7 +322,7 @@
           "Bash(cargo check*)",
           "Bash(cargo build*)"
         ],
-        "model": "sonnet"
+        "model": "balanced"
       },
       "opencode": {
         "*": "deny",
@@ -350,7 +350,7 @@
       "bucket": "Full",
       "claude": {
         "tools": ["Read", "Edit", "Write", "Grep", "Glob", "Bash", "mcp__*"],
-        "model": "opus"
+        "model": "deep"
       },
       "opencode": {
         "*": "allow",
@@ -362,7 +362,7 @@
       "bucket": "Task-only",
       "claude": {
         "tools": ["Read", "Grep", "Glob", "Task"],
-        "model": "sonnet"
+        "model": "balanced"
       },
       "opencode": {
         "*": "deny",
@@ -378,7 +378,7 @@
       "bucket": "Full+Task",
       "claude": {
         "tools": ["Read", "Edit", "Write", "Grep", "Glob", "Bash", "Task"],
-        "model": "sonnet"
+        "model": "balanced"
       },
       "opencode": {
         "*": "allow",
@@ -401,7 +401,7 @@
           "WebFetch",
           "WebSearch"
         ],
-        "model": "opus"
+        "model": "deep"
       },
       "opencode": {
         "*": "allow",

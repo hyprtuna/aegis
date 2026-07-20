@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: scratch-dir-convention
 description: Use when handing a subagent a file to write — never under .git/; use the self-ignoring .aegis-scratch/ dir.
 visibility: user

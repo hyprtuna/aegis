@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: using-aegis
 description: Use at the start of every session to discover Aegis surfaces and apply iron-law rules.
 visibility: user

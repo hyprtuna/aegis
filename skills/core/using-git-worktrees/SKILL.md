@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: using-git-worktrees
 description: Use when creating isolated git worktrees for parallel feature work — gitignore-safe directory selection.
 visibility: user

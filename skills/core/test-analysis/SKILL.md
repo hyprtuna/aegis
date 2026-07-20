@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: test-analysis
 description: Use when reviewing test coverage quality — behavioural coverage, critical gaps, test resilience, whether tests verify the right things.
 visibility: user

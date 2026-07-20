@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: code-architect
 description: Proposes 2-3 implementation approaches with trade-offs for a feature or change
 visibility: user

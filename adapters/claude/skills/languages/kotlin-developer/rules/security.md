@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: kotlin-security
 description: Use when editing Kotlin code — parameterized SQL, BCrypt for passwords, SecureRandom, validate at boundary, no shell exec via Runtime.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: typescript-testing
 description: Use when writing TypeScript tests — Vitest, AAA pattern, no internal mocks, real databases.
 visibility: user

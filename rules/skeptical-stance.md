@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: skeptical-stance
 description: Use when an agent must review or verify others' work — opt into a skeptical-by-default voice via x-aegis.stance, treating claims as wrong until evidence proves them right.
 visibility: user

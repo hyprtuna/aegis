@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: templates
 description: Use when a skill or agent emits a named artifact — the referenced template owns layout/format and is substituted verbatim; carry only the ${TEMPLATE} reference, never duplicated format prose.
 visibility: user

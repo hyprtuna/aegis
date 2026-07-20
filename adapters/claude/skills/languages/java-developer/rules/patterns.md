@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: java-patterns
 description: Use when editing Java code — Optional over null, streams over loops where natural, immutability by default, dependency injection via constructor.
 visibility: user

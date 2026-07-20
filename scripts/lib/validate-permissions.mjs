@@ -31,10 +31,23 @@ const KNOWN_BUCKETS = new Set([
 // Every other (mutating/doer) bucket must NOT carry that disallow.
 const RO_BUCKETS = new Set(["RO", "RO-web", "RO-bash"]);
 
-// Known model tiers (canonical aliases) every agent must declare.
-// `fable` (Claude Fable 5) was added in v0.1.0. `best` is an aliasOf synonym, not a
-// declarable tier (agents declare canonical tiers; synonyms resolve through models.json).
-const KNOWN_MODEL_TIERS = new Set(["opus", "sonnet", "haiku", "fable"]);
+// Declarable capability-intent tiers. An agent states what KIND of work it
+// needs, not a vendor model family; models.json resolves the tier to a host-native ID.
+//   deep     — heavy reasoning: planning, strict review, architecture
+//   balanced — default implementation work
+//   fast     — cheap, low-latency mechanical work
+//   inherit  — defer entirely to the host: run on the main conversation's model
+//
+// `inherit` is DECLARED explicitly, not expressed by omission. Claude accepts both forms
+// (`references/claude-code-docs/docs/sub-agents.md:298` for the explicit value, `:299` for
+// omission defaulting to it), but `model` stays a required key here: an agent that means
+// "whatever the caller is running" should say so, rather than being indistinguishable from
+// one whose tier was forgotten.
+//
+// The retired Anthropic-family names (opus/sonnet/haiku) and `best`/`fable` remain
+// RESOLVABLE through models.json for back-compat but are not declarable tiers — same status
+// `best` has always had.
+const KNOWN_MODEL_TIERS = new Set(["deep", "balanced", "fast", "inherit"]);
 
 // Tools every RO bucket must deny.
 const REQUIRED_RO_DISALLOW = ["Edit", "Write"];
@@ -341,7 +354,19 @@ export function validatePermissions(REPO) {
     if (KNOWN_MODEL_TIERS.has(declaredModel)) {
       const projectedModel = parseModelLine(frontmatter);
       const expectedModel = resolveClaudeModelId(models, declaredModel);
-      if (expectedModel) {
+      // `inherit` resolves to null by design — the projector emits NO `model:` line, letting the
+      // subagent run on the main conversation's model. That makes it the one declarable tier the
+      // `if (expectedModel)` drift check below cannot cover, since null is falsy: a stale `model:`
+      // line on an inherit-declared agent would pass silently, where the same staleness on any
+      // other tier hard-fails. Check it explicitly rather than letting it fall through.
+      if (declaredModel === "inherit") {
+        if (projectedModel !== null) {
+          errors.push(
+            `permissions: model drift for '${name}' — manifest declares model 'inherit' (no 'model:' should be emitted) ` +
+              `but adapters/claude/agents/${name}.md has model '${projectedModel}'`,
+          );
+        }
+      } else if (expectedModel) {
         if (projectedModel === null) {
           errors.push(`permissions: model drift for '${name}' — adapters/claude/agents/${name}.md has no 'model:' but manifest declares model '${declaredModel}' (expected '${expectedModel}')`);
         } else if (projectedModel !== expectedModel) {

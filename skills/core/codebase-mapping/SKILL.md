@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: codebase-mapping
 description: 'Use when mapping an unfamiliar codebase — surfaces tech stack, architecture, conventions, concerns.'
 visibility: user

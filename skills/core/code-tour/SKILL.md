@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: code-tour
 description: 'Use when producing a CodeTour-format `.tour` file for a persona-targeted walkthrough — anchors steps to real files and line numbers.'
 visibility: user

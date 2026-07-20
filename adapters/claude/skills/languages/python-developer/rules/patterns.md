@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: python-patterns
 description: Use when editing Python code — context managers, f-strings, generators, enumerate/zip, immutable types.
 visibility: user

@@ -28,6 +28,21 @@ function read(rel) {
   return readFileSync(join(REPO, rel), "utf8");
 }
 
+// Recursively yield every file under `dir`. Missing dir → yields nothing.
+function* walkFiles(dir) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const e of entries) {
+    const full = join(dir, e.name);
+    if (e.isDirectory()) yield* walkFiles(full);
+    else if (e.isFile()) yield full;
+  }
+}
+
 // Parse a `tools: [a, b, c]` frontmatter line into an array.
 function parseFrontmatterBlock(content) {
   const m = content.match(/^---\n([\s\S]*?)\n---\n/);
@@ -161,6 +176,160 @@ test("Claude marketplace uses a string source; Codex uses an object", () => {
   const codex = JSON.parse(read(".agents/plugins/marketplace.json"));
   const codexSrc = codex?.plugins?.[0]?.source;
   assert.equal(typeof codexSrc, "object", ".agents/plugins/marketplace.json source must be an object {source, path} (Codex form)");
+});
+
+// ── V1–V3: visibility → native user-invocable (committed-output assertions) ───
+// Canonical `visibility: internal` projects to Claude's native `user-invocable: false`,
+// which hides a skill from the `/` menu while leaving model invocation and its
+// description-in-context intact (claude-code-docs/docs/skills.md:250, :368).
+
+// Canonical skills carrying `visibility: internal`, discovered from source so the
+// test cannot silently pass by asserting an empty set.
+function internalCanonicalSkills() {
+  const out = [];
+  for (const scope of ["core", "languages", "workflows"]) {
+    const scopeDir = join(REPO, "skills", scope);
+    let entries;
+    try {
+      entries = readdirSync(scopeDir);
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      let text;
+      try {
+        text = readFileSync(join(scopeDir, entry, "SKILL.md"), "utf8");
+      } catch {
+        continue;
+      }
+      if (/^visibility:\s*internal\s*$/m.test(parseFrontmatterBlock(text))) {
+        out.push(`adapters/claude/skills/${scope}/${entry}/SKILL.md`);
+      }
+    }
+  }
+  return out;
+}
+
+test("V1: every canonical internal skill projects user-invocable: false on Claude", () => {
+  const internal = internalCanonicalSkills();
+  assert.ok(
+    internal.length > 0,
+    "expected at least one canonical skill with `visibility: internal` — if the corpus " +
+      "genuinely has none, this assertion must be removed deliberately, not left to pass vacuously",
+  );
+  for (const rel of internal) {
+    const fm = parseFrontmatterBlock(read(rel));
+    assert.match(
+      fm,
+      /^user-invocable:\s*false\s*$/m,
+      `${rel}: canonical visibility is internal but generated frontmatter lacks user-invocable: false`,
+    );
+  }
+});
+
+test("V2: user-facing skills project no user-invocable key", () => {
+  const internal = new Set(internalCanonicalSkills());
+  let checked = 0;
+  for (const scope of ["core", "languages", "workflows"]) {
+    const genScope = join(REPO, "adapters/claude/skills", scope);
+    let entries;
+    try {
+      entries = readdirSync(genScope);
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      const rel = `adapters/claude/skills/${scope}/${entry}/SKILL.md`;
+      if (internal.has(rel)) continue;
+      let text;
+      try {
+        text = read(rel);
+      } catch {
+        continue;
+      }
+      assert.doesNotMatch(
+        parseFrontmatterBlock(text),
+        /^user-invocable:/m,
+        `${rel}: visibility is user, so nothing should be emitted (Claude defaults to user-invocable: true)`,
+      );
+      checked++;
+    }
+  }
+  assert.ok(checked > 0, "expected to check at least one user-facing generated skill");
+});
+
+test("V3: disable-model-invocation is emitted nowhere in any generated host tree", () => {
+  // THE TRAP. `disable-model-invocation: true` also hides a skill from the `/` menu and
+  // additionally saves listing budget, which makes it the tempting mapping for
+  // `visibility: internal`. It is wrong: it removes the skill from Claude's context
+  // entirely (skills.md:249, :584 — "Claude can invoke: No"), which would sever
+  // parent→child dispatch such as default-feature → implementation-planner. This test
+  // exists so the substitution cannot be made silently by a later "optimization".
+  // Generated subtrees only. `adapters/<host>/projection.md` is hand-authored prose that
+  // documents WHY this field is banned, so scanning it would flag the documentation of
+  // the rule as a violation of the rule.
+  const roots = [
+    "adapters/claude/skills", "adapters/claude/agents", "adapters/claude/commands",
+    ".claude-plugin", ".codex", ".opencode", ".agents", ".codex-plugin",
+  ];
+  const hits = [];
+  for (const root of roots) {
+    for (const file of walkFiles(join(REPO, root))) {
+      let text;
+      try {
+        text = readFileSync(file, "utf8");
+      } catch {
+        continue;
+      }
+      if (text.includes("disable-model-invocation")) hits.push(file.slice(REPO.length + 1));
+    }
+  }
+  assert.deepEqual(hits, [], `disable-model-invocation must never be emitted; found in: ${hits.join(", ")}`);
+});
+
+// ── M1: no Anthropic model ID leaks into an OpenCode or Codex artifact ────────
+test("M1: no anthropic/* model ID is emitted into any OpenCode or Codex artifact", () => {
+  // manifest/models.json once declared `opencode`/`codex` IDs (`anthropic/claude-*`) that
+  // no consumer read — resolveClaudeModel() and resolveClaudeModelId() both dereference
+  // `.claude` exclusively. They were removed in v0.2.1 because the declaration READ as
+  // behaviour (that Aegis pins OpenCode/Codex users to Anthropic models). This pins the
+  // claim so the next audit does not have to re-derive it by hand.
+  const roots = [".opencode", ".codex", ".codex-plugin", ".agents"];
+  const hits = [];
+  for (const root of roots) {
+    for (const file of walkFiles(join(REPO, root))) {
+      let text;
+      try {
+        text = readFileSync(file, "utf8");
+      } catch {
+        continue;
+      }
+      // Anchored to `anthropic/claude-` so an unrelated npm package name in prose
+      // (e.g. the `@anthropic/sdk` line in the changelog-generation example) does not
+      // masquerade as a model pin.
+      if (/anthropic\/claude-/.test(text)) hits.push(file.slice(REPO.length + 1));
+    }
+  }
+  assert.deepEqual(hits, [], `anthropic/claude-* model IDs must not reach OpenCode/Codex artifacts; found in: ${hits.join(", ")}`);
+});
+
+test("M1b: models.json declares no per-host IDs beyond claude", () => {
+  const models = JSON.parse(read("manifest/models.json"));
+  for (const [alias, entry] of Object.entries(models.aliases)) {
+    assert.deepEqual(
+      Object.keys(entry),
+      ["claude"],
+      `models.json alias '${alias}' declares keys other than 'claude' — only .claude is ever read (project.mjs resolveClaudeModel, lib/validate-permissions.mjs resolveClaudeModelId)`,
+    );
+  }
+  // Intent tiers exist and the retired vendor names still resolve for back-compat.
+  for (const tier of ["deep", "balanced", "fast", "inherit"]) {
+    assert.ok(models.aliases[tier], `models.json is missing intent tier '${tier}'`);
+  }
+  for (const [old, tier] of [["opus", "deep"], ["sonnet", "balanced"], ["haiku", "fast"]]) {
+    assert.equal(models.aliasOf[old], tier, `retired alias '${old}' must still resolve to '${tier}'`);
+  }
+  assert.equal(models.unknownAliasPolicy, "hard-fail", "unknownAliasPolicy must stay hard-fail so a typo is loud");
 });
 
 // ── Runner ─────────────────────────────────────────────────────────────────--

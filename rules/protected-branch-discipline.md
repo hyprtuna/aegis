@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: protected-branch-discipline
 description: Use when a push targets a shared trunk — judging whether the trunk is the right destination, and how a team gets a genuine hard block.
 visibility: user

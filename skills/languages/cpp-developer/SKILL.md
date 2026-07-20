@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: cpp-developer
 description: Use when C++ development, testing, review, security, or code-practice guidance is needed.
 visibility: user

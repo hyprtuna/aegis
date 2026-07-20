@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: verification-before-completion
 description: Use before claiming any task complete — requires running verification commands and showing output. Evidence before assertions.
 visibility: user

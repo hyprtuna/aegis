@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: claude-md-improvement
 description: 'Use when CLAUDE.md may be stale, incomplete, or inaccurate — audits and proposes concrete edits.'
 visibility: user

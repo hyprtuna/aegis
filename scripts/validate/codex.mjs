@@ -1,9 +1,11 @@
-// codex.mjs — section 8 + FIX-V5/V6/V7/V8/V9: Codex projection checks.
+// codex.mjs — section 8 + FIX-V5/V6/V7/V8: Codex projection checks.
 // Skipped silently if `.codex/` is absent. Push order is preserved exactly:
-// section-8 per-skill errors, then FIX-V5, FIX-V6, FIX-V7 (warning), FIX-V8 (warnings),
-// FIX-V9 (error) Codex bundle drift gate — byte-equality of every bundled hook
-// script (any extension) against its .claude-plugin/hooks/ source.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+// section-8 per-skill errors, then FIX-V5, FIX-V6, FIX-V7 (warning), FIX-V8 (warnings).
+//
+// There is no hook-bundle drift gate: Aegis does not project hooks to Codex at
+// all (plugin_hooks is removed upstream), so .codex/plugins/aegis/hooks/ can no
+// longer be written. See adapters/codex/projection.md.
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 export const id = "CODEX";
@@ -157,49 +159,12 @@ export function run(ctx) {
     for (const f of templatePlaceholderHits) warnings.push(`  - ${f}`);
   }
 
-  // FIX-V9: Codex bundle drift gate. Assert that every bundled hook script in
-  // .codex/plugins/aegis/hooks/ byte-equals its canonical source. A stale
-  // copy would silently weaken a Codex-bundled hook. Fires on every
-  // validate-structure run.
-  const codexHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
-  if (existsSync(codexHooksDir)) {
-    // Hook script drift check. Each bundled script must byte-equal the corresponding
-    // .claude-plugin/hooks/<name> (both are version-stamped to the same version
-    // post-project, so byte equality holds when in sync).
-    //
-    // NO extension filter: the bundler writes basename(x-codex.command) whatever its
-    // extension and hookCommentSyntax() supports .sh/.mjs/.js/.cjs/.ts, so a `.sh`-only
-    // gate leaves every non-shell bundled hook unchecked against its source. The
-    // existing "no canonical counterpart → skip" guard below already covers entries
-    // that legitimately have no .claude-plugin/hooks/ twin.
-    const claudeHooksDir = join(REPO, ".claude-plugin/hooks");
-    if (existsSync(claudeHooksDir)) {
-      let bundledScripts;
-      try {
-        bundledScripts = readdirSync(codexHooksDir, { withFileTypes: true })
-          .filter((e) => e.isFile() && e.name !== "hooks.json")
-          .map((e) => e.name);
-      } catch {
-        bundledScripts = [];
-      }
-      for (const script of bundledScripts) {
-        const bundledScript = join(codexHooksDir, script);
-        const claudeScript = join(claudeHooksDir, script);
-        if (!existsSync(claudeScript)) {
-          // No matching Claude script — skip (Codex may bundle extras; not an error here).
-          continue;
-        }
-        const bundledScriptBytes = readFileSync(bundledScript);
-        const claudeScriptBytes = readFileSync(claudeScript);
-        if (!bundledScriptBytes.equals(claudeScriptBytes)) {
-          errors.push(
-            `Codex bundled hook script drift: .codex/plugins/aegis/hooks/${script} ` +
-            `does not match .claude-plugin/hooks/${script} — re-run \`node scripts/project.mjs\``
-          );
-        }
-      }
-    }
-  }
+  // No Codex hook bundle drift gate: there is no Codex hook projector. The
+  // plugin_hooks feature is removed upstream, `codex` is a rejected value in a hook
+  // intent's platforms (HOOK_INTENT + loadHookIntents both hard-fail on it), and
+  // nothing can write .codex/plugins/aegis/hooks/. A byte-equality gate here would
+  // guard a directory that can no longer come into existence. See
+  // adapters/codex/projection.md for the gap and what re-adding would cost.
 
   return { errors, warnings };
 }

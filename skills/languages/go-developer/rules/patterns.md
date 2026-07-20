@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: go-patterns
 description: Use when editing Go code — context.Context first arg, errors.Is/As, defer cleanup, slog.
 visibility: user

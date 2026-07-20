@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: dispatching-parallel-agents
 description: 'Use when 2+ independent failures need parallel agent dispatch — focused scope, explicit constraints per agent.'
 visibility: user

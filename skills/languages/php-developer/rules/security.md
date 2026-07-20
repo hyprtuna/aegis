@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: php-security
 description: Use when editing PHP code — PDO prepared statements, password_hash with default algorithm, hash_equals for tokens, htmlspecialchars on output, no shell_exec on user input.
 visibility: user

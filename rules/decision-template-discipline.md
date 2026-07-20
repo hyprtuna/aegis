@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: decision-template-discipline
 description: Use when a skill renders a decision via the canonical decision template — wait for the user's answer unless --accept-defaults is set or auto-mode is active and the recommendation is high-confidence.
 visibility: user

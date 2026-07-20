@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: learning
 description: 'Use when explaining unfamiliar code, concepts, or patterns in the context of this project.'
 visibility: user

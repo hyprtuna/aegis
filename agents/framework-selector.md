@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: framework-selector
 description: Evaluates competing frameworks and libraries with structured comparison matrices and scoring
 visibility: user

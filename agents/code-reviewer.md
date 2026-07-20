@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: code-reviewer
 description: 'The single public reviewer — two-pass review (spec compliance, code quality) via --type, plus an adversarial --strict lock-in lens; confidence-filtered, JSON-structured'
 visibility: user

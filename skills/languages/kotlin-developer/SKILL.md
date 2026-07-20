@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: kotlin-developer
 description: Use when Kotlin development, testing, review, security, or code-practice guidance is needed.
 visibility: user

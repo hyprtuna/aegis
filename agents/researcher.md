@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: researcher
 description: 'Deep research agent — investigates topics and produces structured findings with options, trade-offs, and recommendations'
 visibility: user

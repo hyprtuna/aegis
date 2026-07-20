@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: mcp-builder
 description: Scaffold and build MCP servers end-to-end — from design through implementation and verification
 visibility: user

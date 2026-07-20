@@ -25,7 +25,7 @@ Generated from `manifest/capabilities.json`. See [capability-matrix.md](capabili
 | `zip-skill-distribution` | ✅ supported | 🟡 partial | 🟡 partial | — n/a | — n/a |
 | `statusline-presets` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
 | `templates-surface` | ✅ supported | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |
-| `model-aliases` | ✅ supported | ✅ supported | 🟡 partial | — n/a | — n/a |
+| `model-aliases` | ✅ supported | ⛔ gap | ⛔ gap | — n/a | — n/a |
 | `provider-tagged-prose` | ✅ supported | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap |
 | `session-start-hook` | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap | ⛔ gap |
 | `compaction-hooks` | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap | ⛔ gap |

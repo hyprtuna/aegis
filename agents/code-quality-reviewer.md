@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: code-quality-reviewer
 description: 'Read-only Stage 2 code-quality reviewer — checks correctness, architecture, security, performance, and test quality'
 visibility: internal

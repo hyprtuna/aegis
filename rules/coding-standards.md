@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: coding-standards
 description: Use when applying cross-language coding standards — naming, readability, immutability, error handling, code-smell detection; language overlays extend this baseline.
 visibility: user

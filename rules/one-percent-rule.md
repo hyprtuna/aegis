@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: one-percent-rule
 description: Use when a skill might apply — if there's even a 1% chance a skill fits the task, invoke it. Err on the side of over-invocation.
 visibility: user

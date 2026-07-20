@@ -40,11 +40,10 @@ Validation requires Node 20+ only. No Bun, no TypeScript, no npm install for use
 
 ## Frontmatter
 
-Lean 5-field canonical:
+Lean 4-field canonical:
 
 ```yaml
 ---
-kind: skill | agent | command | rule
 name: stable-kebab-slug
 description: One-line, trigger-like.
 visibility: user | internal

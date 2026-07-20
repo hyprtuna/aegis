@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: swift-developer
 description: Use when Swift development, testing, review, security, or code-practice guidance is needed.
 visibility: user

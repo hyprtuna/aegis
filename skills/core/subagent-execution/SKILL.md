@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: subagent-execution
 description: Use when executing an implementation plan via fresh subagents.
 visibility: user

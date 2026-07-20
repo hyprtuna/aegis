@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: debugging
 description: 'Use when investigating a bug systematically — reproduce, isolate, trace, fix, verify.'
 visibility: user

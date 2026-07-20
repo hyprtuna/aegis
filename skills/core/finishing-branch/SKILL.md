@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: finishing-branch
 description: 'Use when wrapping up a development branch and deciding whether to merge, open a PR, keep it, or discard it.'
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: template
 name: plans-default
 description: Plan markdown frontmatter + task shape (default variant).
 visibility: internal

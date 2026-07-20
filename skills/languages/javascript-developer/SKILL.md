@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: javascript-developer
 description: Use when JavaScript development, testing, review, security, or code-practice guidance is needed.
 visibility: user

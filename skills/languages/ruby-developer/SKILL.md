@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: ruby-developer
 description: Use when Ruby development, testing, review, security, or code-practice guidance is needed.
 visibility: user

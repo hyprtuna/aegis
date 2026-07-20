@@ -1,6 +1,7 @@
 ---
 name: plan-structure-audit
 description: 'Use when verifying an implementation plan against its stated goal — goal-backward analysis catches gaps, incorrect assumptions, missing steps.'
+user-invocable: false
 ---
 
 > **Invoke via `Skill({skill: "aegis:plan-structure-audit"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

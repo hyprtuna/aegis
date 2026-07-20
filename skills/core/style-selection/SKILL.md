@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: style-selection
 description: Use when picking a named UI style family (Brutalist, Soft UI, Glassmorphism, Skeuomorphic, Neumorphism, Material, Flat, Memphis, Editorial, Minimalist) — guides toward fit; names which to avoid.
 visibility: internal

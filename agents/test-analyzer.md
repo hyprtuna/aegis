@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: test-analyzer
 description: 'Reviews test coverage quality — behavioral coverage, critical gaps, test resilience'
 visibility: user

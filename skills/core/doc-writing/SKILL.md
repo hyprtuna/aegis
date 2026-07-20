@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: doc-writing
 description: 'Use when generating or updating README, inline docs, or changelogs.'
 visibility: user

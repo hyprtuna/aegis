@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: typography-pairings
 description: Use when picking display/body typography pairings by industry and style mood — covers 11 industry pairings, modular scale, weight rules, Google Fonts links.
 visibility: internal

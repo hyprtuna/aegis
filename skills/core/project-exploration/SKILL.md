@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: project-exploration
 description: Use when exploring an unfamiliar repository — surfaces structure, patterns, entry points, major subsystems.
 visibility: user

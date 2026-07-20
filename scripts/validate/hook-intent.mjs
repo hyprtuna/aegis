@@ -19,7 +19,7 @@
 // tripwire that keeps the contract honest.
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { generateClaudeHooksBlock, isHookHelper } from "../lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, hookTreeKeepSet } from "../lib/hook-projection.mjs";
 
 export const id = "HOOK_INTENT";
 
@@ -42,13 +42,22 @@ const OPENCODE_EVENTS = new Set([
   "experimental.session.compacting",
 ]);
 const OPENCODE_COMPACTING = "experimental.session.compacting";
-// Codex hook events (verified against codex 0.141.0).
-const CODEX_EVENTS = new Set([
-  "SessionStart", "SubagentStart", "PreToolUse", "PermissionRequest", "PostToolUse",
-  "PreCompact", "PostCompact", "UserPromptSubmit", "SubagentStop", "Stop",
-]);
 const DISPATCH_ENUM = new Set(["command", "prompt", "agent"]);
+// `codex` stays in the enum so the value is RECOGNISED (and rejected with a
+// specific message below) rather than falling through the generic
+// unknown-platform error. It is not a supported hook platform — see
+// REJECTED_HOOK_PLATFORMS.
 const PLATFORM_ENUM = new Set(["claude", "opencode", "codex", "cursor", "zed"]);
+// Platforms that are valid surface targets elsewhere in Aegis but cannot carry
+// a hook. A hook intent naming one is a hard error, never a silent no-op: the
+// projector would emit nothing and report nothing.
+const REJECTED_HOOK_PLATFORMS = new Map([
+  [
+    "codex",
+    "Codex's plugin_hooks feature is removed upstream, so a plugin-shipped hook cannot fire " +
+      "on this host. Drop \"codex\" from platforms; see adapters/codex/projection.md.",
+  ],
+]);
 const VISIBILITY_ENUM = new Set(["internal", "public"]);
 
 // Event → allowed dispatch types (D3, verified against hooks.md).
@@ -124,7 +133,13 @@ export function run(ctx) {
       errors.push(`${where}: platforms must be a non-empty array`);
     } else {
       for (const p of intent.platforms) {
-        if (!PLATFORM_ENUM.has(p)) errors.push(`${where}: unknown platform "${p}"`);
+        if (!PLATFORM_ENUM.has(p)) {
+          errors.push(`${where}: unknown platform "${p}"`);
+        } else if (REJECTED_HOOK_PLATFORMS.has(p)) {
+          errors.push(
+            `${where}: "${p}" is not a supported hook platform — ${REJECTED_HOOK_PLATFORMS.get(p)}`,
+          );
+        }
       }
     }
     if (intent.enabled !== undefined) {
@@ -135,6 +150,47 @@ export function run(ctx) {
     }
 
     const platforms = Array.isArray(intent.platforms) ? intent.platforms : [];
+
+    // ── Declared helper dependencies (platform-independent) ───────────────────
+    // The shared libraries this hook sources. A declaration is what protects a file from the
+    // projector's prune, so a malformed or dangling one is a hard error — a phantom entry
+    // would keep a name reserved that no file answers to, and a nested path would name
+    // something the flat tree cannot hold.
+    //
+    // Validated whenever the key is PRESENT, not only when the intent binds claude. The
+    // keep-set (scripts/lib/hook-projection.mjs) reads x-claude.helpers from every intent with
+    // no platform filter, so gating this check on the claude branch let a non-claude intent
+    // reserve a keep-set name that was never existence-checked — the exact phantom entry the
+    // comment above calls a hard error. Both consumers now read the declaration under
+    // identical conditions.
+    {
+      const xc = intent["x-claude"];
+      if (xc && typeof xc === "object" && xc.helpers !== undefined) {
+        if (!Array.isArray(xc.helpers)) {
+          errors.push(`${where}: x-claude.helpers must be an array of helper filenames`);
+        } else {
+          for (const helper of xc.helpers) {
+            if (typeof helper !== "string" || !helper) {
+              errors.push(`${where}: x-claude.helpers entries must be non-empty strings`);
+              continue;
+            }
+            if (helper.includes("/")) {
+              errors.push(
+                `${where}: x-claude.helpers entry "${helper}" must be a bare filename — ` +
+                  ".claude-plugin/hooks/ is flat, no subdirectories",
+              );
+              continue;
+            }
+            if (!existsSync(join(REPO, ".claude-plugin", "hooks", helper))) {
+              errors.push(
+                `${where}: x-claude.helpers declares "${helper}" but ` +
+                  `.claude-plugin/hooks/${helper} does not exist`,
+              );
+            }
+          }
+        }
+      }
+    }
 
     // ── x-claude host-binding completeness + event→dispatch table ─────────────
     if (platforms.includes("claude")) {
@@ -201,52 +257,6 @@ export function run(ctx) {
       }
     }
 
-    // ── x-codex host-binding completeness + event validation ──────────────────
-    if (platforms.includes("codex")) {
-      const xcodex = intent["x-codex"];
-      if (!xcodex || typeof xcodex !== "object") {
-        errors.push(`${where}: platforms includes "codex" but x-codex binding is missing`);
-      } else {
-        if (!CODEX_EVENTS.has(xcodex.event)) {
-          errors.push(`${where}: x-codex.event "${xcodex.event}" not in allowed Codex event enum`);
-        }
-        // Restricted to "command": projectCodexHooks() builds a
-        // { type: "command", command } entry before any dispatch check, so a
-        // prompt/agent binding emits { "type": "command" } with the command key
-        // dropped by JSON.stringify(undefined) — a malformed hooks.json.
-        if (xcodex.dispatch !== "command") {
-          errors.push(
-            `${where}: x-codex.dispatch "${xcodex.dispatch}" is not supported — only "command" ` +
-              "has a projector path; any other value emits a malformed Codex hooks.json entry",
-          );
-        }
-        // Flat only, same constraint as x-claude.command and for a sharper reason:
-        // projectCodexHooks() emits this value VERBATIM into hooks.json but writes
-        // the bundled file to basename(x-claude.command). A nested path therefore
-        // ships a manifest naming a script that was never placed there.
-        if (xcodex.dispatch === "command") {
-          if (typeof xcodex.command !== "string" || !/^\.\/hooks\/[^/]+$/.test(xcodex.command || "")) {
-            errors.push(
-              `${where}: x-codex.dispatch "command" requires command matching ` +
-                "^\\./hooks/[^/]+$ — the bundled Codex hooks tree is flat, and the path is " +
-                "emitted verbatim into hooks.json while the script is written to its basename",
-            );
-          }
-        }
-      }
-      // projectCodexHooks() copies the script it bundles from the CLAUDE binding —
-      // an x-codex intent with no x-claude.command emits a hooks.json entry naming
-      // a script that never gets bundled: a binding that cannot fire (Iron Law 6).
-      const xc = intent["x-claude"];
-      if (!xc || xc.dispatch !== "command" || typeof xc.command !== "string" || !xc.command) {
-        errors.push(
-          `${where}: platforms includes "codex" but there is no x-claude command binding to ` +
-            "bundle from — projectCodexHooks() copies the script it ships from x-claude.command, " +
-            "so a codex binding without one advertises a script that is never bundled",
-        );
-      }
-    }
-
     // ── .md pairing (D1) ──────────────────────────────────────────────────────
     const dispatch = intent["x-claude"]?.dispatch;
     const mdRequired =
@@ -298,24 +308,17 @@ export function run(ctx) {
   // prunes these; this rule is the tripwire for a projector that was never re-run.
   const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
   if (existsSync(claudeHooksDir)) {
-    const referenced = new Set();
-    for (const intent of intents) {
-      const xc = intent["x-claude"];
-      if (xc && xc.dispatch === "command" && typeof xc.command === "string") {
-        referenced.add(xc.command.split("/").pop());
-      }
-    }
+    // The keep-set — command targets AND declared helpers — comes from the SAME
+    // function the projector's prune uses (no mirror), so this rule can never
+    // demand a file the projector has already deleted, or bless one it reaps.
+    const keep = hookTreeKeepSet(intents);
     for (const entry of readdirSync(claudeHooksDir).sort()) {
-      if (referenced.has(entry)) continue;
-      // `_`-prefixed entries are shared helpers sourced by hook scripts, not
-      // orphans — nothing binds them via x-claude.command by design. The predicate
-      // is shared with the projector's prune (no mirror), so the two cannot drift
-      // into the validator demanding a file the projector has already deleted.
-      if (isHookHelper(entry)) continue;
+      if (keep.has(entry)) continue;
       errors.push(
         `.claude-plugin/hooks/${entry}: orphaned — no hooks/*.json intent references it ` +
-          "via x-claude.command. A hook either ships (an intent binds it) or is deleted " +
-          "outright; run `node scripts/project.mjs` to prune it.",
+          "via x-claude.command, and no intent declares it in x-claude.helpers. A file in " +
+          "this tree either ships (an intent binds or declares it) or is deleted outright; " +
+          "run `node scripts/project.mjs` to prune it.",
       );
     }
   }

@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: typescript-coding-style
 description: Use when editing TypeScript code — strict mode, no any, named exports, ESM extensions.
 visibility: user

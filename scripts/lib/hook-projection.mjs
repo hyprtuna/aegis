@@ -81,18 +81,41 @@ export function generateClaudeHooksBlock(intents) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared-helper naming convention for the Claude hook implementation tree.
+// The keep-set for the Claude hook implementation tree (.claude-plugin/hooks/).
 //
-// A `_`-prefixed entry under .claude-plugin/hooks/ is a library sourced by hook
-// scripts (`source "$(dirname "$0")/_lib.sh"`), not a hook: nothing binds it via
-// x-claude.command by design. Both the projector's orphan prune and the
-// HOOK_INTENT orphan rule must skip exactly the same set — if they disagreed, one
-// would delete a file the other demands, or demand a file the other deleted.
+// A file belongs in that tree for exactly two reasons, and both are DECLARED:
+//   1. an intent binds it via x-claude.command (it is a hook), or
+//   2. an intent declares it in x-claude.helpers (it is a library that hook
+//      sources, e.g. `source "$(dirname "$0")/lib.sh"`).
 //
-// Same no-mirror rule as generateClaudeHooksBlock above: one predicate, two
-// callers. A comment in each file asserting the other agrees is not a mechanism.
-export const HOOK_HELPER_PREFIX = "_";
-
-export function isHookHelper(entry) {
-  return typeof entry === "string" && entry.startsWith(HOOK_HELPER_PREFIX);
+// Everything else is an orphan. This replaces an earlier `_`-prefix naming
+// convention, which protected a file by how it was spelled rather than by any
+// claim: a maintainer who named a shared library `lib.sh` instead of `_lib.sh`
+// had it deleted on the next projector run, and every hook sourcing it broke at
+// runtime for every user. A declaration is checkable; a spelling is not.
+//
+// This function is the SINGLE source of the keep-set — the projector's
+// destructive prune (scripts/project.mjs) and the HOOK_INTENT orphan rule
+// (scripts/validate/hook-intent.mjs) both call it, exactly as they both call
+// generateClaudeHooksBlock above. There is no mirror: if they could disagree,
+// one would delete a file the other demands, or demand a file the other already
+// deleted. A comment in each file asserting the other agrees is not a mechanism.
+//
+// Entries are BASENAMES. Both trees are flat by contract, and both callers
+// compare against a directory listing.
+export function hookTreeKeepSet(intents) {
+  const keep = new Set();
+  for (const intent of intents ?? []) {
+    const xc = intent["x-claude"];
+    if (!xc || typeof xc !== "object") continue;
+    if (xc.dispatch === "command" && typeof xc.command === "string" && xc.command) {
+      keep.add(xc.command.split("/").pop());
+    }
+    if (Array.isArray(xc.helpers)) {
+      for (const helper of xc.helpers) {
+        if (typeof helper === "string" && helper) keep.add(helper.split("/").pop());
+      }
+    }
+  }
+  return keep;
 }

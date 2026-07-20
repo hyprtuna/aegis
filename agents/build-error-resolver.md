@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: build-error-resolver
 description: 'Use when build or typecheck errors need a minimal-diff fix with no architectural change.'
 visibility: user

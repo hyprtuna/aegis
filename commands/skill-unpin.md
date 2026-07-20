@@ -1,5 +1,4 @@
 ---
-kind: command
 name: skill-unpin
 description: Unpin a skill from your slash menu shortcuts
 visibility: user

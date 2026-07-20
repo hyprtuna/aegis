@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: task-decomposition
 description: Use when breaking a feature or task into sequenced, risk-annotated subtasks with explicit acceptance criteria.
 visibility: user

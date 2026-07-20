@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: recall
 description: Use when you need to retrieve relevant past observations, decisions, or patterns from MEMORY.md.
 visibility: user

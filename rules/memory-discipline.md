@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: memory-discipline
 description: Governs how memory-enabled agents observe, curate, and protect MEMORY.md — taxonomy, entry shape, curation discipline, and secret-scan gate.
 visibility: user

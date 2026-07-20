@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: architecture-decision-record
 description: 'Use when a non-trivial architectural decision needs to be recorded — captures context, alternatives, and rationale in a structured ADR.'
 visibility: user

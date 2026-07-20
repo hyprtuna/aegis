@@ -173,9 +173,12 @@ export function run(ctx) {
 
   // D4 + D5. Walk adapters/claude/: zero ${TEMPLATE:} tokens; generated frontmatter
   // parses and carries ONLY allowed keys (forbidden keys → error).
+  // `user-invocable` is projected from canonical `visibility: internal` (skills only).
+  // `disable-model-invocation` is deliberately ABSENT from this allowlist: it would
+  // sever parent→child skill dispatch, so emitting it is a defect, not a config choice.
   const ALLOWED_SKILL_KEYS = new Set([
     "name", "description", "model", "paths", "agent", "disallowedTools",
-    "argument-hint",
+    "argument-hint", "user-invocable",
   ]);
   const ALLOWED_AGENT_KEYS = new Set([
     "name", "description", "model", "effort", "maxTurns", "tools",

@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: plan-verifier
 description: Verifies implementation plans achieve their stated goal — goal-backward analysis
 visibility: user

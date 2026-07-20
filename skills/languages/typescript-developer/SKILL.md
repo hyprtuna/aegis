@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: typescript-developer
 description: Use when TypeScript development, testing, review, security, or code-practice guidance is needed.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: sdd-workflow
 description: Use when starting a new feature from scratch and no approved spec exists yet.
 visibility: user

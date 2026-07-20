@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: gitlab-workflow
 description: 'Use when working with GitLab MRs, pipelines, or issues via the glab CLI.'
 visibility: user

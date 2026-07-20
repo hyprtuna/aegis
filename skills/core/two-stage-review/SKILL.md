@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: two-stage-review
 description: Use when orchestrating spec-compliance review then code-quality review — any agent can call this instead of inlining both stages.
 visibility: user

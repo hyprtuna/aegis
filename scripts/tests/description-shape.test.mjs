@@ -39,7 +39,7 @@ function writeSkill(REPO, name, description) {
   const p = join(dir, "SKILL.md");
   writeFileSync(
     p,
-    `---\nkind: skill\nname: ${name}\ndescription: ${description}\nvisibility: user\nplatforms: [claude]\n---\n\n# ${name}\n`,
+    `---\nname: ${name}\ndescription: ${description}\nvisibility: user\nplatforms: [claude]\n---\n\n# ${name}\n`,
   );
   return p;
 }

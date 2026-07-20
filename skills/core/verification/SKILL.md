@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: verification
 description: Use before claiming completion — blocks claims without fresh verification evidence (tests, builds, lint).
 visibility: user

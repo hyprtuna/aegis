@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: summarization
 description: Use when compressing a large tool output to <=200 words — preserves file paths, error class names, key field names.
 visibility: user

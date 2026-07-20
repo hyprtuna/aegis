@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: code-simplifier
 description: Simplifies code for clarity and maintainability while preserving all functionality
 visibility: user

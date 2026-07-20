@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: code-review
 description: Use when reviewing diffs or files for quality, security, style, or test coverage.
 visibility: user

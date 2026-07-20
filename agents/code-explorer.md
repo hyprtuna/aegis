@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: code-explorer
 description: 'Maps entry points, call chains, and data flow for a subsystem or concept'
 visibility: user

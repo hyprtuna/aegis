@@ -41,6 +41,7 @@ import * as namedArtifactTemplate from "./named-artifact-template.mjs";
 import * as triggerPhrase from "./trigger-phrase.mjs";
 import * as docDrift from "./doc-drift.mjs";
 import * as stance from "./stance.mjs";
+import * as advertisedVisibility from "./advertised-visibility.mjs";
 
 // v0.0.13 — acyclic-composition validator (warn-only).
 import * as composition from "./composition.mjs";
@@ -92,6 +93,7 @@ const RULES = [
   triggerPhrase,         // TRIGGER_PHRASE (warn-only; hard-fail in v0.0.13)
   docDrift,              // DOC_DRIFT (count = error, dead-link = error)
   stance,                // STANCE (warn-only)
+  advertisedVisibility,  // ADVERTISED_VISIBILITY — an advertised entry point must stay in the / menu
   // v0.0.13 warn-only:
   composition,           // COMPOSITION (acyclic + existence + handoff; warn-only, hard-fail next release)
   // v0.0.14 warn-only:

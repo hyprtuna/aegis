@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: tdd-iron-law
 description: Use when writing implementation code for any non-trivial feature or bug fix — a failing test comes first, always. No exceptions.
 visibility: user

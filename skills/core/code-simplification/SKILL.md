@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: code-simplification
 description: 'Use when code can be simplified without changing behaviour — removes dead code, reduces nesting, eliminates premature abstractions.'
 visibility: user

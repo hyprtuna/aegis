@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: rust-security
 description: Use when editing Rust code — sqlx parameterized queries, ring/rustls for crypto, no shell injection via Command, secrets via env not literals.
 visibility: user

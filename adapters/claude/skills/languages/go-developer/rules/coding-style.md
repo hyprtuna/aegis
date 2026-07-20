@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: go-coding-style
 description: Use when editing Go code — gofmt on save, errors as values, small interfaces, document exports.
 visibility: user

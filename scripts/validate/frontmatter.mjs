@@ -14,7 +14,11 @@ export function run(ctx) {
       /^skills\/[^/]+\/[^/]+\/SKILL\.md$/.test(r) ||
       (/^agents\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
       (/^commands\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
-      (/^rules\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r))
+      (/^rules\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
+      // Hook intent docs carry the same lean frontmatter as any other canonical surface.
+      // They were unscoped until v0.2.1, which is how `kind: hook` survived the retirement
+      // in three files while Iron Law 3 said the field was gone.
+      (/^hooks\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r))
     );
   });
 
@@ -30,11 +34,22 @@ export function run(ctx) {
       continue;
     }
     const fm = body.slice(4, fmEnd);
-    const required = ["kind:", "name:", "description:", "visibility:", "platforms:"];
+    const required = ["name:", "description:", "visibility:", "platforms:"];
     for (const k of required) {
       if (!fm.includes(k)) {
         errors.push(`frontmatter missing '${k}': ${relative(REPO, s)}`);
       }
+    }
+    // `kind:` is RETIRED. It had no upstream counterpart on any host (Claude Code's
+    // documented skill frontmatter has no such field; OpenCode ignores unknown keys),
+    // it was already discarded at projection, and it carried no information a canonical
+    // surface's own directory does not already state — a file under skills/ is a skill,
+    // under agents/ an agent. Reject it so it cannot drift back in.
+    if (/^kind:/m.test(fm)) {
+      errors.push(
+        `frontmatter carries retired key 'kind:': ${relative(REPO, s)} — ` +
+          `the surface kind is derived from the directory; remove the line.`,
+      );
     }
   }
 

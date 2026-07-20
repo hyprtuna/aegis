@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: python-developer
 description: Use when Python development, testing, review, security, or code-practice guidance is needed.
 visibility: user

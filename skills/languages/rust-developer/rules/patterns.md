@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: rust-patterns
 description: Use when editing Rust code — Result<T,E> over panics, ownership before clones, iterators over indexed loops, ? for propagation.
 visibility: user

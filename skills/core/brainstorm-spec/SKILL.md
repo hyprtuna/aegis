@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: brainstorm-spec
 description: Use when the user describes a feature without an approved spec; output is a structured spec with an Assumptions section, a decisions block, and an Open Questions section
 visibility: user

@@ -18,7 +18,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 | **ZIP / .skill distribution**<br/><sub>zip-skill-distribution</sub> | ✅ supported<br/>`references/claude-code-docs/docs/whats-new__2026-w19.md:24` | 🟡 partial<br/>`adapters/opencode/projection.md#approach-locked-decisions` | 🟡 partial<br/>`adapters/codex/projection.md#install` | — n/a | — n/a |
 | **Statusline presets**<br/><sub>statusline-presets</sub> | ✅ supported<br/>`docs/statusline.md` | ⛔ gap<br/>`adapters/opencode/projection.md#statuslines` | ⛔ gap<br/>`adapters/codex/projection.md#statuslines` | ⛔ gap<br/>`adapters/cursor/projection.md#statuslines` | ⛔ gap<br/>`adapters/zed/projection.md#statuslines` |
 | **Templates surface**<br/><sub>templates-surface</sub> | ✅ supported<br/>`rules/user-choice-discipline.md:75-84` | 🟡 partial<br/>`adapters/opencode/projection.md#templates-template-gap-still-open-on-opencode` | 🟡 partial<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | ⛔ gap |
-| **Model aliases**<br/><sub>model-aliases</sub> | ✅ supported<br/>`manifest/models.json` | ✅ supported<br/>`references/opencode-docs/docs/35-models.md:19` | 🟡 partial<br/>`manifest/models.json` | — n/a | — n/a |
+| **Model intent tiers**<br/><sub>model-aliases</sub> | ✅ supported<br/>`manifest/models.json` | ⛔ gap | ⛔ gap | — n/a | — n/a |
 | **Provider-tagged prose forking**<br/><sub>provider-tagged-prose</sub> | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | 🟡 partial<br/>`adapters/claude/projection.md#generated-tree-projection` | ⛔ gap | ⛔ gap |
 | **SessionStart hook**<br/><sub>session-start-hook</sub> | ✅ supported<br/>`.claude-plugin/plugin.json` | 🟡 partial<br/>`adapters/opencode/projection.md#approach-locked-decisions` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#what-cursor-will-load` | ⛔ gap<br/>`adapters/zed/projection.md#unsupported-documented-gaps` |
 | **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
@@ -94,11 +94,11 @@ Additive distribution channel: dist/aegis.skill is a reproducible ZIP of the pro
 
 Canonical templates/ tree (markdown/json/html) referenced by skills via the ${TEMPLATE:<family>} build-time directive, plus the v0.1.1 runtime index→Read procedure (rules/user-choice-discipline.md step 5) that lets an agent resolve a user-chosen format (incl. HTML) at runtime. Claude closes both mechanisms end-to-end via ${CLAUDE_PLUGIN_ROOT}. Codex bundles the html/json templates + template-index.json (fixing the prior :json bundled-pointer gap) but has no equivalent base-path token for the runtime read, so it stays partial. OpenCode has no plugin-root token at all — the ${TEMPLATE} directive renders literally and the runtime read has no resolvable base path — also partial. Cursor/Zed fall back to a literal file-path reference (deferred).
 
-### Model aliases (`model-aliases`)
+### Model intent tiers (`model-aliases`)
 
 *Category: models*
 
-A skill/agent setting model: opus|sonnet|haiku|inherit resolves to per-host model IDs at projection time via manifest/models.json. Unknown alias is a hard fail.
+An agent declares a provider-neutral capability-intent tier (deep|balanced|fast|inherit) in manifest/permissions.json; manifest/models.json resolves it to a Claude-native model ID at projection time. Retired Anthropic-family names (opus/sonnet/haiku) still resolve through aliasOf. Unknown alias is a hard fail. Claude is the ONLY host where a tier resolves to anything: Aegis emits no model: field on OpenCode or Codex, so those hosts own model selection entirely.
 
 ### Provider-tagged prose forking (`provider-tagged-prose`)
 

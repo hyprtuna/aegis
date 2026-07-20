@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: agentic-engineering
 description: Use when reasoning about delegation — heuristics for spawning subagents, task decomposition, model-tier routing, and cost discipline.
 visibility: user

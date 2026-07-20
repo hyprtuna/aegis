@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: color-palette-design
 description: Use when constructing a role-based colour palette — meets WCAG AA, derives a dark-mode variant. Pairs with style-selection and design-system-generation.
 visibility: internal

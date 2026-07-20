@@ -101,7 +101,6 @@ See `abilities/process-steps.md` for the full per-step instructions and assumpti
 ## Output Format
 
 ---
-kind: template
 name: specs-default
 description: Spec markdown frontmatter + section shape (default variant).
 visibility: internal

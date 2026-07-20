@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: kotlin-coding-style
 description: Use when editing Kotlin code — ktlint-clean, val over var, expression bodies, data classes for value types, no Java idioms in Kotlin files.
 visibility: user

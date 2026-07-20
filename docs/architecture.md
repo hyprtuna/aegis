@@ -48,11 +48,10 @@ full rationale and the 64-character tool-name gateway constraint are in
 
 ## Canonical Frontmatter
 
-Five fields. Plus `source: anvil:<path>` on migrated items. Plus `x-<adapter>:` extension namespace for host-specific metadata.
+Four fields. Plus `source: anvil:<path>` on migrated items. Plus `x-<adapter>:` extension namespace for host-specific metadata.
 
 ```yaml
 ---
-kind: skill | agent | command | rule
 name: stable-kebab-slug
 description: One-line trigger description.
 visibility: user | internal
@@ -92,7 +91,7 @@ Aegis adopts high-value host capabilities surfaced in the host-docs scan, Claude
 | Background monitors (`experimental.monitors`) | Supported (honest contract — see Security posture / projection) | Gap | gap / n-a |
 | Plugin `dependencies` skeleton | Partial (empty `[]`) | Partial | gap / n-a |
 | `.skill` ZIP distribution (`dist/aegis.skill`) | Supported | Partial | partial / n-a |
-| Model aliases (`manifest/models.json`) | Supported | Supported | Codex partial / n-a |
+| Model intent tiers (`manifest/models.json`) | Supported — `deep`/`balanced`/`fast`/`inherit` resolve to a Claude-native ID | Gap — Aegis emits no `model:`; OpenCode owns model selection | Gap — Aegis emits no `model:` / n-a |
 | Provider-tagged prose (`<claude>`/`<opencode>`) | Supported | Supported | partial |
 | `x-claude.memory` native subagent memory | Supported — `memory: project` emitted into generated Claude agent frontmatter; host auto-injects Read/Write/Edit + first 200 lines of `MEMORY.md`. See `rules/memory-discipline.md` + `skills/core/recall`. | Gap → `.aegis-memory/MEMORY.md` fallback via `recall` skill | gap / n-a |
 
@@ -128,7 +127,7 @@ The approved guidance folder list is enforced by `scripts/validate-structure.mjs
 
 - Required root files exist.
 - Sparse guidance placement.
-- Frontmatter conformance to the lean 5-field schema.
+- Frontmatter conformance to the lean 4-field schema (and rejection of the retired `kind:` key).
 - Manifest validity.
 - No stray content.
 

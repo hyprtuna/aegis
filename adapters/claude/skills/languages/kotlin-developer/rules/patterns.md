@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: kotlin-patterns
 description: Use when editing Kotlin code — null safety with ?., scope functions appropriately, sealed classes for exhaustive when, coroutines for async.
 visibility: user

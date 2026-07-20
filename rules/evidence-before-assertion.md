@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: evidence-before-assertion
 description: Use before writing any claim about code, state, or behavior — claims must cite concrete evidence (file:line, command output, test result), never inference.
 visibility: user

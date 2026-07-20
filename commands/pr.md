@@ -1,5 +1,4 @@
 ---
-kind: command
 name: pr
 description: Open a PR (GitHub) or MR (GitLab) — auto-detects
 visibility: user

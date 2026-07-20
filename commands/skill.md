@@ -1,5 +1,4 @@
 ---
-kind: command
 name: skill
 description: Activate a named skill explicitly. Bypasses skill-selection; use when you know exactly which skill you want.
 visibility: user

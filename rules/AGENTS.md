@@ -16,7 +16,6 @@ Flat. Per-language rules live with the language skill (`skills/languages/<lang>-
 
 ```yaml
 ---
-kind: rule
 name: stable-kebab-slug
 description: One-line directive.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: autonomous-execution
 description: 'Use when running autonomous multi-step execution — plan, execute, verify, self-correct in a loop.'
 visibility: user

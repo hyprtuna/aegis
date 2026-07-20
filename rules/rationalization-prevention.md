@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: rationalization-prevention
 description: Use when the urge arises to skip a verification, downgrade a finding, or defer a check — that urge is a rationalization; name it and do not act on it.
 visibility: user

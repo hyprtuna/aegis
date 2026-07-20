@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: deep-diving
 description: 'Use when tracing a specific concept, function, or data flow across the entire codebase — produces a call-chain map.'
 visibility: user

@@ -7,7 +7,7 @@ projects into each host.
 
 > **One source of truth.** Permission posture for every agent lives in
 > `manifest/permissions.json` (validated by `manifest/schemas/permissions.schema.json`).
-> Agent frontmatter stays lean (the 5-field schema) — there is **no** inline
+> Agent frontmatter stays lean (the 4-field schema) — there is **no** inline
 > `x-claude.permissions` block. Change a permission in the manifest; the projector
 > and the audit table follow. (Decision D1.)
 
@@ -235,6 +235,58 @@ it entirely — users set permission mode at the session level. (Decision D9.)
 - **No `Write`:** this agent edits existing files, it doesn't scaffold new ones —
   so `Write` is deliberately absent.
 - **Codex/Cursor/Zed:** advisory.
+
+## Model intent tiers, and why a declared tier is a floor rather than a ceiling
+
+`manifest/permissions.json` gives every agent a **capability-intent tier** — what kind of
+thinking the work needs, not which vendor model to run:
+
+| Tier | Intent | Resolves to on Claude |
+|---|---|---|
+| `deep` | heavy reasoning: planning, strict review, architecture | `claude-opus-4-8` |
+| `balanced` | default implementation work | `claude-sonnet-4-6` |
+| `fast` | cheap, low-latency mechanical work | `claude-haiku-4-5` |
+| `inherit` | defer entirely to the host/user | nothing emitted — the session model is kept |
+
+The projector writes the resolved ID into `adapters/claude/agents/<name>.md` as `model:`.
+
+**A dispatch-time `model` override wins over that frontmatter.** Needing a heavier model for
+one particular dispatch is *not* a reason to skip an Aegis agent and hand-roll a generic one.
+Claude Code resolves a subagent's model in this order
+(`references/claude-code-docs/docs/sub-agents.md:301-306`):
+
+1. the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable, when set to an alias or model ID
+2. **the per-invocation `model` parameter**
+3. the subagent definition's `model` frontmatter
+4. the main conversation's model
+
+So `code-explorer` ships `fast` (`claude-haiku-4-5`) because mapping call chains is mechanical
+— but a caller who wants that same agent reasoning hard about a gnarly subsystem dispatches it
+with an explicit model and gets it:
+
+```
+Agent({ subagent_type: "aegis:code-explorer", model: "opus", prompt: "…" })
+```
+
+The agent's declared tier is the **default**, not a ceiling. Two caveats worth stating plainly:
+a value excluded by an organization's `availableModels` allowlist is skipped and the subagent
+runs on the inherited model instead; and `CLAUDE_CODE_SUBAGENT_MODEL` outranks the per-invocation
+parameter, so an org- or user-level setting can still override a deliberate override — Aegis has
+no visibility into either from inside the projector.
+
+Note the two vocabularies do not collide. `deep`/`balanced`/`fast` are the *authoring* vocabulary
+in `permissions.json`, chosen so a declaration means something on a host that has never heard of
+Opus. The `model` parameter at dispatch is a *host* API and takes the host's own values —
+`sonnet`, `opus`, `haiku`, `fable`, or a full model ID (`sub-agents.md:296-299`).
+
+**Where this applies (stated honestly, not as a universal guarantee):**
+
+| Host | Per-dispatch model override? |
+|---|---|
+| Claude Code | **Yes** — the per-invocation `model` parameter, precedence above. |
+| OpenCode | No Aegis-projected `model:` to override. Aegis emits no model field; OpenCode owns model selection through its own config. |
+| Codex | No per-agent model-override surface, and plugins cannot bundle native subagents at all (see `adapters/codex/projection.md`). |
+| Cursor / Zed | No override surface — these hosts read rules, not agent or skill frontmatter. |
 
 ## See also
 
