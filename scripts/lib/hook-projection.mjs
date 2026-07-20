@@ -47,14 +47,14 @@ export function dispatchObjectFor(intent) {
 }
 
 // Build the plugin.json `hooks` object from canonical intents, grouped by
-// x-claude.event, EXCLUDING enabled:false intents (D7). Intents are name-sorted
-// first for determinism, then grouped by event and emitted in EVENT_ORDER. Each
-// entry is { matcher?, hooks: [ <dispatch object> ] } (matcher-first key order to
-// match the previously hand-maintained block).
+// x-claude.event. Intents are name-sorted first for determinism, then grouped
+// by event and emitted in EVENT_ORDER. Each entry is
+// { matcher?, hooks: [ <dispatch object> ] } (matcher-first key order to match
+// the previously hand-maintained block). A hook either ships (appears here) or
+// is deleted from hooks/ — there is no disabled/parked state.
 export function generateClaudeHooksBlock(intents) {
   const claudeIntents = intents
     .filter((i) => Array.isArray(i.platforms) && i.platforms.includes("claude"))
-    .filter((i) => i.enabled !== false)
     .filter((i) => i["x-claude"])
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name));

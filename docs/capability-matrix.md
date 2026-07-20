@@ -23,9 +23,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 | **SessionStart hook**<br/><sub>session-start-hook</sub> | ✅ supported<br/>`.claude-plugin/plugin.json:99` | 🟡 partial<br/>`adapters/opencode/projection.md#approach-locked-decisions` | 🟡 partial<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap<br/>`adapters/cursor/projection.md#what-cursor-will-load` | ⛔ gap<br/>`adapters/zed/projection.md#unsupported-documented-gaps` |
 | **PreToolUse deny hook**<br/><sub>pre-tool-use-deny-hook</sub> | ✅ supported<br/>`hooks/pre-tool-use-deny.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
-| **Prompt/agent judgment hooks**<br/><sub>judgment-hooks</sub> | ✅ supported<br/>`hooks/verification-before-completion.agent.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **InstructionsLoaded hook**<br/><sub>instructions-loaded-hook</sub> | ✅ supported<br/>`hooks/instructions-loaded.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
-| **Prompt-injection scanner hook**<br/><sub>prompt-injection-guard-hook</sub> | ✅ supported<br/>`hooks/prompt-injection-guard.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **MCP servers**<br/><sub>mcp-servers</sub> | ⛔ gap<br/>`adapters/claude/projection.md#unsupported-documented-gaps` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | 🟡 partial<br/>`adapters/codex/projection.md#surfaces--verification` | ⛔ gap | ⛔ gap |
 | **Native subagent memory**<br/><sub>native-subagent-memory</sub> | ✅ supported<br/>`adapters/claude/projection.md#persistent-memory` | ⛔ gap<br/>`adapters/opencode/projection.md#unsupported-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
 
@@ -127,23 +125,11 @@ Portable hook intent: cross-cutting path/arg-scoped deny enforced at runtime fro
 
 Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection); OpenCode binds the pair to experimental.session.compacting but the generated region is a no-op placeholder — phase dispatch deferred until the unverified contract is confirmed.
 
-### Prompt/agent judgment hooks (`judgment-hooks`)
-
-*Category: hooks*
-
-Portable hook intent: Claude PreToolUse prompt-type and agent-type judgment hooks (verify-no-secrets-touched, no-silent-failures, no-rationalization, verification-before-completion). LLM-evaluated gates with an {ok,reason} contract. No other host has an LLM-evaluated hook primitive.
-
 ### InstructionsLoaded hook (`instructions-loaded-hook`)
 
 *Category: hooks*
 
 Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.
-
-### Prompt-injection scanner hook (`prompt-injection-guard-hook`)
-
-*Category: hooks*
-
-Portable hook intent: advisory Claude PreToolUse scanner (enabled:false, opt-in) that flags prompt-injection phrasing in tool input and emits advisory context only — never blocks. Excluded from the default hooks block; users opt in via .claude/settings.json. Claude-only.
 
 ### MCP servers (`mcp-servers`)
 

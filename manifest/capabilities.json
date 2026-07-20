@@ -210,38 +210,12 @@
       }
     },
     {
-      "id": "judgment-hooks",
-      "title": "Prompt/agent judgment hooks",
- "description": "Portable hook intent: Claude PreToolUse prompt-type and agent-type judgment hooks (verify-no-secrets-touched, no-silent-failures, no-rationalization, verification-before-completion). LLM-evaluated gates with an {ok,reason} contract. No other host has an LLM-evaluated hook primitive.",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/verification-before-completion.agent.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
       "id": "instructions-loaded-hook",
       "title": "InstructionsLoaded hook",
  "description": "Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.",
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/instructions-loaded.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
-      "id": "prompt-injection-guard-hook",
-      "title": "Prompt-injection scanner hook",
- "description": "Portable hook intent: advisory Claude PreToolUse scanner (enabled:false, opt-in) that flags prompt-injection phrasing in tool input and emits advisory context only — never blocks. Excluded from the default hooks block; users opt in via .claude/settings.json. Claude-only.",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/prompt-injection-guard.json", "since": "v0.0.7" },
         "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },

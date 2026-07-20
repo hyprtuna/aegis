@@ -2,14 +2,18 @@
 
 Aegis declares each lifecycle hook **once** as a host-agnostic *intent* in
 `hooks/<name>.json`, then projects per-host bindings from it. This page is the
-author's guide: the file format, the host bindings, the event→dispatch rules, the
-opt-in conventions, and the steps to add a new intent.
+author's guide: the file format, the host bindings, the event→dispatch rules,
+and the steps to add a new intent.
 
 The authoritative contract is `manifest/schemas/hook-intent.schema.json`; the
 `HOOK_INTENT` rule in `scripts/validate/hook-intent.mjs` enforces it. The
 projector (`scripts/project.mjs`) reads the intents and generates the host files.
 Never hand-edit a generated host file — edit the canonical `.json` and re-run
 `node scripts/project.mjs`.
+
+A hook either ships (a `hooks/<name>.json` intent exists and projects) or it is
+deleted outright. There is no disabled/parked state — the schema carries no
+`enabled` field, and `HOOK_INTENT` hard-fails if one appears.
 
 ## The `hooks/<name>.{json,md}` pair (D1)
 
@@ -22,13 +26,15 @@ The folder is flat. Each hook is up to two files:
 
 `.md` is **required** when the dispatch is `prompt` or `agent`, or the intent is
 `pre-compact` / `post-compact`; it is **optional** for pure command hooks
-(`session-start`, `pre-tool-use-deny`, `prompt-injection-guard`). When both files
+(`session-start`, `pre-tool-use-deny`, `instructions-loaded`). When both files
 exist, the `.json` `name` must equal the `.md` frontmatter `name`.
 
-Judgment hooks may carry a cosmetic filename infix — `verify-no-secrets-touched.prompt.json`,
-`verification-before-completion.agent.json`. The infix is presentational; the
-`intent` field is the authoritative discriminator, and `name` drops the infix
-(`verify-no-secrets-touched`).
+Judgment hooks (`prompt-type` / `agent-type` intent) may carry a cosmetic
+filename infix — `<name>.prompt.json` or `<name>.agent.json`. The infix is
+presentational; the `intent` field is the authoritative discriminator, and
+`name` drops the infix. Aegis ships no judgment hook today (see "Judgment
+dispatch" below); the infix convention is documented for the next one that's
+authored.
 
 ## Intent JSON fields
 
@@ -40,7 +46,6 @@ Judgment hooks may carry a cosmetic filename infix — `verify-no-secrets-touche
   "description": "…",                  // 1–512 chars
   "visibility": "internal",            // internal | public
   "platforms": ["claude", "opencode"], // non-empty subset of supported hosts
-  "enabled": true,                     // false → excluded from the default block (D7)
   "trigger": { "matcher": "…", "paths": ["…"] }, // optional host-agnostic hints
   "x-claude":  { … },                  // required when platforms ⊇ claude
   "x-opencode":{ … }                   // required when platforms ⊇ opencode
@@ -50,7 +55,7 @@ Judgment hooks may carry a cosmetic filename infix — `verify-no-secrets-touche
 ### `intent` enum
 
 `session-start`, `pre-compact`, `post-compact`, `instructions-loaded`,
-`prompt-injection-guard`, `pre-tool-use-deny`, `prompt-type`, `agent-type`.
+`pre-tool-use-deny`, `prompt-type`, `agent-type`.
 
 Command intents map one-to-one to a host event. The two judgment categories —
 `prompt-type` and `agent-type` — are keyed by `name` (D10) and bind to
@@ -118,93 +123,17 @@ compaction and instructions intents are all `command` dispatch.
 ```
 
 OpenCode has no LLM-evaluated hook primitive, so `prompt`/`agent` Claude judgment
-hooks have no OpenCode counterpart — they ship Claude-only and are listed as gaps
-in `adapters/opencode/projection.md`.
+hooks have no OpenCode counterpart — they would ship Claude-only and be listed
+as gaps in `adapters/opencode/projection.md`.
 
-## The `enabled: false` opt-in convention (D7)
+## Judgment dispatch (`prompt-type` / `agent-type`)
 
-An intent with `enabled: false` is **excluded from the generated default Claude
-`hooks` block** in `.claude-plugin/plugin.json`. Aegis still ships its script and
-version-stamps it, but the hook does not fire until a user opts in. This is how
-advisory, never-block hooks ship safely off by default.
-
-### What ships opt-in (D7, D11)
-
-Every advisory / judgment hook ships `enabled: false`, so a fresh install adds
-**no deny power and no per-call subagent spawns** until the user opts in:
-
-| Hook | `intent` | Why opt-in |
-|---|---|---|
-| `prompt-injection-guard` | `prompt-injection-guard` | Advisory scanner; never blocks (D7). |
-| `verify-no-secrets-touched` | `prompt-type` | LLM judgment that can deny an Edit/Write/MultiEdit; enabled-by-default would gate every file write (D11). |
-| `no-silent-failures` | `prompt-type` | LLM judgment that can deny a file write (D11). |
-| `no-rationalization` | `prompt-type` | LLM judgment that can deny a Bash call (D11). |
-| `verification-before-completion` | `agent-type` | Spawns a verifier subagent per Bash call — far too costly to run by default (D11). |
-
-These remain canonical, documented, projectable capabilities; they are simply
-**off until you enable them**. To turn one on, register it in your own
-`.claude/settings.json` with a `PreToolUse` entry. A judgment (prompt/agent) hook
-uses an inline prompt rather than a command path — copy the `x-claude.prompt`
-(and `matcher`) from the canonical `hooks/<name>.{prompt,agent}.json`:
-
-```jsonc
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          { "type": "prompt", "prompt": "…copy x-claude.prompt from hooks/verify-no-secrets-touched.prompt.json…" }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The scanner (a `command` hook) opts in by pointing at the shipped script — see
-the next section.
-
-## The advisory prompt-injection scanner
-
-`hooks/prompt-injection-guard.json` ships `enabled: false`. The scanner
-(`.claude-plugin/hooks/prompt-injection-guard.mjs`, Node, no deps) scans
-`PreToolUse` tool input (`Read|Bash|WebFetch`) for known prompt-injection
-phrasing. On a match it emits `hookSpecificOutput.additionalContext` advisory text
-only — it never returns a `permissionDecision`, never blocks the call, and always
-exits 0. Because it is `enabled: false`, it is omitted from the default `hooks`
-block.
-
-`plugin.json` also declares a `userConfig.promptInjectionScanner` boolean
-(default `false`) so the toggle is visible at enable time.
-
-### Opting in
-
-To turn the scanner on, register it in your own `.claude/settings.json`
-(user-level, project-level, or local). Add a `PreToolUse` entry pointing at the
-shipped script:
-
-```jsonc
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Read|Bash|WebFetch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/prompt-injection-guard.mjs"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The hook is additive — the advisory context appears alongside the normal tool
-result; nothing is blocked. Flip `promptInjectionScanner` in the plugin's
-`userConfig` to record the opt-in for tooling that reads it.
+The `prompt-type` and `agent-type` intent categories exist in the schema and the
+event→dispatch support table for `PreToolUse` judgment hooks, but Aegis ships no
+hook using either category today — a `command`-dispatch hook covers every
+currently-shipped intent (`session-start`, `pre-compact`, `post-compact`,
+`instructions-loaded`, `pre-tool-use-deny`). A future judgment hook is free to
+use them; see "Adding a new intent" below.
 
 ## Adding a new intent — the loop
 
@@ -235,4 +164,5 @@ The `HOOK_INTENT` rule checks: schema shape and enums, host-binding completeness
 the event→dispatch support table, `.json`/`.md` pairing, command-file existence,
 compaction `pre` ⇔ `post` symmetry, per-host adapter gap coverage, and
 `plugin.json` drift (it regenerates the expected Claude hooks block and compares
-it to the committed file). All checks are hard-fail.
+it to the committed file). It also hard-fails if any intent carries an `enabled`
+field — a hook either ships or is deleted. All checks are hard-fail.

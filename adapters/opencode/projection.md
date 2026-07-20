@@ -116,12 +116,7 @@ event is a `gap` — documented here, never silently dropped.
 | `pre-compact` | partial | `session.compacting` | Shape verified (D8): `input {sessionID}` → `output {context:string[], prompt?}`. Real gap: no `phase` param — single hook, no pre/post split. No-op placeholder; phase dispatch deferred. Full projection on Claude only. |
 | `post-compact` | partial | `session.compacting` | Same combined hook; no `phase` param means `post-compact` has no distinct OpenCode home. No-op placeholder; deferred. Full projection on Claude only. |
 | `pre-tool-use-deny` | gap | — | Enforced via the `config(cfg)` permission block, not a hook; no PreToolUse hook event. **Protected-branch git guard:** the protected-branch / force-push / `reset --hard` / `restore` / `clean` guard added to the Claude PreToolUse hook is Claude-only — OpenCode has no equivalent runtime command-classification hook, so it inherits this gap (approximable via `permission.bash` literal matchers, with the same evasion caveat noted above). `permission.ask` runtime hook evaluated — see decisions below. |
-| `verify-no-secrets-touched` | gap | — | No LLM-evaluated hook primitive; Claude-only judgment hook. |
-| `no-silent-failures` | gap | — | No LLM-evaluated hook primitive; Claude-only. |
-| `no-rationalization` | gap | — | No LLM-evaluated hook primitive; Claude-only. |
-| `verification-before-completion` | gap | — | No agent-dispatch hook primitive; Claude-only. |
 | `instructions-loaded` | gap | — | No `InstructionsLoaded` counterpart. |
-| `prompt-injection-guard` | gap | — | No PreToolUse hook event; the advisory scanner is Claude-only. |
 
 ## Statuslines
 

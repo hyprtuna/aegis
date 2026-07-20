@@ -13,7 +13,7 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
 - `hooks/<name>.json` — the **machine binding** and source of truth for projection. Validated against `manifest/schemas/hook-intent.schema.json` by the `HOOK_INTENT` rule (`scripts/validate/hook-intent.mjs`). The projector (`scripts/project.mjs`) builds the Claude `.claude-plugin/plugin.json` `hooks` block and the OpenCode compaction region in `.opencode/plugins/aegis.js` from these.
 - `hooks/<name>.md` — the **human intent doc** (lean 5-field frontmatter, `kind: hook`). When both files exist, `json.name` MUST equal `.md` frontmatter `name`.
 
-`.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `pre-tool-use-deny`, `prompt-injection-guard`).
+`.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `pre-tool-use-deny`, `instructions-loaded`).
 
 ## Intent JSON shape (authoritative: `manifest/schemas/hook-intent.schema.json`)
 
@@ -25,7 +25,6 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
   "description": "…",
   "visibility": "internal",
   "platforms": ["claude", "opencode"],
-  "enabled": true,                       // false → excluded from generated block (D7)
   "x-claude": {                          // required when platforms ⊇ claude
     "event": "SessionStart",
     "matcher": "startup|clear|compact",
@@ -81,7 +80,7 @@ Battle-tested rules for any shipped hook implementation under `.claude-plugin/ho
    case ",${AEGIS_SKIP_HOOKS:-}," in *",<hook-name>,"*) exit 0 ;; esac
    ```
 
-   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=session-start,instructions-loaded` disables named ones. Applied to the lifecycle hooks + `prompt-injection-guard.mjs` (JS variant). **Exception — `pre-tool-use-deny` (the security boundary) does NOT honor the global disable.** It has its own scoped, auditable overrides (`AEGIS_ALLOW_GIT_GUARD`, the `# aegis:allow-git` marker, and `plugin.deny`/`plugin.gitGuard` config), so a blanket debug switch can never silently drop the rm-rf / secret-read / git guardrail.
+   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=session-start,instructions-loaded` disables named ones. Applied to the lifecycle hooks. **Exception — `pre-tool-use-deny` (the security boundary) does NOT honor the global disable.** It has its own scoped, auditable overrides (`AEGIS_ALLOW_GIT_GUARD`, the `# aegis:allow-git` marker, and `plugin.deny`/`plugin.gitGuard` config), so a blanket debug switch can never silently drop the rm-rf / secret-read / git guardrail.
 
 2. **Fail open; always exit 0 (advisory + lifecycle hooks).** Any internal error → exit 0 with no output ("no opinion"), never crash the user's turn. On oversized or truncated stdin, emit empty stdout + exit 0 — never echo a mid-stream-truncated JSON payload. (The deny hook also fails open.)
 

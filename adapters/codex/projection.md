@@ -88,12 +88,7 @@ SessionStart hook fires in addition — it emits the `using-aegis` skill body as
 | `pre-tool-use-deny` | supported | Projected to Codex `PreToolUse`. Bundled at `.codex/plugins/aegis/hooks/pre-tool-use-deny.sh`. Deny config (`permissions.json`) bundled alongside — script resolves it via `$(dirname "$0")/permissions.json` (script-relative, fail-open). Codex deny contract is Claude-compatible (verified 2026-06-20). **Protected-branch git guard** fires on Codex — runtime verification pending interactive test. |
 | `pre-compact` | supported | Projected to Codex `PreCompact`. Bundled at `.codex/plugins/aegis/hooks/pre-compact.sh`. Snapshot + restore pattern compatible with Codex compaction flow. Runtime fire test pending interactive Codex. |
 | `post-compact` | supported | Projected to Codex `PostCompact`. Bundled at `.codex/plugins/aegis/hooks/post-compact.sh`. Runtime fire test pending interactive Codex. |
-| `verify-no-secrets-touched` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `no-silent-failures` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `no-rationalization` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `verification-before-completion` | gap | No agent-dispatch hook primitive; `enabled:false`. |
 | `instructions-loaded` | gap | No `InstructionsLoaded` counterpart in Codex events. |
-| `prompt-injection-guard` | gap | No dedicated event; `enabled:false`; advisory scanner is Claude-only. |
 
 ## Statuslines
 

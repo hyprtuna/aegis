@@ -608,10 +608,9 @@ function projectCodexHooks(intents) {
   const pluginHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
   mkdirSync(pluginHooksDir, { recursive: true });
 
-  // Filter to Codex-bound, enabled intents that have an x-codex.event.
+  // Filter to Codex-bound intents that have an x-codex.event.
   const codexIntents = (intents ?? []).filter(
     (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
-           i.enabled !== false &&
            i["x-codex"] && typeof i["x-codex"].event === "string",
   );
 
@@ -1392,13 +1391,12 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
     .map((name) => `./adapters/claude/commands/${name}.md`);
 
   // hooks: generated from canonical hooks/*.json. Replaces the
-  // previously hand-maintained block; enabled:false intents are excluded.
+  // previously hand-maintained block. A hook either ships (appears here) or is
+  // deleted from hooks/ — there is no disabled/parked state.
   const hooks = generateClaudeHooksBlock(hookIntents ?? []);
 
   // userConfig. Schema per plugins-reference.md:550 requires
   // type/title/description; default is optional. Keep it minimal.
-  // promptInjectionScanner: opt-in toggle for the advisory scanner
-  // hook that ships disabled; users flip this in their own settings.json.
   const userConfig = {
     preferredLanguageOverlay: {
       type: "string",
@@ -1410,12 +1408,6 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
       type: "boolean",
       title: "Telemetry opt-in",
       description: "Allow Aegis to collect anonymous usage telemetry.",
-      default: false,
-    },
-    promptInjectionScanner: {
-      type: "boolean",
-      title: "Prompt-injection scanner",
-      description: "Enable the advisory prompt-injection scanner hook (opt-in, never blocks).",
       default: false,
     },
   };
@@ -1454,7 +1446,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 // the sibling hooks/<name>.md is the human intent doc). loadHookIntents() globs
 // them, hand-validates shape (fail loud), and returns a deterministically sorted
 // array. generateClaudeHooksBlock() builds the .claude-plugin/plugin.json `hooks`
-// object from the claude-platform intents (excluding enabled:false, D7).
+// object from the claude-platform intents.
 // injectOpencodeCompactionBridge() rewrites the guarded AEGIS:HOOKS-GEN region in
 // .opencode/plugins/aegis.js (Phase A ships a no-op placeholder; Phase B fills it).
 // ─────────────────────────────────────────────────────────────────────────────

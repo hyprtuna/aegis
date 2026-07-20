@@ -20,7 +20,6 @@
         "instructions-loaded",
         "file-changed",
         "cwd-changed",
-        "prompt-injection-guard",
         "pre-tool-use-deny",
         "prompt-type",
         "agent-type"
@@ -53,11 +52,6 @@
         "enum": ["claude", "opencode", "codex", "cursor", "zed"]
       },
       "description": "Non-empty subset of supported hosts this hook projects to."
-    },
-    "enabled": {
-      "type": "boolean",
-      "default": true,
-      "description": "When false, the intent is excluded from the generated default hooks block (D7) — e.g. prompt-injection-guard ships opt-in."
     },
     "trigger": {
       "type": "object",
@@ -197,10 +191,6 @@
     {
       "if": { "properties": { "platforms": { "contains": { "const": "opencode" } } } },
       "then": { "required": ["x-opencode"] }
-    },
-    {
-      "if": { "properties": { "intent": { "const": "prompt-injection-guard" } } },
-      "then": { "properties": { "enabled": { "const": false } } }
     },
     {
       "if": { "properties": { "intent": { "const": "prompt-type" } } },

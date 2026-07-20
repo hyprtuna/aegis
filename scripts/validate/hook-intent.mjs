@@ -25,7 +25,7 @@ export const id = "HOOK_INTENT";
 
 const INTENT_ENUM = new Set([
   "session-start", "pre-compact", "post-compact", "instructions-loaded",
-  "file-changed", "cwd-changed", "prompt-injection-guard", "pre-tool-use-deny",
+  "file-changed", "cwd-changed", "pre-tool-use-deny",
   "prompt-type", "agent-type",
 ]);
 const CLAUDE_EVENTS = new Set([
@@ -118,16 +118,14 @@ export function run(ctx) {
         if (!PLATFORM_ENUM.has(p)) errors.push(`${where}: unknown platform "${p}"`);
       }
     }
-    if (intent.enabled !== undefined && typeof intent.enabled !== "boolean") {
-      errors.push(`${where}: enabled must be a boolean`);
+    if (intent.enabled !== undefined) {
+      errors.push(
+        `${where}: "enabled" is not a supported field — a hook either ships (delete the ` +
+          `field) or is deleted outright (remove the hook); it cannot be parked disabled`,
+      );
     }
 
     const platforms = Array.isArray(intent.platforms) ? intent.platforms : [];
-
-    // ── Conditional intent rules ───────────────────────────────────────────────
-    if (intent.intent === "prompt-injection-guard" && intent.enabled !== false) {
-      errors.push(`${where}: prompt-injection-guard must ship enabled:false (D7)`);
-    }
 
     // ── x-claude host-binding completeness + event→dispatch table ─────────────
     if (platforms.includes("claude")) {

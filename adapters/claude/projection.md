@@ -261,9 +261,4 @@ Claude-only — keyed by `name` per D10. The scanner is opt-in (`enabled: false`
 | `pre-tool-use-deny` | supported | `PreToolUse` → command | Path/arg-scoped deny from `manifest/permissions.json`. |
 | `pre-compact` | supported | `PreCompact` → command | Captures decision/test anchors before compaction. |
 | `post-compact` | supported | `PostCompact` → command | Restores the anchors after compaction. |
-| `verify-no-secrets-touched` | supported | `PreToolUse` → prompt | LLM judgment gate; `{ok,reason}` contract. |
-| `no-silent-failures` | supported | `PreToolUse` → prompt | Flags swallowed-error edits at write time. |
-| `no-rationalization` | supported | `PreToolUse` → prompt | Flags rationalized skips on Bash calls. |
-| `verification-before-completion` | supported | `PreToolUse` → agent | Ad-hoc verifier subagent (prompt, not agent-name, D4). |
 | `instructions-loaded` | supported | `InstructionsLoaded` → command | Reports loaded-rule count + silent drops. |
-| `prompt-injection-guard` | supported (opt-in) | `PreToolUse` → command | `enabled:false`; advisory scanner, excluded from the default `hooks` block (D7). Opt in via `.claude/settings.json`; see `docs/hooks.md`. |

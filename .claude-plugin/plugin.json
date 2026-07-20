@@ -106,12 +106,6 @@
       "title": "Telemetry opt-in",
       "description": "Allow Aegis to collect anonymous usage telemetry.",
       "default": false
-    },
-    "promptInjectionScanner": {
-      "type": "boolean",
-      "title": "Prompt-injection scanner",
-      "description": "Enable the advisory prompt-injection scanner hook (opt-in, never blocks).",
-      "default": false
     }
   },
   "dependencies": [],

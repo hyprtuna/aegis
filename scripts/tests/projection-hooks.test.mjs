@@ -13,14 +13,13 @@
 //   generated regions, so a green run leaves the committed tree byte-identical.
 //
 //   C4 (judgment-hook projection rules): using the EXTRACTED generateClaudeHooksBlock
-//   from scripts/lib/hook-projection.mjs, assert prompt/agent dispatch shaping, the
-//   enabled:false exclusion, that opencode/codex-only hooks never produce a Claude
-//   prompt/agent entry, and that the four shipped judgment hooks are platforms:[claude].
+//   from scripts/lib/hook-projection.mjs, assert prompt/agent dispatch shaping and
+//   that opencode/codex-only hooks never produce a Claude prompt/agent entry.
 //
 // Run: node scripts/tests/projection-hooks.test.mjs  (exit 1 on any failure)
 // Node 20+ stdlib only.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -99,14 +98,14 @@ function claudeIntent(overrides = {}) {
   };
 }
 
-test("C4: an ENABLED claude prompt-type hook emits a {type:'prompt'} entry", () => {
+test("C4: a claude prompt-type hook emits a {type:'prompt'} entry", () => {
   const block = generateClaudeHooksBlock([claudeIntent({ name: "p-judge" })]);
   const entry = (block.PreToolUse ?? []).flatMap((e) => e.hooks ?? [])[0];
   assert.ok(entry, "expected a PreToolUse entry");
   assert.equal(entry.type, "prompt", `expected type prompt, got ${entry.type}`);
 });
 
-test("C4: an ENABLED claude agent-type hook emits a {type:'agent'} entry", () => {
+test("C4: a claude agent-type hook emits a {type:'agent'} entry", () => {
   const agent = claudeIntent({
     name: "a-judge",
     intent: "agent-type",
@@ -118,11 +117,6 @@ test("C4: an ENABLED claude agent-type hook emits a {type:'agent'} entry", () =>
   assert.equal(entry.type, "agent", `expected type agent, got ${entry.type}`);
 });
 
-test("C4: enabled:false judgment hook is EXCLUDED from the block (D7/D11)", () => {
-  const block = generateClaudeHooksBlock([claudeIntent({ name: "off-judge", enabled: false })]);
-  assert.deepEqual(block, {}, "enabled:false hook must not appear in the generated block");
-});
-
 test("C4: an opencode/codex-only hook never produces a Claude prompt/agent entry", () => {
   const ocOnly = {
     kind: "hook", intent: "prompt-type", name: "oc-only", description: "x",
@@ -131,33 +125,6 @@ test("C4: an opencode/codex-only hook never produces a Claude prompt/agent entry
   };
   const block = generateClaudeHooksBlock([ocOnly]);
   assert.deepEqual(block, {}, "a non-claude hook must not appear in the Claude hooks block");
-});
-
-test("C4: the four shipped judgment hooks are platforms:[claude] and enabled:false", () => {
-  const hooksDir = join(REPO, "hooks");
-  const judgmentFiles = [
-    "verify-no-secrets-touched.prompt.json",
-    "no-silent-failures.prompt.json",
-    "no-rationalization.prompt.json",
-    "verification-before-completion.agent.json",
-  ];
-  for (const f of judgmentFiles) {
-    const j = JSON.parse(readFileSync(join(hooksDir, f), "utf8"));
-    assert.deepEqual(j.platforms, ["claude"], `${f}: expected platforms:[claude], got ${JSON.stringify(j.platforms)}`);
-    assert.equal(j.enabled, false, `${f}: expected enabled:false (opt-in, D11), got ${JSON.stringify(j.enabled)}`);
-  }
-  // …and by construction they are absent from OpenCode/Codex output: not platforms-listed
-  // there, and no .opencode/.codex hook-config carries an entry for them.
-});
-
-test("C4: shipped judgment hooks do not appear in the committed plugin.json hooks block", () => {
-  const plugin = JSON.parse(readFileSync(GENERATED[0], "utf8"));
-  const allPrompts = JSON.stringify(plugin.hooks ?? {});
-  // The agent verifier's distinctive phrase must not be present (it ships enabled:false).
-  assert.ok(!allPrompts.includes("verification gate spawned before a Bash command"),
-    "verification-before-completion (enabled:false) must be absent from the default hooks block");
-  assert.ok(!allPrompts.includes("secret-material gate"),
-    "verify-no-secrets-touched (enabled:false) must be absent from the default hooks block");
 });
 
 // ── Runner ────────────────────────────────────────────────────────────────────

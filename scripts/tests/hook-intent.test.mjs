@@ -138,17 +138,12 @@ test("agent hook without prompt fails (D4)", () => {
   } finally { rmSync(REPO, { recursive: true, force: true }); }
 });
 
-test("prompt-injection-guard with enabled:true fails (D7)", () => {
-  const bad = validIntent({
-    intent: "prompt-injection-guard",
-    name: "prompt-injection-guard",
-    enabled: true,
-    "x-claude": { event: "UserPromptSubmit", dispatch: "command", command: ".claude-plugin/hooks/prompt-injection-guard.mjs" },
-  });
-  const REPO = scaffold({ "prompt-injection-guard": bad }, { commandFiles: [".claude-plugin/hooks/prompt-injection-guard.mjs"] });
+test("an intent carrying an enabled field is rejected — a hook either ships or is deleted", () => {
+  const bad = validIntent({ enabled: false });
+  const REPO = scaffold({ "session-start": bad }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
   try {
     const errs = errorsFor(REPO);
-    assert.ok(errs.some((e) => /must ship enabled:false/.test(e)), `expected D7 enabled error, got: ${errs.join(" | ")}`);
+    assert.ok(errs.some((e) => /"enabled" is not a supported field/.test(e)), `expected enabled-rejected error, got: ${errs.join(" | ")}`);
   } finally { rmSync(REPO, { recursive: true, force: true }); }
 });
 
