@@ -70,7 +70,6 @@ Only these folders may contain `AGENTS.md` + `CLAUDE.md`:
 
 ```
 .
-.aegis
 adapters
 docs
 hooks

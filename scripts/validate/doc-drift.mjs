@@ -138,7 +138,7 @@ function countDrift(ctx) {
 // dirs, .codex/, .opencode/, .claude-plugin generated bodies). Scoping keeps the
 // scan small for the <30s ceiling.
 const PROSE_FILE_RE = /^(README\.md|AGENTS\.md|CONTRIBUTING\.md|CHANGELOG\.md)$/;
-const PROSE_DIR_RE = /^(docs|rules|skills|agents|commands|hooks|templates|statuslines|\.aegis)\//;
+const PROSE_DIR_RE = /^(docs|rules|skills|agents|commands|hooks|templates|statuslines)\//;
 
 function isProse(rel) {
   return rel.endsWith(".md") && (PROSE_FILE_RE.test(rel) || PROSE_DIR_RE.test(rel));

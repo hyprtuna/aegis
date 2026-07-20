@@ -6,8 +6,8 @@
 //   1. `AG-[0-9]{4}` (uppercase ticket ids), boundary-guarded so an
 //      acronym-suffixed token like `TAG-2024`/`DIAG-1234`/`FLAG-0001` does
 //      NOT match — flagged in ALL scanned files. Case-sensitive by design:
-//      the lowercase `.aegis/specs/features/ag-NNNN/` path-citation form
-//      never matches this pattern either way.
+//      a lowercase `ag-NNNN/` path-citation form never matches this pattern
+//      either way.
 //   2. Pre-launch internal version stamp `v0.(0|2|3).N` — flagged in `.md`
 //      files ONLY. Public host-version refs (`v2.1.105`) and the current
 //      public series (`v0.1.x`) never match. Non-`.md` code-comment stamps
@@ -15,21 +15,15 @@
 //      the graduation note below.
 //
 // The ctx walk (scripts/validate/_context.mjs) skips dot-dirs EXCEPT
-// `.aegis` and `.claude-plugin`, which it deliberately walks — `.claude-plugin`
-// because it ships real projected content, and `.aegis` because most
-// validators need to see it. `.aegis` is NOT a shipped surface, though: on a
-// maintainer's main clone it is the private planning repo (a separate git
-// remote, fully gitignored here) full of legitimate `AG-NNNN` tickets and
-// `v0.0/0.2/0.3.x` internal plans. Without an explicit exemption this rule
-// would flood on that clone and, at the v0.2.0 hard-fail graduation, would
-// hard-break `validate-structure` for every maintainer. This module
-// additionally excludes `CHANGELOG.md` (public history starts at v0.1.0) and
-// the whole `scripts/tests/` directory, which legitimately plants example
-// `AG-NNNN` / `v0.x.y` strings as test fixtures (including this rule's own
-// unit test). `.claude-plugin/` is left unexempted: it is generated from
-// already-scrubbed canonical and carries no AG refs post-scrub (verified via
-// `git grep`) — if that ever changes, fix the canonical source, not this
-// rule.
+// `.claude-plugin`, which it deliberately walks because it ships real
+// projected content. The private planning repo is not walked at all, so this
+// rule needs no exemption for it. This module excludes `CHANGELOG.md` (public
+// history starts at v0.1.0) and the whole `scripts/tests/` directory, which
+// legitimately plants example `AG-NNNN` / `v0.x.y` strings as test fixtures
+// (including this rule's own unit test). `.claude-plugin/` is left
+// unexempted: it is generated from already-scrubbed canonical and carries no
+// AG refs post-scrub (verified via `git grep`) — if that ever changes, fix the
+// canonical source, not this rule.
 export const id = "SHIPPED_REF";
 
 const AG_REF = /(?<![A-Za-z0-9])AG-[0-9]{4}\b/;
@@ -37,7 +31,6 @@ const VERSION_STAMP = /\bv0\.(0|2|3)\.\d+/;
 
 // Files this rule never scans, beyond what the shared ctx walk already skips.
 function isExempt(rel) {
-  if (rel === ".aegis" || rel.startsWith(".aegis/")) return true;
   if (rel === "CHANGELOG.md") return true;
   if (rel.startsWith("scripts/tests/")) return true;
   return false;

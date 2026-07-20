@@ -49,8 +49,10 @@ export function isTemplateBodySkipped(basename) {
   return TEMPLATE_BODY_SKIP_NAMES.has(basename) || basename.endsWith(".template.json");
 }
 
-// Single tree walk. Same skip rules as the original monolith: skip dotfiles
-// except .aegis and .claude-plugin; skip node_modules and references.
+// Single tree walk. Skip dotfiles except .claude-plugin (which ships real
+// projected content); skip node_modules and references. `.aegis/` is the
+// separate private planning repo — it is gitignored here, absent from a fresh
+// clone, and never shipped, so no check may reference it.
 function walk(dir, acc = []) {
   let entries;
   try {
@@ -59,7 +61,7 @@ function walk(dir, acc = []) {
     return acc;
   }
   for (const name of entries) {
-    if (name.startsWith(".") && name !== ".aegis" && name !== ".claude-plugin") continue;
+    if (name.startsWith(".") && name !== ".claude-plugin") continue;
     if (name === "node_modules" || name === "references") continue;
     const full = join(dir, name);
     const st = statSync(full);

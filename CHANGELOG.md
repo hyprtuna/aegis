@@ -6,6 +6,10 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.6] — 2026-07-20
+
+- **Validation no longer walks the private planning repo.** The shared validation walk made an explicit exception to include it, so broken internal links belonging to a separate repository failed the public repo's gate — while CI, which clones fresh and never sees that gitignored directory, passed. Local and CI results disagreed; they now agree. Maintainer tooling only, no user-facing change.
+
 ## [v0.1.5] — 2026-07-20
 
 - **Git guard no longer denies legitimate pushes in compound commands** — the protected-branch check scanned every token after `git push` to end-of-string, so a later mention of `main` (`git push origin release/x && gh pr create --base main`) was misread as the push destination and denied. Each `git push` in a command is now scanned against its own refspecs.

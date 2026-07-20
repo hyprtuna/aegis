@@ -16,7 +16,7 @@ function walk(dir, acc = []) {
     return acc;
   }
   for (const name of entries) {
-    if (name.startsWith(".") && name !== ".aegis") continue;
+    if (name.startsWith(".")) continue;
     if (name === "node_modules" || name === "references") continue;
     const full = join(dir, name);
     const st = statSync(full);

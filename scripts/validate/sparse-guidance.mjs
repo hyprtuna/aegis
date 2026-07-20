@@ -11,7 +11,6 @@ export const id = "SPARSE_GUIDANCE";
 // agents/commands. Their guidance lives in root AGENTS.md instead.
 const APPROVED_GUIDANCE = new Set([
   ".",
-  ".aegis",
   "adapters",
   "docs",
   "hooks",
