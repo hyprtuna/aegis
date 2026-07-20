@@ -10,7 +10,7 @@ Each host's implementation lives in its native location (`.claude-plugin/hooks/`
 
 The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The old `sessions/`/`tools/`/`prompts/` subdirectory sketch is **superseded** — there are no subfolders. The projector and the `HOOK_INTENT` validator glob `hooks/*.json` non-recursively.
 
-- `hooks/<name>.json` — the **machine binding** and source of truth for projection. Validated against `manifest/schemas/hook-intent.schema.json` by the `HOOK_INTENT` rule (`scripts/validate/hook-intent.mjs`). The projector (`scripts/project.mjs`) builds the Claude `.claude-plugin/plugin.json` `hooks` block and the OpenCode compaction region in `.opencode/plugins/aegis.js` from these.
+- `hooks/<name>.json` — the **machine binding** and source of truth for projection. Validated by the `HOOK_INTENT` rule (`scripts/validate/hook-intent.mjs`), which is **hand-rolled and loads no schema file**: Aegis ships zero dependencies, so there is no validator to execute JSON Schema with. `manifest/schemas/hook-intent.schema.json` documents the contract for humans and stays in sync by review, not by enforcement — the rule is the only gate. The projector (`scripts/project.mjs`) builds the Claude `.claude-plugin/plugin.json` `hooks` block and the OpenCode compaction region in `.opencode/plugins/aegis.js` from these.
 - `hooks/<name>.md` — the **human intent doc** (lean 5-field frontmatter, `kind: hook`). When both files exist, `json.name` MUST equal `.md` frontmatter `name`.
 
 `.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `instructions-loaded`).
@@ -29,7 +29,8 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
     "event": "SessionStart",
     "matcher": "startup|clear|compact",
     "dispatch": "command",               // command | prompt | agent (D3 support table)
-    "command": ".claude-plugin/hooks/session-start.sh"
+    "command": ".claude-plugin/hooks/session-start.sh",
+    "helpers": []                        // optional: shared libs this hook sources
   },
   "x-opencode": {                        // required when platforms ⊇ opencode
     "event": "experimental.chat.messages.transform",
@@ -40,7 +41,9 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
 
 `x-opencode.event` is the **literal flat dotted hook key** OpenCode resolves the handler by — verified against the installed `@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3), where every one of these is declared as a quoted dotted property on the `Hooks` interface. The projector emits the value verbatim as the generated key string. A nested binding (`experimental: { session: { compacting } }`) declares a *different* property, so the handler is registered and never invoked — with no error. Two intents may not bind the same key: the generated handler object is a JS object literal, where a duplicate key silently wins and the loser never fires. Both rules are `HOOK_INTENT` hard-fails.
 
-`prompt`/`agent` dispatch carry `x-claude.prompt` (+ optional `model`) — **not** an agent-name (D4). `command` dispatch carries `x-claude.command` under `.claude-plugin/hooks/`.
+`prompt`/`agent` dispatch carry `x-claude.prompt` (+ optional `model`) — **not** an agent-name (D4). `command` dispatch carries `x-claude.command` under `.claude-plugin/hooks/`, plus an optional `x-claude.helpers` array naming the shared libraries that script sources (see the prune section below).
+
+`platforms` accepts `claude` and `opencode` for hooks. **`codex` is rejected** — see the note below the prune section.
 
 ## `.claude-plugin/hooks/` is flat
 
@@ -49,13 +52,24 @@ The implementation tree is **flat** — `x-claude.command` must match `^\.claude
 `projectHooks()` prunes this directory on every run: any entry no live intent references via `x-claude.command` is deleted, so a retired hook cannot leave its script shipping inside the plugin. Two consequences follow from that, and both are load-bearing:
 
 - **A directory raises, it is never removed.** The prune refuses to descend, because reaping a subtree could take a correctly-referenced script down with it. A directory here is an authoring error — fix the path, don't nest.
-- **`_`-prefixed entries are exempt.** A shared helper sourced by hook scripts (`_lib.sh`, sourced as `source "$(dirname "$0")/_lib.sh"`) has nothing binding it via `x-claude.command` by design, so the prune and the `HOOK_INTENT` orphan rule both skip the `_` prefix. Name every shared helper that way or the projector will delete it.
+- **Helper files are protected by declaration, not by spelling.** A shared library sourced by hook scripts (`lib.sh`, sourced as `source "$(dirname "$0")/lib.sh"`) has nothing binding it via `x-claude.command` by design. Declare it in the sourcing hook's `x-claude.helpers` array and the prune keeps it:
+
+  ```json
+  "x-claude": {
+    "event": "SessionStart",
+    "dispatch": "command",
+    "command": ".claude-plugin/hooks/session-start.sh",
+    "helpers": ["lib.sh"]
+  }
+  ```
+
+  Entries are bare filenames (the tree is flat). A declared helper that does not exist on disk is a hard error, and an undeclared file is pruned. There is no naming convention to remember: a file survives because an intent *claims* it, never because of how it is spelled.
 
 Every pruned path is printed to stdout. A deletion is never silent.
 
-The **bundled Codex tree** (`.codex/plugins/aegis/hooks/`) is flat for the same reason: `x-codex.command` must match `^\./hooks/[^/]+$`. `projectCodexHooks()` emits that value verbatim into `hooks.json` but writes the bundled script to its **basename**, so a nested path would ship a manifest telling Codex to run something that was never placed there. That tree is entirely projector-owned — it holds `hooks.json` plus the bundled scripts and nothing else, so anything unexpected there is pruned (printed, and raising rather than descending into a directory). Bundled scripts are **not** restricted by extension: whatever `x-codex.command`'s basename names is kept, matching `hookCommentSyntax()`'s support for `.sh`/`.mjs`/`.js`/`.cjs`/`.ts`.
+**`.claude-plugin/hooks/` has consumers that must agree, and the keep-set is what binds them.** The projector's destructive prune (`projectHooks()`, `scripts/project.mjs`), the `HOOK_INTENT` orphan rule and its command-existence check (`scripts/validate/hook-intent.mjs`), and the catalog row in `docs/validators.md` all describe the same contract. The prune and the orphan rule do not merely agree by convention — they call one exported function, `hookTreeKeepSet()` in `scripts/lib/hook-projection.mjs`, so they cannot drift into the projector deleting a file the validator demands. Change what belongs in this tree by changing that function, and check the doc rows in the same commit.
 
-**`.codex/plugins/aegis/hooks/` has three consumers that must agree:** the bundler and the prune (both in `projectCodexHooks()`, `scripts/project.mjs`) and the byte-equality drift gate (FIX-V9 in `scripts/validate/codex.mjs`). Changing what any one of them accepts requires checking the other two — an extension assumption left in just one of the three is enough to either delete a file the bundler wrote or let a stale copy ship unchecked.
+> **No Codex hook tree.** Aegis does not project hooks to Codex at all — `plugin_hooks` is removed upstream, and `codex` is a **rejected** value in a hook intent's `platforms` (both `HOOK_INTENT` and the projector hard-fail on it). See `adapters/codex/projection.md` for the gap and what re-adding would cost.
 
 ## Intent doc frontmatter (`<name>.md`)
 
@@ -76,7 +90,7 @@ Some lifecycle events are recognized but **not yet bound by any Aegis intent**. 
 - **`UserPromptSubmit`** — present in the `x-claude.event` enum of `manifest/schemas/hook-intent.schema.json` for forward-compatibility, but **no `hooks/*.json` intent uses it**. Status: **reserved/deferred**. Kept in the enum because removing a schema enum entry is a wider blast radius than documenting it; a future prompt-stage intent can bind it without a schema change.
 - **`MessageDisplay`**, **`AgentStart`**, **`AgentEnd`** — host events with **no Aegis intent and no schema enum entry**. Status: **unimplemented/deferred**. No portable intent currently maps to them; if a future capability needs one, add the enum entry and a `hooks/<name>.json` binding in the same change.
 
-These are tracked deferrals, not bugs. The `HOOK_INTENT` validator does not require an intent per event — it validates the intents that *do* exist against the schema.
+These are tracked deferrals, not bugs. The `HOOK_INTENT` validator does not require an intent per event — it validates the intents that *do* exist against the contract.
 
 ## Rules
 

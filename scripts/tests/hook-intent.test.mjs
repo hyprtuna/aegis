@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { run as runHookIntent } from "../validate/hook-intent.mjs";
+import { hookTreeKeepSet } from "../lib/hook-projection.mjs";
 
 const tests = [];
 function test(name, fn) { tests.push({ name, fn }); }
@@ -206,6 +207,156 @@ test("plugin.json drift detected when committed hooks block diverges (D6)", () =
     const errs = errorsFor(REPO);
     assert.ok(errs.some((e) => /hooks block is out of sync/.test(e)), `expected D6 drift error, got: ${errs.join(" | ")}`);
   } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+// ── Rejected hook platforms ──────────────────────────────────────────────────
+// The anti-silence guard. Aegis has no Codex hook projector — the feature is
+// removed upstream. An intent naming `codex` must HARD-FAIL, not validate and
+// project nothing: a value that passes and produces no output is a silent
+// failure, strictly worse than the dead code this replaced. These fixtures are
+// what keep that true after the release ships.
+
+test("a hook intent binding codex is rejected outright", () => {
+  const bad = validIntent({ platforms: ["claude", "codex"] });
+  const REPO = scaffold({ "session-start": bad }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(
+      errs.some((e) => /"codex" is not a supported hook platform/.test(e)),
+      `expected a codex-rejection error, got: ${errs.join(" | ")}`,
+    );
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("the codex rejection names the reason and points at the adapter gap doc", () => {
+  // A rejection that does not say WHY sends the reader hunting. The message must
+  // carry the upstream cause and where the gap is documented.
+  const bad = validIntent({ platforms: ["codex"] });
+  const REPO = scaffold({ "session-start": bad }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
+  try {
+    const err = errorsFor(REPO).find((e) => /not a supported hook platform/.test(e));
+    assert.ok(err, "expected a rejection error");
+    assert.ok(/plugin_hooks/.test(err), `message must name the upstream cause, got: ${err}`);
+    assert.ok(/adapters\/codex\/projection\.md/.test(err), `message must point at the gap doc, got: ${err}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("codex is still a RECOGNISED platform — it draws the specific message, not unknown-platform", () => {
+  const bad = validIntent({ platforms: ["claude", "codex"] });
+  const REPO = scaffold({ "session-start": bad }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(!errs.some((e) => /unknown platform "codex"/.test(e)), `codex must not fall through to unknown-platform: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+// ── Helper declarations ──────────────────────────────────────────────────────
+// The prune and this rule must resolve the SAME keep-set. They do it by calling
+// one exported function; these fixtures pin that they agree, so a future edit to
+// one cannot make the projector delete a file the validator demands.
+
+test("a declared helper is not an orphan", () => {
+  const intent = validIntent({
+    "x-claude": {
+      event: "SessionStart",
+      matcher: "startup|clear|compact",
+      dispatch: "command",
+      command: ".claude-plugin/hooks/session-start.sh",
+      helpers: ["lib.sh"],
+    },
+  });
+  const REPO = scaffold(
+    { "session-start": intent },
+    { commandFiles: [".claude-plugin/hooks/session-start.sh", ".claude-plugin/hooks/lib.sh"] },
+  );
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(!errs.some((e) => /orphaned/.test(e)), `a declared helper must not be an orphan, got: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("an undeclared file in the hook tree is an orphan", () => {
+  const REPO = scaffold(
+    { "session-start": validIntent() },
+    { commandFiles: [".claude-plugin/hooks/session-start.sh", ".claude-plugin/hooks/lib.sh"] },
+  );
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(errs.some((e) => /lib\.sh: orphaned/.test(e)), `expected an orphan error for lib.sh, got: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("the retired `_` prefix no longer protects a file", () => {
+  // The whole point of the declaration: spelling grants nothing.
+  const REPO = scaffold(
+    { "session-start": validIntent() },
+    { commandFiles: [".claude-plugin/hooks/session-start.sh", ".claude-plugin/hooks/_lib.sh"] },
+  );
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(errs.some((e) => /_lib\.sh: orphaned/.test(e)), `an underscore must not exempt a file, got: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("a declared helper that does not exist on disk fails", () => {
+  const intent = validIntent({
+    "x-claude": {
+      event: "SessionStart",
+      matcher: "startup|clear|compact",
+      dispatch: "command",
+      command: ".claude-plugin/hooks/session-start.sh",
+      helpers: ["missing.sh"],
+    },
+  });
+  const REPO = scaffold({ "session-start": intent }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(errs.some((e) => /declares "missing\.sh" but/.test(e)), `expected a dangling-helper error, got: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("a nested helper path fails — the tree is flat", () => {
+  const intent = validIntent({
+    "x-claude": {
+      event: "SessionStart",
+      matcher: "startup|clear|compact",
+      dispatch: "command",
+      command: ".claude-plugin/hooks/session-start.sh",
+      helpers: ["sub/lib.sh"],
+    },
+  });
+  const REPO = scaffold({ "session-start": intent }, { commandFiles: [".claude-plugin/hooks/session-start.sh"] });
+  try {
+    const errs = errorsFor(REPO);
+    assert.ok(errs.some((e) => /must be a bare filename/.test(e)), `expected a flatness error, got: ${errs.join(" | ")}`);
+  } finally { rmSync(REPO, { recursive: true, force: true }); }
+});
+
+test("the projector prune and the orphan rule resolve ONE keep-set from ONE function", () => {
+  // No mirror: both callers import hookTreeKeepSet. If this ever became two
+  // implementations, one would delete what the other demands.
+  const intents = [
+    validIntent({
+      "x-claude": {
+        event: "SessionStart",
+        dispatch: "command",
+        command: ".claude-plugin/hooks/session-start.sh",
+        helpers: ["lib.sh"],
+      },
+    }),
+  ];
+  const keep = hookTreeKeepSet(intents);
+  assert.deepEqual([...keep].sort(), ["lib.sh", "session-start.sh"], "keep-set must be commands + declared helpers");
+
+  const projectorSrc = readFileSync(new URL("../project.mjs", import.meta.url), "utf8");
+  const validatorSrc = readFileSync(new URL("../validate/hook-intent.mjs", import.meta.url), "utf8");
+  for (const [label, src] of [["project.mjs", projectorSrc], ["validate/hook-intent.mjs", validatorSrc]]) {
+    assert.ok(
+      /import \{[^}]*hookTreeKeepSet[^}]*\} from ".*hook-projection\.mjs"/.test(src),
+      `${label} must import the shared hookTreeKeepSet`,
+    );
+    assert.ok(/hookTreeKeepSet\(/.test(src), `${label} must call the shared hookTreeKeepSet`);
+  }
 });
 
 // ── Runner ────────────────────────────────────────────────────────────────────

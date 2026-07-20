@@ -25,7 +25,7 @@
 // Run: node scripts/tests/projection-hooks.test.mjs  (exit 1 on any failure)
 // Node 20+ stdlib only.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -200,6 +200,33 @@ test("C4: an opencode/codex-only hook never produces a Claude prompt/agent entry
   };
   const block = generateClaudeHooksBlock([ocOnly]);
   assert.deepEqual(block, {}, "a non-claude hook must not appear in the Claude hooks block");
+});
+
+// ── Codex hooks suppression ──────────────────────────────────────────────────
+// The Codex plugin manifest's `hooks` value must be EXACTLY an empty object.
+// Codex's load_plugin_hooks falls back to a hardcoded "hooks/hooks.json" when
+// the manifest declares no `hooks` field and registers whatever it finds; an
+// empty inline object parses as an empty hook set and suppresses that fallback,
+// but an ABSENT field, an empty array, and an empty inline list all collapse
+// back to it (references/superpowers/tests/codex/test-marketplace-manifest.sh:55-73).
+// Aegis ships no aggregate hooks/hooks.json today, so nothing would be picked up
+// right now — this guards the day someone adds one, on a plugin whose
+// marketplace source is "./". Nothing else in the gate checks this value, so
+// without these assertions a "simplifying" edit re-enables discovery silently.
+
+test("Codex plugin manifest suppresses hook auto-discovery with exactly {}", () => {
+  const manifestPath = join(REPO, ".codex", "plugins", "aegis", ".codex-plugin", "plugin.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  assert.ok("hooks" in manifest, "hooks key must be PRESENT — an absent field re-enables auto-discovery");
+  assert.deepEqual(manifest.hooks, {}, "hooks must deep-equal {}");
+  assert.ok(!Array.isArray(manifest.hooks), "hooks must be an object, not an array — [] re-enables auto-discovery");
+  assert.equal(Object.keys(manifest.hooks).length, 0, "hooks must be EMPTY");
+});
+
+test("no Codex hook tree is projected", () => {
+  // There is no Codex hook projector; the directory must not come into being.
+  const codexHooksDir = join(REPO, ".codex", "plugins", "aegis", "hooks");
+  assert.ok(!existsSync(codexHooksDir), `${codexHooksDir} must not exist — Codex hooks are not projected`);
 });
 
 // ── Runner ────────────────────────────────────────────────────────────────────

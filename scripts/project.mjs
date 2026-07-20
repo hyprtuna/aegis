@@ -10,11 +10,11 @@
 // Future:
 //   v0.0.4: statusline projection + templates
 
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, statSync, renameSync, copyFileSync, chmodSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, statSync, renameSync, copyFileSync } from "node:fs";
 import { join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
-import { generateClaudeHooksBlock, isHookHelper } from "./lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, hookTreeKeepSet } from "./lib/hook-projection.mjs";
 import { SUBAGENT_PRIMITIVE_KEYS, validateSubagentPrimitive, assertIsolationWritable } from "./lib/subagent-primitives.mjs";
 
 const PKG_VERSION = JSON.parse(
@@ -471,19 +471,33 @@ function projectCodexRules() {
 // first run — it's no longer the correct location. .codex-plugin/AGENTS.md
 // stays (rules surface for Codex at project root, out of scope for Phase B).
 //
-// `hooks` pointer: Codex's `plugin_hooks` feature is REMOVED (not
-// merely disabled) as of codex-cli 0.144.6 — a plugin cannot ship hooks that
-// fire, in any context. No canonical hooks/*.json intent binds `codex` in
-// `platforms` today, so `hasCodexHooks` is always false in practice. The
-// parameter (and the `./hooks/hooks.json` branch) stay so a future Codex
-// release that un-removes plugin_hooks has a real re-enable path — but the
-// default posture is explicit suppression: `hooks: {}`, the same pattern
-// Superpowers uses (`.codex-plugin/plugin.json`) to stop Codex from
-// auto-discovering a `hooks/` directory by convention. See
-// adapters/codex/projection.md "Honest Gaps" for the full writeup.
+// `hooks` pointer: Codex's `plugin_hooks` feature is REMOVED (not merely
+// disabled) as of codex-cli 0.144.6 — a plugin cannot ship a hook that fires,
+// in any context. There is no Codex hook projector any more; the manifest
+// therefore emits the suppression form UNCONDITIONALLY.
+//
+// The value must be EXACTLY an empty object `{}`. Codex auto-discovers a
+// plugin's `hooks/hooks.json` whenever the manifest carries no `hooks` field:
+// `load_plugin_hooks` falls back to a hardcoded
+// DEFAULT_HOOKS_CONFIG_FILE = "hooks/hooks.json" and registers it. An empty
+// inline hooks object parses as an empty inline hook set and suppresses that
+// fallback, but an ABSENT field, an empty array (`[]`), and an empty inline
+// list all collapse back to the fallback. So `{}` is load-bearing: dropping the
+// key or "simplifying" it to `[]` silently re-enables auto-discovery.
+//   - references/superpowers/tests/codex/test-marketplace-manifest.sh:55-73
+//     (the upstream test that pins this behaviour)
+//   - references/superpowers/.codex-plugin/plugin.json:24 (same `{}` posture)
+//
+// Aegis's exposure today is zero — `hooks/` at repo root holds per-intent files
+// and no aggregate `hooks.json`, so the fallback would currently find nothing to
+// register. This is not a present-tense bug; it is a zero-cost guard against a
+// silent failure that arrives the day someone adds a `hooks/hooks.json`, on a
+// plugin whose marketplace source is "./" (the whole repo root ships).
+// `scripts/tests/projection-hooks.test.mjs` asserts the emitted value.
+// See adapters/codex/projection.md "Honest Gaps" for the full writeup.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function projectCodexPluginManifest(hasCodexHooks) {
+function projectCodexPluginManifest() {
   const pluginRoot = join(REPO, ".codex/plugins/aegis");
   const manifestDir = join(pluginRoot, ".codex-plugin");
   const manifestPath = join(manifestDir, "plugin.json");
@@ -503,9 +517,9 @@ function projectCodexPluginManifest(hasCodexHooks) {
 
   // Build the official plugin.json with component pointers.
   // keywords replaces tags. skills + mcpServers are mandatory pointers.
-  // hooks is a real pointer only when at least one canonical intent binds
-  // `codex`; otherwise it is the explicit-suppression `{}` form so
-  // Codex never auto-discovers a stale/absent hooks/hooks.json by convention.
+  // hooks is always the explicit-suppression `{}` form (see the header above:
+  // exactly an empty object, never absent and never `[]`) so Codex can never
+  // auto-discover a hooks/hooks.json by convention.
   const manifest = {
     name: CODEX_MANIFEST_DEFAULTS.name,
     version: PKG_VERSION,
@@ -515,7 +529,7 @@ function projectCodexPluginManifest(hasCodexHooks) {
     author: CODEX_MANIFEST_DEFAULTS.author,
     keywords: ["agentic", "skills", "agents", "anvil"],
     skills: "./skills/",
-    hooks: hasCodexHooks ? "./hooks/hooks.json" : {},
+    hooks: {}, // EXACTLY an empty object — see the header block above.
     mcpServers: "./.mcp.json",
   };
 
@@ -607,140 +621,10 @@ function projectClaudeMarketplace() {
   );
 }
 
-// Filter to Codex-bound intents that have an x-codex.event. Shared by
-// projectCodexPluginManifest's caller (to decide the `hooks` pointer shape)
-// and projectCodexHooks (to decide what to bundle). This is
-// always empty — no canonical hooks/*.json intent binds `codex` — because
-// Codex's `plugin_hooks` feature is removed (codex-cli 0.144.6). The filter
-// stays live (not hardcoded to []) so a future intent that legitimately binds
-// `codex` again projects with zero code changes here.
-function filterCodexHookIntents(intents) {
-  return (intents ?? []).filter(
-    (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
-           i["x-codex"] && typeof i["x-codex"].event === "string",
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Codex hooks projection (v0.2.1)
-//
-// Emits .codex/plugins/aegis/hooks/hooks.json in Codex matcher-group shape and
-// bundles the referenced hook scripts (copied from .claude-plugin/hooks/ and
-// version-stamped) into .codex/plugins/aegis/hooks/. A hook either ships (its
-// intent projects here) or is deleted from hooks/ — there is no disabled/parked
-// state, so any bundled script/config left over from a removed intent is
-// cleaned up on every run. Idempotent.
-//
-// When no intent binds `codex` (the current, expected state — see
-// filterCodexHookIntents above), this ships NOTHING — no hooks.json, no
-// bundled scripts, not even an empty hooks/ directory. Shipping an empty
-// hooks.json behind a suppressed `{}` manifest pointer would still leave a
-// stale artifact on disk for a host that might auto-discover it by
-// convention; removing the directory entirely is the honest-gap posture.
-// ─────────────────────────────────────────────────────────────────────────────
-
-function projectCodexHooks(intents) {
-  const pluginHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
-  const codexIntents = filterCodexHookIntents(intents);
-
-  if (codexIntents.length === 0) {
-    if (existsSync(pluginHooksDir)) {
-      rmSync(pluginHooksDir, { recursive: true, force: true });
-    }
-    return 0;
-  }
-
-  mkdirSync(pluginHooksDir, { recursive: true });
-
-  // Build the Codex hooks.json: group by event into matcher-group shape.
-  // Shape: { "hooks": { "<Event>": [ { "matcher": "…", "hooks": [ { "type": "command", "command": "…" } ] } ] } }
-  // Intents without a matcher omit the field (Codex accepts hooks without a matcher — fires on any tool).
-  const hooksObj = {};
-  for (const intent of codexIntents) {
-    const xc = intent["x-codex"];
-    const event = xc.event;
-    if (!hooksObj[event]) hooksObj[event] = [];
-    const hookEntry = { type: "command", command: xc.command };
-    const group = {};
-    if (xc.matcher) group.matcher = xc.matcher;
-    group.hooks = [hookEntry];
-    hooksObj[event].push(group);
-  }
-
-  const hooksJson = { hooks: hooksObj };
-  const hooksJsonPath = join(pluginHooksDir, "hooks.json");
-  const hooksJsonContent = JSON.stringify(hooksJson, null, 2) + "\n";
-  // Idempotent: only write if changed.
-  const existingHooksJson = existsSync(hooksJsonPath) ? readFileSync(hooksJsonPath, "utf8") : null;
-  if (existingHooksJson !== hooksJsonContent) {
-    writeFileSync(hooksJsonPath, hooksJsonContent, "utf8");
-  }
-
-  // Bundle each referenced script: copy .claude-plugin/hooks/<name>.sh →
-  // .codex/plugins/aegis/hooks/<name>.sh with version stamp. Idempotent via atomicWrite.
-  const expectedScripts = new Set();
-  for (const intent of codexIntents) {
-    const xclause = intent["x-codex"];
-    if (xclause.dispatch !== "command" || typeof xclause.command !== "string") continue;
-    // Resolve the canonical script from the x-claude binding (same name, Claude path).
-    const xc = intent["x-claude"];
-    if (!xc || xc.dispatch !== "command" || typeof xc.command !== "string") continue;
-    const srcPath = join(REPO, xc.command);
-    if (!existsSync(srcPath)) continue;
-    // Target filename is the basename of the x-codex command path.
-    const targetName = basename(xclause.command);
-    expectedScripts.add(targetName);
-    const dstPath = join(pluginHooksDir, targetName);
-    const srcContent = readFileSync(srcPath, "utf8");
-    const token = hookCommentSyntax(targetName);
-    const stamped = stampHookContent(srcContent, token, PKG_VERSION);
-    const existingScript = existsSync(dstPath) ? readFileSync(dstPath, "utf8") : null;
-    if (existingScript !== stamped) {
-      atomicWrite(dstPath, stamped);
-    }
-    // Ensure the bundled script is executable. atomicWrite preserves the target's
-    // existing mode on replace, but new files start at 0o644 — we always want +x.
-    // Check before setting to avoid a no-op chmod on every run.
-    let needsChmod = false;
-    try {
-      const mode = statSync(dstPath).mode;
-      needsChmod = (mode & 0o111) === 0; // any execute bit missing
-    } catch { needsChmod = true; }
-    if (needsChmod) chmodSync(dstPath, 0o755);
-  }
-
-  // Clean up any bundled file left over from a hook intent that no longer
-  // exists (or no longer bundles a config file) — e.g. a removed hook's script,
-  // or the permissions.json config a since-removed hook once needed.
-  // A hook either ships (its script is in expectedScripts) or is gone entirely.
-  //
-  // The keep test is membership in expectedScripts and NOTHING else. An extension
-  // filter here would delete a file this same function bundled seconds earlier:
-  // the bundler writes basename(x-codex.command) whatever its extension, and
-  // hookCommentSyntax() deliberately supports .mjs/.js/.cjs/.ts, so a `.sh`-only
-  // keep silently reaped every non-shell hook in the run that created it.
-  // expectedScripts already encodes exactly what belongs here.
-  for (const entry of readdirSync(pluginHooksDir).sort()) {
-    if (entry === "hooks.json") continue;
-    if (expectedScripts.has(entry)) continue;
-    const target = join(pluginHooksDir, entry);
-    // Never delete a tree — same rule as the Claude prune. The bundled tree is
-    // flat (x-codex.command allows no `/`), so a directory is an authoring error.
-    if (statSync(target).isDirectory()) {
-      throw new Error(
-        `.codex/plugins/aegis/hooks/${entry} is a directory — this tree is flat. ` +
-          "Bundled Codex hooks are written to the basename of x-codex.command; " +
-          "delete the directory by hand.",
-      );
-    }
-    rmSync(target, { force: true }); // no `recursive` — a directory must throw, never vanish
-    console.log(`  pruned orphan Codex hook file: .codex/plugins/aegis/hooks/${entry}`);
-  }
-
-  return codexIntents.length;
-}
-
-function projectCodex(hookIntents) {
+// Hook intents are deliberately NOT a parameter here: Codex's plugin_hooks
+// feature is removed upstream, nothing projects a hook to this host, and
+// `codex` is rejected outright in a hook intent's platforms.
+function projectCodex() {
 
   const skillsRoot = join(REPO, ".codex/plugins/aegis/skills");
   const skillsTmpRoot = skillsRoot + ".tmp";
@@ -945,20 +829,16 @@ function projectCodex(hookIntents) {
 
   // Emit the official plugin manifest + MCP stub at plugin-root.
   // Deletes the old repo-root .codex-plugin/plugin.json and .codex-plugin/mcp.json.
-  // hooks pointer is real only when a canonical intent binds `codex`;
-  // computed up front so the manifest and the hooks bundle agree.
-  const codexHookIntents = filterCodexHookIntents(hookIntents ?? []);
-  projectCodexPluginManifest(codexHookIntents.length > 0);
+  // The hooks pointer is unconditionally the `{}` suppression form: Codex's
+  // plugin_hooks feature is removed, so no hook bundle ships to this host and
+  // `codex` is a rejected value in a hook intent's platforms (loadHookIntents).
+  projectCodexPluginManifest();
 
   // Emit .agents/plugins/marketplace.json (canonical) and correct
   // .claude-plugin/marketplace.json to use the object source form.
   projectCodexMarketplaces();
 
-  // Project hook intents to .codex/plugins/aegis/hooks/hooks.json + bundle scripts
-  // (v0.2.1). Must run after projectCodexPluginManifest (hooks pointer wired).
-  const hooks = projectCodexHooks(hookIntents ?? []);
-
-  return { skills, agents, commands, rules, templates, hooks };
+  return { skills, agents, commands, rules, templates };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1556,17 +1436,18 @@ function loadHookIntents() {
         throw new Error(`hooks/${file}: x-claude.dispatch "${xc.dispatch}" requires "prompt"`);
       }
     }
+    // `codex` is a REJECTED hook platform, not an unhandled one. Codex's
+    // plugin_hooks feature is removed upstream, so there is no projector path
+    // for it. Accepting the value silently would project nothing and say
+    // nothing — a silent failure strictly worse than the dead code this
+    // replaced. The HOOK_INTENT validator rejects it too; this is the second,
+    // independent gate, so a projector-only workflow cannot slip past.
     if (intent.platforms.includes("codex")) {
-      const xcodex = intent["x-codex"];
-      if (!xcodex || typeof xcodex !== "object") {
-        throw new Error(`hooks/${file}: platforms includes "codex" but x-codex binding is missing`);
-      }
-      if (!xcodex.event || !xcodex.dispatch) {
-        throw new Error(`hooks/${file}: x-codex requires "event" and "dispatch"`);
-      }
-      if (xcodex.dispatch === "command" && (typeof xcodex.command !== "string" || !xcodex.command)) {
-        throw new Error(`hooks/${file}: x-codex.dispatch "command" requires "command"`);
-      }
+      throw new Error(
+        `hooks/${file}: "codex" is not a supported hook platform — Codex's ` +
+          "plugin_hooks feature is removed upstream, so a plugin-shipped hook cannot fire " +
+          "on this host. Drop \"codex\" from platforms; see adapters/codex/projection.md.",
+      );
     }
     intents.push(intent);
   }
@@ -1726,8 +1607,9 @@ function stampHookContent(content, commentToken, version) {
 // the canonical intents (every x-claude.dispatch:"command" command path), so a new
 // .sh/.mjs hook auto-stamps with no hardcoded list to maintain.
 //
-// The prune mirrors projectCodexHooks(): a hook either ships (some hooks/*.json
-// binds it via x-claude.command) or it is gone. Stamping alone is not enough —
+// The rule is simple: a hook either ships (some hooks/*.json binds it via
+// x-claude.command, or a live intent declares it as a helper dependency) or it
+// is gone. Stamping alone is not enough —
 // deleting an intent left its script on disk, shipped inside the plugin and
 // reachable by anything that discovers the directory by convention, while nothing
 // in canonical mentioned it any more. `HOOK_INTENT` hard-fails on the same
@@ -1739,10 +1621,11 @@ function stampHookContent(content, commentToken, version) {
 //     hooks/` is flat by contract (the x-claude.command regex allows no `/`), so
 //     a directory is an authoring error — and reaping it recursively could take a
 //     correctly-referenced script down with it.
-//   - HELPERS ARE EXEMPT. A `_`-prefixed entry is a shared library sourced by hook
-//     scripts, not an orphan; nothing binds it via x-claude.command by design. The
-//     test is the shared isHookHelper() — the HOOK_INTENT orphan rule calls the
-//     same predicate, so the two cannot drift apart.
+//   - THE KEEP-SET IS DECLARED, NOT SPELLED. A file survives because an intent
+//     binds it via x-claude.command or declares it in x-claude.helpers — never
+//     because of how it is named. The set comes from the shared
+//     hookTreeKeepSet(); the HOOK_INTENT orphan rule calls the same function, so
+//     this destructive loop and the rule that polices it cannot drift apart.
 //   - DELETIONS ARE PRINTED. Every pruned path goes to stdout. A silent prune is
 //     invisible to the author and to the gate, which is exactly how it would eat
 //     a file nobody notices until a user's hook breaks at runtime.
@@ -1762,10 +1645,10 @@ function projectHooks(intents) {
 
   const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
   if (existsSync(claudeHooksDir)) {
-    const expected = new Set(HOOK_FILES.map((p) => basename(p)));
+    // Commands AND declared helpers, from the one shared function.
+    const expected = hookTreeKeepSet(intents ?? []);
     for (const entry of readdirSync(claudeHooksDir).sort()) {
       if (expected.has(entry)) continue;
-      if (isHookHelper(entry)) continue; // shared helper, not an orphan
       const target = join(claudeHooksDir, entry);
       // Never delete a tree. `.claude-plugin/hooks/` is FLAT (the x-claude.command
       // regex enforces it), so a directory here is an authoring error, not an
@@ -1803,7 +1686,7 @@ console.log(`✓ Projected ${agentCount} agents to .opencode/agents/`);
 const cmdCount = projectCommands();
 console.log(`✓ Projected ${cmdCount} commands to .opencode/commands/`);
 
-const codex = projectCodex(hookIntents);
+const codex = projectCodex();
 console.log(
   "✓ Projected Codex tree (" +
     codex.skills +
@@ -1812,10 +1695,7 @@ console.log(
     " agents-as-skills, " +
     codex.commands +
     " commands-as-dispatchers, rules → .codex-plugin/AGENTS.md; plugin manifest + .mcp.json → .codex/plugins/aegis/.codex-plugin/; marketplace → .agents/plugins/; " +
-    codex.hooks +
-    " hook(s) bundled → .codex/plugins/aegis/hooks/" +
-    (codex.hooks === 0 ? " (none bound — plugin.json hooks: {} suppresses discovery)" : "") +
-    ")",
+    "no hooks — plugin_hooks is removed upstream, plugin.json hooks: {} suppresses discovery)",
 );
 
 const statuslineCount = projectStatuslines();
@@ -1865,19 +1745,17 @@ console.log("  - .opencode/INSTALL.md");
 console.log("  - .codex/INSTALL.md");
 console.log("");
 console.log("Generated by projectCodexPluginManifest() + projectCodexMarketplaces():");
-console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/mcpServers pointers + keywords; hooks: {} unless a canonical intent binds codex)");
+console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/mcpServers pointers + keywords; hooks: {} always — suppresses Codex hooks.json auto-discovery)");
 console.log("  - .codex/plugins/aegis/.mcp.json (empty mcpServers stub)");
 console.log("  - .agents/plugins/marketplace.json (Codex marketplace, object source form)");
 console.log("");
 console.log("Generated by projectClaudeMarketplace() (v0.3.4):");
 console.log("  - .claude-plugin/marketplace.json (Claude marketplace, string source \"./\")");
 console.log("");
-console.log("Generated by projectCodexHooks():");
-console.log(
-  codex.hooks === 0
-    ? "  - .codex/plugins/aegis/hooks/ — not shipped (no intent binds codex; plugin_hooks is removed, codex-cli 0.144.6)"
-    : `  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, ${codex.hooks} events)`,
-);
+console.log("Not projected — honest gap:");
+console.log("  - .codex/plugins/aegis/hooks/ — Codex hooks are not projected at all. plugin_hooks is");
+console.log("    removed upstream (codex-cli 0.144.6), so `codex` is rejected in a hook intent's");
+console.log("    platforms. See adapters/codex/projection.md for the gap and the re-add cost.");
 console.log("");
 console.log("Future projections:");
 console.log("  v0.0.6: dist/aegis.skill bundle (E2), dependencies population (E1)");
