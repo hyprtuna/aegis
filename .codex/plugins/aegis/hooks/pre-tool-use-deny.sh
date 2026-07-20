@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.4
+# aegis-hook-version: 0.1.5
 # pre-tool-use-deny.sh — Aegis plugin PreToolUse hook (Claude Code).
 #
 # WHY THIS EXISTS (decisions.md D5 correction): Claude plugins cannot ship a
@@ -190,29 +190,48 @@ case "$TOOL" in
       # Push to a protected branch (named refspec destination, or bare push while
       # the current branch is protected, e.g. `git push origin HEAD:main`).
       if [ "$is_push" = true ]; then
-        after="${CMD#*git*push}"
-        named_protected=false
-        for tok in $after; do
-          case "$tok" in
-            -*) continue ;;
-          esac
-          dest="$tok"
-          case "$dest" in
-            *:*) dest="${dest##*:}" ;;
-          esac
-          if is_protected "$dest"; then named_protected=true; break; fi
-        done
-        if [ "$named_protected" = true ]; then
-          git_deny "push to a protected branch (${PROT_RE})."
-        else
-          # No explicit protected destination named. A bare push (no positional
-          # refspec other than the remote) pushes the current branch — deny if it
-          # is protected.
-          set -- $after
+        # Evaluate EACH `git push` invocation against its OWN refspecs. Scanning
+        # a single unbounded `${CMD#*git*push}` fails in both directions:
+        #   - reading to end-of-string misreads a downstream token as this push's
+        #     destination (`git push origin feat && gh pr create --base main`
+        #     → false "protected branch" deny on a feature branch);
+        #   - bounding the scan to only the FIRST push hides every later one
+        #     (`git push origin feat && git push origin main` → main slips through).
+        # So split on shell control operators / redirections / comments, then run
+        # the destination scan on every segment that itself invokes `git push`.
+        segments="$(printf '%s' "$CMD" | tr ';&|<>#\n' '\n\n\n\n\n\n\n')"
+        OLD_IFS="$IFS"
+        IFS='
+'
+        set -- $segments
+        IFS="$OLD_IFS"
+
+        for seg in "$@"; do
+          printf '%s' "$seg" | grep -Eq '\bgit[[:space:]]+push\b' || continue
+          after="${seg#*git*push}"
+
+          named_protected=false
+          for tok in $after; do
+            case "$tok" in
+              -*) continue ;;
+            esac
+            dest="$tok"
+            case "$dest" in
+              *:*) dest="${dest##*:}" ;;
+            esac
+            if is_protected "$dest"; then named_protected=true; break; fi
+          done
+          if [ "$named_protected" = true ]; then
+            git_deny "push to a protected branch (${PROT_RE})."
+          fi
+
+          # No protected destination named in this segment. A bare push (no
+          # positional refspec other than the remote) pushes the current branch
+          # — deny if it is protected.
           has_refspec=false
           # skip the remote (first positional) then look for a branch refspec
           first_positional_seen=false
-          for tok in "$@"; do
+          for tok in $after; do
             case "$tok" in -*) continue ;; esac
             if [ "$first_positional_seen" = false ]; then first_positional_seen=true; continue; fi
             [ "$tok" = "HEAD" ] && continue
@@ -221,7 +240,7 @@ case "$TOOL" in
           if [ "$has_refspec" = false ] && is_protected "$(cur_branch)"; then
             git_deny "push of protected branch '$(cur_branch)'."
           fi
-        fi
+        done
       fi
     fi
     # ---- end git guard --------------------------------------------------------

@@ -1,7 +1,7 @@
 {
   "name": "aegis",
   "displayName": "Aegis",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
   "author": {
     "name": "Aegis Contributors"

@@ -94,6 +94,22 @@ const CASES = [
   ["git pull", { tool_name: "Bash", tool_input: { command: "git pull" }, cwd: FEATURE_REPO }, "allow"],
   ["restore --staged (unstage)", { tool_name: "Bash", tool_input: { command: "git restore --staged f" } }, "allow"],
   ["push origin develop", { tool_name: "Bash", tool_input: { command: "git push origin develop" } }, "allow"],
+  // ---- compound commands: each `git push` is scanned against its OWN refspecs ----
+  // A downstream mention of a protected branch is NOT this push's destination.
+  // Regression: these produced a false "push to a protected branch" deny, which is
+  // what made the guard look like it mis-parsed `+N` sub-release branch names.
+  ["push feat && gh pr --base main", { tool_name: "Bash", tool_input: { command: "git push origin release/v1.2.3+1 && gh pr create --base main" } }, "allow"],
+  ["push feat; checkout main", { tool_name: "Bash", tool_input: { command: "git push origin release/v1.2.3+1; git checkout main" } }, "allow"],
+  ["push feat # comment re main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x # rebase onto main later" } }, "allow"],
+  ["push feat && echo main", { tool_name: "Bash", tool_input: { command: 'git push origin feat/x && echo "now on main"' } }, "allow"],
+  ["push +N sub-release branch", { tool_name: "Bash", tool_input: { command: "git push -u origin release/v1.2.3+1" } }, "allow"],
+  // ...but a LATER push in the same command must still be caught. Regression: bounding
+  // the scan to the first `git push` let the second one through entirely.
+  ["push feat && push main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x && git push origin main" } }, "deny"],
+  ["push feat; push main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x; git push origin master" } }, "deny"],
+  // ...and a protected destination followed by a tail must still be caught.
+  ["push main && npm test", { tool_name: "Bash", tool_input: { command: "git push origin main && npm test" } }, "deny"],
+  ["push main | tee", { tool_name: "Bash", tool_input: { command: "git push origin main | tee push.log" } }, "deny"],
 ];
 
 // KNOWN GAPS (defense-in-depth limits, documented for v0.0.6). This layer is a

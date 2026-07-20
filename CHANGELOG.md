@@ -6,6 +6,12 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.1.5] — 2026-07-20
+
+- **Git guard no longer denies legitimate pushes in compound commands** — the protected-branch check scanned every token after `git push` to end-of-string, so a later mention of `main` (`git push origin release/x && gh pr create --base main`) was misread as the push destination and denied. Each `git push` in a command is now scanned against its own refspecs.
+- The same fix closes the false negative the naive form would introduce: a second push in the same command (`git push origin feat/x && git push origin main`) is still caught.
+- Deny-hook regression coverage extended to compound commands in both directions (57 cases, up from 48).
+
 ## [v0.1.4] — 2026-07-19
 
 - **Pre-launch residue swept from shipped content** — internal `AG-NNNN` ticket references were replaced with their descriptive rationale, and pre-launch `v0.0/0.2/0.3.x` version stamps were reconciled, across scripts, statuslines, manifest, hooks, adapters, canonical surfaces, and docs. Broken private-repo links were repointed to public anchors.
