@@ -20,8 +20,6 @@
         "instructions-loaded",
         "file-changed",
         "cwd-changed",
-        "prompt-injection-guard",
-        "pre-tool-use-deny",
         "prompt-type",
         "agent-type"
       ],
@@ -54,11 +52,6 @@
       },
       "description": "Non-empty subset of supported hosts this hook projects to."
     },
-    "enabled": {
-      "type": "boolean",
-      "default": true,
-      "description": "When false, the intent is excluded from the generated default hooks block (D7) — e.g. prompt-injection-guard ships opt-in."
-    },
     "trigger": {
       "type": "object",
       "additionalProperties": false,
@@ -81,7 +74,8 @@
       }
     },
     "x-claude": { "$ref": "#/$defs/xClaude" },
-    "x-opencode": { "$ref": "#/$defs/xOpencode" }
+    "x-opencode": { "$ref": "#/$defs/xOpencode" },
+    "x-codex": { "$ref": "#/$defs/xCodex" }
   },
   "$defs": {
     "xClaude": {
@@ -115,8 +109,8 @@
         },
         "command": {
           "type": "string",
-          "pattern": "^\\.claude-plugin/hooks/.+",
-          "description": "Repo-relative path to the hook script (required when dispatch is 'command'). The projector prefixes ${CLAUDE_PLUGIN_ROOT}/."
+          "pattern": "^\\.claude-plugin/hooks/[^/]+$",
+          "description": "Repo-relative path to the hook script (required when dispatch is 'command'). The projector prefixes ${CLAUDE_PLUGIN_ROOT}/. The tree is FLAT — no subdirectories: projectHooks()'s orphan prune walks .claude-plugin/hooks/ one level deep and raises on a directory rather than descending, so a nested path would name a script the prune cannot account for."
         },
         "prompt": {
           "type": "string",
@@ -167,13 +161,13 @@
       "properties": {
         "event": {
           "type": "string",
-          "enum": ["session.start", "session.compacting", "chat.messages.transform"],
-          "description": "OpenCode hook event (D2)."
+          "enum": ["experimental.chat.messages.transform", "experimental.session.compacting"],
+          "description": "OpenCode hook key. This is the LITERAL, flat, dotted property name OpenCode resolves the handler by — verified against the installed @opencode-ai/plugin type contract (dist/index.d.ts, OpenCode 1.18.3), where every one of these is declared as a quoted dotted key on the Hooks interface. A nested object binding (experimental: { session: { compacting } }) declares a different property and is never invoked, so the value here is emitted verbatim as the generated key string."
         },
         "phase": {
           "type": "string",
-          "enum": ["pre", "post"],
-          "description": "Compaction phase (required when event is 'session.compacting')."
+          "enum": ["pre"],
+          "description": "Compaction phase (required when event is 'experimental.session.compacting'). Only 'pre' is expressible: OpenCode's compacting hook fires before compaction starts, and OpenCode exposes no post-compaction hook that can inject context."
         },
         "handler": {
           "type": "string",
@@ -183,8 +177,53 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "event": { "const": "session.compacting" } } },
+          "if": { "properties": { "event": { "const": "experimental.session.compacting" } } },
           "then": { "required": ["phase"] }
+        }
+      ]
+    },
+    "xCodex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "dispatch"],
+      "description": "Codex binding. Required when `platforms` includes 'codex'. No canonical intent binds 'codex' today — Codex's `[features] plugin_hooks` is removed, so a plugin-shipped hook cannot fire (see adapters/codex/projection.md). This $def exists so the re-enable path the projector keeps live (filterCodexHookIntents / projectCodexHooks) is expressible: without it, an intent declaring 'codex' would satisfy the HOOK_INTENT validator's x-codex requirement but be rejected by this schema's additionalProperties:false.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": [
+            "SessionStart",
+            "SubagentStart",
+            "PreToolUse",
+            "PermissionRequest",
+            "PostToolUse",
+            "PreCompact",
+            "PostCompact",
+            "UserPromptSubmit",
+            "SubagentStop",
+            "Stop"
+          ],
+          "description": "Codex hook event (verified against codex 0.141.0). Mirrors the CODEX_EVENTS enum in scripts/validate/hook-intent.mjs."
+        },
+        "matcher": {
+          "type": "string",
+          "description": "Optional Codex matcher string. Omitted, the hook fires on any tool — Codex accepts a matcher-less hook group."
+        },
+        "dispatch": {
+          "type": "string",
+          "enum": ["command"],
+          "description": "Hook dispatch type. Restricted to 'command': projectCodexHooks() builds a { type: 'command', command } entry unconditionally, so a 'prompt'/'agent' binding would emit { \"type\": \"command\" } with the command key dropped by JSON.stringify(undefined) — a malformed hooks.json. Widen this enum only together with a projector path for the new dispatch."
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\./hooks/[^/]+$",
+          "description": "Path to the hook script as it ships inside the Codex plugin (required when dispatch is 'command'). FLAT — no subdirectories: projectCodexHooks() emits this value VERBATIM into hooks.json but writes the bundled file to basename(x-claude.command), so a nested path would ship a manifest instructing Codex to run a script that was never placed there. Mirrors the flat constraint on x-claude.command."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "dispatch": { "const": "command" } } },
+          "then": { "required": ["command"] }
         }
       ]
     }
@@ -199,8 +238,11 @@
       "then": { "required": ["x-opencode"] }
     },
     {
-      "if": { "properties": { "intent": { "const": "prompt-injection-guard" } } },
-      "then": { "properties": { "enabled": { "const": false } } }
+      "if": { "properties": { "platforms": { "contains": { "const": "codex" } } } },
+      "then": {
+        "required": ["x-codex", "x-claude"],
+        "description": "x-claude is required alongside x-codex because projectCodexHooks() sources the script it bundles EXCLUSIVELY from x-claude.command — it copies that file to .codex/plugins/aegis/hooks/<basename of x-codex.command>. A codex-only intent would emit a hooks.json entry pointing at a script that was never bundled: a binding that cannot fire (Iron Law 6)."
+      }
     },
     {
       "if": { "properties": { "intent": { "const": "prompt-type" } } },

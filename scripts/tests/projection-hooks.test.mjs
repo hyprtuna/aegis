@@ -12,10 +12,15 @@
 //   aegis.js contains the AEGIS:HOOKS-GEN region. The projector only ever rewrites
 //   generated regions, so a green run leaves the committed tree byte-identical.
 //
+//   K1 (OpenCode flat dotted keys): OpenCode resolves plugin handlers by literal
+//   quoted dotted property name (@opencode-ai/plugin dist/index.d.ts). A nested
+//   binding declares a different property and is registered but never invoked, with
+//   no error. These tests pin the exact key strings — canonical, generated region,
+//   and the live plugin factory — so a re-nesting refactor cannot land silently.
+//
 //   C4 (judgment-hook projection rules): using the EXTRACTED generateClaudeHooksBlock
-//   from scripts/lib/hook-projection.mjs, assert prompt/agent dispatch shaping, the
-//   enabled:false exclusion, that opencode/codex-only hooks never produce a Claude
-//   prompt/agent entry, and that the four shipped judgment hooks are platforms:[claude].
+//   from scripts/lib/hook-projection.mjs, assert prompt/agent dispatch shaping and
+//   that opencode/codex-only hooks never produce a Claude prompt/agent entry.
 //
 // Run: node scripts/tests/projection-hooks.test.mjs  (exit 1 on any failure)
 // Node 20+ stdlib only.
@@ -66,22 +71,91 @@ test("B3: plugin.json hooks block carries the expected event bindings", () => {
   const plugin = JSON.parse(readFileSync(GENERATED[0], "utf8"));
   const hooks = plugin.hooks ?? {};
   const events = Object.keys(hooks);
-  for (const ev of ["SessionStart", "PreToolUse", "PreCompact", "PostCompact", "InstructionsLoaded"]) {
+  for (const ev of ["SessionStart", "PreCompact", "PostCompact", "InstructionsLoaded"]) {
     assert.ok(events.includes(ev), `expected event ${ev} in plugin.json hooks, got: ${events.join(", ")}`);
   }
-  // PreToolUse must contain the deny COMMAND hook binding.
-  const pre = hooks.PreToolUse ?? [];
-  const flat = pre.flatMap((e) => e.hooks ?? []);
-  const hasDenyCommand = flat.some(
-    (h) => h.type === "command" && /pre-tool-use-deny\.sh$/.test(h.command || ""),
-  );
-  assert.ok(hasDenyCommand, "PreToolUse must bind the pre-tool-use-deny command hook");
 });
 
 test("B3: aegis.js contains the AEGIS:HOOKS-GEN region", () => {
   const js = readFileSync(GENERATED[1], "utf8");
   assert.ok(js.includes("// >>> AEGIS:HOOKS-GEN"), "aegis.js missing AEGIS:HOOKS-GEN start marker");
   assert.ok(js.includes("// <<< AEGIS:HOOKS-GEN"), "aegis.js missing AEGIS:HOOKS-GEN end marker");
+});
+
+// ── K1: OpenCode handler keys are FLAT dotted strings ────────────────────────--
+//
+// OpenCode's Hooks interface declares these as quoted dotted properties
+// (@opencode-ai/plugin dist/index.d.ts). A nested object literal declares a
+// DIFFERENT property, so a re-nested binding is registered and never invoked —
+// silently. These tests pin the exact key strings so that regression cannot land
+// unnoticed. `expectedOpencodeKeys` is derived from canonical hooks/*.json, so a
+// canonical rename is caught too rather than being rubber-stamped by the test.
+
+function expectedOpencodeKeys() {
+  const dir = join(REPO, "hooks");
+  const keys = [];
+  for (const f of readdirSync(dir).filter((n) => n.endsWith(".json")).sort()) {
+    const intent = JSON.parse(readFileSync(join(dir, f), "utf8"));
+    if (!Array.isArray(intent.platforms) || !intent.platforms.includes("opencode")) continue;
+    keys.push(intent["x-opencode"].event);
+  }
+  return keys.sort();
+}
+
+test("K1: canonical x-opencode.event values are exactly the two verified flat dotted keys", () => {
+  assert.deepEqual(
+    expectedOpencodeKeys(),
+    ["experimental.chat.messages.transform", "experimental.session.compacting"],
+    "canonical OpenCode hook keys drifted from the @opencode-ai/plugin type contract",
+  );
+});
+
+test("K1: exactly one intent binds each OpenCode key (a duplicate silently wins in an object literal)", () => {
+  const keys = expectedOpencodeKeys();
+  assert.equal(new Set(keys).size, keys.length, `duplicate OpenCode binding: ${keys.join(", ")}`);
+});
+
+test("K1: the generated region emits each key as a flat quoted dotted property", () => {
+  const js = readFileSync(GENERATED[1], "utf8");
+  const region = js.slice(js.indexOf("// >>> AEGIS:HOOKS-GEN"), js.indexOf("// <<< AEGIS:HOOKS-GEN"));
+  assert.ok(region.length > 0, "AEGIS:HOOKS-GEN region not found");
+  for (const key of expectedOpencodeKeys()) {
+    assert.ok(
+      region.includes(`"${key}":`),
+      `generated region does not bind the flat key "${key}" — was it re-nested?`,
+    );
+  }
+  // Strip comment lines first — the region documents the nested anti-pattern in prose.
+  const code = region.split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+  assert.ok(
+    !/(^|[^."'\w])experimental\s*:/.test(code),
+    "generated region declares a nested `experimental:` member — OpenCode resolves flat dotted keys only, so nested handlers never fire",
+  );
+});
+
+test("K1: the plugin factory returns the flat keys and no nested `experimental` member", async () => {
+  const mod = await import(join(REPO, ".opencode", "plugins", "aegis.js"));
+  const hooks = await mod.AegisPlugin();
+  for (const key of expectedOpencodeKeys()) {
+    assert.equal(typeof hooks[key], "function", `plugin does not register a handler at flat key "${key}"`);
+  }
+  assert.ok(
+    !("experimental" in hooks),
+    "plugin returns a nested `experimental` member — handlers bound that way are never invoked",
+  );
+});
+
+test("K1: the bootstrap handler injects once and is idempotent on re-entry", async () => {
+  const mod = await import(join(REPO, ".opencode", "plugins", "aegis.js"));
+  const hooks = await mod.AegisPlugin();
+  const transform = hooks["experimental.chat.messages.transform"];
+  const output = { messages: [{ info: { role: "user" }, parts: [{ type: "text", text: "hi" }] }] };
+  await transform({}, output);
+  const parts = output.messages[0].parts;
+  assert.equal(parts.length, 2, "bootstrap was not injected into the first user message");
+  assert.ok(parts[0].text.includes("<!-- aegis:bootstrap -->"), "injected part is missing the bootstrap marker");
+  await transform({}, output);
+  assert.equal(output.messages[0].parts.length, 2, "second call double-injected — marker guard is not holding");
 });
 
 // ── C4: judgment-hook projection rules (via the extracted generator) ─────────--
@@ -99,14 +173,14 @@ function claudeIntent(overrides = {}) {
   };
 }
 
-test("C4: an ENABLED claude prompt-type hook emits a {type:'prompt'} entry", () => {
+test("C4: a claude prompt-type hook emits a {type:'prompt'} entry", () => {
   const block = generateClaudeHooksBlock([claudeIntent({ name: "p-judge" })]);
   const entry = (block.PreToolUse ?? []).flatMap((e) => e.hooks ?? [])[0];
   assert.ok(entry, "expected a PreToolUse entry");
   assert.equal(entry.type, "prompt", `expected type prompt, got ${entry.type}`);
 });
 
-test("C4: an ENABLED claude agent-type hook emits a {type:'agent'} entry", () => {
+test("C4: a claude agent-type hook emits a {type:'agent'} entry", () => {
   const agent = claudeIntent({
     name: "a-judge",
     intent: "agent-type",
@@ -118,46 +192,14 @@ test("C4: an ENABLED claude agent-type hook emits a {type:'agent'} entry", () =>
   assert.equal(entry.type, "agent", `expected type agent, got ${entry.type}`);
 });
 
-test("C4: enabled:false judgment hook is EXCLUDED from the block (D7/D11)", () => {
-  const block = generateClaudeHooksBlock([claudeIntent({ name: "off-judge", enabled: false })]);
-  assert.deepEqual(block, {}, "enabled:false hook must not appear in the generated block");
-});
-
 test("C4: an opencode/codex-only hook never produces a Claude prompt/agent entry", () => {
   const ocOnly = {
     kind: "hook", intent: "prompt-type", name: "oc-only", description: "x",
     visibility: "internal", platforms: ["opencode", "codex"],
-    "x-opencode": { event: "session.start", handler: "noop" },
+    "x-opencode": { event: "experimental.chat.messages.transform", handler: "bootstrap" },
   };
   const block = generateClaudeHooksBlock([ocOnly]);
   assert.deepEqual(block, {}, "a non-claude hook must not appear in the Claude hooks block");
-});
-
-test("C4: the four shipped judgment hooks are platforms:[claude] and enabled:false", () => {
-  const hooksDir = join(REPO, "hooks");
-  const judgmentFiles = [
-    "verify-no-secrets-touched.prompt.json",
-    "no-silent-failures.prompt.json",
-    "no-rationalization.prompt.json",
-    "verification-before-completion.agent.json",
-  ];
-  for (const f of judgmentFiles) {
-    const j = JSON.parse(readFileSync(join(hooksDir, f), "utf8"));
-    assert.deepEqual(j.platforms, ["claude"], `${f}: expected platforms:[claude], got ${JSON.stringify(j.platforms)}`);
-    assert.equal(j.enabled, false, `${f}: expected enabled:false (opt-in, D11), got ${JSON.stringify(j.enabled)}`);
-  }
-  // …and by construction they are absent from OpenCode/Codex output: not platforms-listed
-  // there, and no .opencode/.codex hook-config carries an entry for them.
-});
-
-test("C4: shipped judgment hooks do not appear in the committed plugin.json hooks block", () => {
-  const plugin = JSON.parse(readFileSync(GENERATED[0], "utf8"));
-  const allPrompts = JSON.stringify(plugin.hooks ?? {});
-  // The agent verifier's distinctive phrase must not be present (it ships enabled:false).
-  assert.ok(!allPrompts.includes("verification gate spawned before a Bash command"),
-    "verification-before-completion (enabled:false) must be absent from the default hooks block");
-  assert.ok(!allPrompts.includes("secret-material gate"),
-    "verify-no-secrets-touched (enabled:false) must be absent from the default hooks block");
 });
 
 // ── Runner ────────────────────────────────────────────────────────────────────

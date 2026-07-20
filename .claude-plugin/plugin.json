@@ -1,7 +1,7 @@
 {
   "name": "aegis",
   "displayName": "Aegis",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
   "author": {
     "name": "Aegis Contributors"
@@ -27,17 +27,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/session-start.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/pre-tool-use-deny.sh"
           }
         ]
       }
@@ -105,12 +94,6 @@
       "type": "boolean",
       "title": "Telemetry opt-in",
       "description": "Allow Aegis to collect anonymous usage telemetry.",
-      "default": false
-    },
-    "promptInjectionScanner": {
-      "type": "boolean",
-      "title": "Prompt-injection scanner",
-      "description": "Enable the advisory prompt-injection scanner hook (opt-in, never blocks).",
       "default": false
     }
   },

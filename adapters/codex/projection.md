@@ -1,8 +1,8 @@
 # Codex Projection
 
-**Status:** shipped. Plugin layout modernized in a later release. Hooks projected in a subsequent release after that.
+**Status:** shipped. Plugin layout modernized in a later release. Hooks are a declared honest gap — see "Hook capability matrix" below.
 
-Generator: `node scripts/project.mjs` → `projectCodex(hookIntents)` + `projectCodexPluginManifest()` + `projectCodexMarketplaces()` + `projectCodexHooks(intents)`. Install doc: `.codex/INSTALL.md`. Plugin root: `.codex/plugins/aegis/`. Plugin manifest: `.codex/plugins/aegis/.codex-plugin/plugin.json`. Hook bundle: `.codex/plugins/aegis/hooks/`. Rules surface: `.codex-plugin/AGENTS.md` (project root — unchanged). MCP stub: `.codex/plugins/aegis/.mcp.json`.
+Generator: `node scripts/project.mjs` → `projectCodex(hookIntents)` + `projectCodexPluginManifest(hasCodexHooks)` + `projectCodexMarketplaces()` + `projectCodexHooks(intents)`. Install doc: `.codex/INSTALL.md`. Plugin root: `.codex/plugins/aegis/`. Plugin manifest: `.codex/plugins/aegis/.codex-plugin/plugin.json`. Rules surface: `.codex-plugin/AGENTS.md` (project root — unchanged). MCP stub: `.codex/plugins/aegis/.mcp.json`. No hook bundle ships today — no canonical `hooks/*.json` intent binds `codex` (see Hook capability matrix).
 
 ## What Lands on Codex
 
@@ -24,10 +24,10 @@ Generator: `node scripts/project.mjs` → `projectCodex(hookIntents)` + `project
 | `agents/<name>.md` | `.codex/plugins/aegis/skills/aegis-<name>/SKILL.md` | V | Folded into skills tree (Codex has no distinct subagent primitive). Trigger prose carried in `description`; "Invoked via Codex Skill discovery." header note added. |
 | `commands/<name>.md` | `.codex/plugins/aegis/skills/aegis-<name>/SKILL.md` (or `aegis-<name>__command` on collision) | V | Thin dispatcher SKILL.md (~10–15 line body) referencing the canonical skill/workflow path. `__command` suffix when a command name collides with a skill or agent. |
 | `rules/*.md` | `.codex-plugin/AGENTS.md` | V | All rule bodies concatenated under a single `# Rules` H1; each rule under `## <rule-name>` H2; Iron Laws block at top. |
-| Plugin manifest | `.codex/plugins/aegis/.codex-plugin/plugin.json` | V | Official plugin-root manifest (D-04). Generated with `skills`/`hooks`/`mcpServers` pointers + `keywords`. `hooks: "./hooks/hooks.json"` added once hooks were projected. Replaces old repo-root `.codex-plugin/plugin.json`. |
+| Plugin manifest | `.codex/plugins/aegis/.codex-plugin/plugin.json` | V | Official plugin-root manifest (D-04). Generated with `skills`/`hooks`/`mcpServers` pointers + `keywords`. `hooks` is the explicit-suppression `{}` form — no canonical intent binds `codex`, so `projectCodexPluginManifest(hasCodexHooks)` never emits the `"./hooks/hooks.json"` pointer form today; the branch stays live for a future Codex release that un-removes `plugin_hooks`. Replaces old repo-root `.codex-plugin/plugin.json`. |
 | MCP server entries | `.codex/plugins/aegis/.mcp.json` | V | Plugin-root stub (D-06) — empty `{"mcpServers":{}}`. Old `.codex-plugin/mcp.json` deleted. |
 | Marketplace | `.agents/plugins/marketplace.json` | V | Object source form (D-05). Codex's sole marketplace path — `.claude-plugin/marketplace.json` is now Claude-only (string source), no cross-host leak. |
-| Hook lifecycle | `.codex/plugins/aegis/hooks/hooks.json` + bundled scripts | supported (4 mapped) | Codex supports plugin-bundled hooks (`hooks/hooks.json`, on by default). 4 intents project: SessionStart, PreToolUse, PreCompact, PostCompact. Scripts bundled at plugin root `hooks/`. Deny config (`permissions.json`) bundled alongside — deny script resolves it script-relative (fail-open preserved). **Runtime fire-and-deny test pending interactive Codex verification** (`codex exec` does not run plugin hooks — hooks fire only in interactive Codex; owner-run step). 1 intent remains an honest gap (no Codex event: InstructionsLoaded). SessionStart overlaps Codex's native AGENTS.md bootstrap read at project root. |
+| Hook lifecycle | — | gap | `plugin_hooks` is a **removed** Codex feature flag (verified live: `codex features list` on codex-cli 0.144.6 shows `plugin_hooks removed false`) — a plugin cannot ship a hook that fires, in any context, ever. All three previously-projected intents (`session-start`, `pre-compact`, `post-compact`) had `codex` dropped from `platforms`; `.codex/plugins/aegis/hooks/` ships nothing. See Hook capability matrix below for the full per-intent breakdown and the honest-gap writeup. |
 | Subagents distinct from skills | — | gap | Codex's native `.codex/agents/*.toml` primitive exists but is **project/personal-scoped, NOT plugin-distributable** (no `agents` manifest pointer; verified 2026-06-20). Aegis ships as a plugin → agents stay folded into skills (runtime-verified). See Honest Gaps. |
 | Statusline | — | ✘ | No native Codex statusline slot. Gap documented; revisit if Codex grows one. |
 
@@ -58,7 +58,7 @@ Layer 2 (Claude's 200-line auto-injection) is absent. Start with Layer 1 on this
 
 - **Real MCP servers** — only an empty `mcp.json` stub ships today. First Aegis-supplied servers land in a later release.
 - **Persistent memory** — no native `memory:` primitive; fallback is `.aegis-memory/MEMORY.md` read by the `recall` skill. See Persistent Memory section above.
-- **Hook lifecycle (1 no-event gap)** — 4 Aegis intents now project to Codex hooks (`session-start`, `pre-tool-use-deny`, `pre-compact`, `post-compact`). One enabled intent has no Codex event counterpart and remains an honest gap: `instructions-loaded` (no `InstructionsLoaded`). (The `file-changed`/`cwd-changed` intents were removed as non-functional in v0.1.3 and no longer count toward this gap.) Runtime fire-and-deny test is a pending interactive owner step (`codex exec` does not run plugin hooks).
+- **Hook lifecycle (feature-removed gap)** — no canonical hook binds `codex` today. Codex's `[features] plugin_hooks` is **removed** (not merely disabled) — verified live against `codex features list` on codex-cli 0.144.6, which reports `plugin_hooks   removed   false`. A plugin cannot ship a hook that fires on this host, in any context: `hooks: stable` in that same feature list is Codex's *user*-configured `config.toml` hooks, a channel plugins have no access to. Aegis previously projected `session-start`/`pre-compact`/`post-compact` to Codex `hooks/hooks.json`; `codex` was dropped from all three intents' `platforms` and their `x-codex` bindings, because a binding that cannot fire is worse than a declared gap (Iron Law 6). `instructions-loaded` was already a gap for the unrelated reason that Codex has no `InstructionsLoaded` event counterpart. Aegis's Codex bootstrap is unaffected — it continues through native Skill discovery (`.codex/plugins/aegis/skills/`) and the `.codex-plugin/AGENTS.md` project-root read, neither of which depends on plugin hooks. Revisit if a future Codex release un-removes `plugin_hooks`.
 - **Statusline** — no native Codex statusline slot. Aegis ships statusline presets (Claude Code first-class); Codex stays gap-documented.
 - **Distinct subagent semantics** — Codex *has* a native subagent primitive (`.codex/agents/*.toml`, project/personal-scoped), but plugins **cannot bundle agents** (the manifest exposes only `skills`/`hooks`/`mcpServers`/`apps`; no `agents/` in the plugin layout — verified against `developers.openai.com/codex/plugins/build`, 2026-06-20). A plugin-distributed Aegis therefore can't ship native subagents; they stay folded into skills. A user wanting native Aegis subagents must hand-place TOMLs under their own `.codex/agents/` (out of scope). Revisit if Codex adds an `agents` plugin-manifest pointer.
 - **HTML/JSON template runtime reachability — `partial`.** `project.mjs` bundles `templates/html`, `templates/json`, and `manifest/template-index.json` into `.codex/plugins/aegis/` (fixing the prior gap where `:json` bundled-pointers, e.g. `design-system`/`plan-audit-report`, referenced files that never shipped on Codex). The build-time `${TEMPLATE:*}` directive still resolves correctly at projection (it emits a bundled-path pointer, per `scripts/project.mjs:231-257`). But the new runtime index→Read procedure (`rules/user-choice-discipline.md` step 5) reads `${CLAUDE_PLUGIN_ROOT}/...` to locate the chosen template, and Codex has **no equivalent base-path token** (`scripts/project.mjs:234-241` never emits `${CLAUDE_PLUGIN_ROOT}` for `host === "codex"`). An agent following step 5 on Codex cannot resolve the runtime read, so HTML/JSON selection stays `partial` — same limitation class as OpenCode (see `adapters/opencode/projection.md`'s templates-gap section). Only Claude closes the runtime read end-to-end.
@@ -67,33 +67,37 @@ Layer 2 (Claude's 200-line auto-injection) is absent. Start with Layer 1 on this
 
 ## Hook capability matrix
 
-Codex supports plugin-bundled hooks (`hooks/hooks.json`, `[features] hooks` on by
-default, verified against codex 0.141.0). Four Aegis intents map cleanly to Codex
-events and are now projected. Three enabled intents have no Codex event counterpart
-(honest gaps). Five `enabled:false` judgment hooks are excluded (D7 convention).
+Codex's `[features] plugin_hooks` flag is **removed**, not merely off-by-default —
+verified live against `codex features list` on **codex-cli 0.144.6**:
 
-**Runtime verification gap:** `codex exec` (the only non-interactive Codex mode
-available in CI) does not run plugin hooks — hooks fire only in interactive Codex.
-The static validation, plugin install, and hooks.json format have been verified; the
-live fire-and-deny test is a pending owner-run interactive step.
+```
+hooks                stable     true
+plugin_hooks         removed    false
+```
 
-**SessionStart overlap note:** Codex's native AGENTS.md read at project root
-(`.codex-plugin/AGENTS.md`) already bootstraps Aegis content at session start. The
-SessionStart hook fires in addition — it emits the `using-aegis` skill body as
-`hookSpecificOutput.additionalContext`, providing a richer discovery bootstrap.
+`hooks: stable` is Codex's *user*-configured hook mechanism (`config.toml`, set by
+the person running Codex) — a real, working feature. `plugin_hooks` is the distinct
+flag that would let a *plugin* ship hooks that fire, and it does not exist as a
+runtime path: a plugin-bundled `hooks/hooks.json` is inert everywhere, not just
+under `codex exec`. This is stronger than "unverified in CI" — there is no context
+in which a plugin-shipped Aegis hook fires on Codex, so none of Aegis's three
+lifecycle hook intents bind `codex` in `platforms` today (all three were dropped
+`x-codex` bindings that previously existed). Prior art: Superpowers added native
+Codex hooks, removed them 14 days later, and now ships `"hooks": {}` in
+`.codex-plugin/plugin.json` to suppress auto-discovery rather than re-add them —
+Aegis's `projectCodexPluginManifest()` does the same (see Surfaces & Verification
+above).
+
+Aegis's Codex bootstrap is unaffected: native Skill discovery
+(`.codex/plugins/aegis/skills/`) and the project-root `.codex-plugin/AGENTS.md` read
+carry it without any hook.
 
 | Intent / name | Status | Notes |
 |---|---|---|
-| `session-start` | supported | Projected to Codex `SessionStart`. Bundled at `.codex/plugins/aegis/hooks/session-start.sh`. Overlaps native AGENTS.md bootstrap (complementary, not duplicate). Runtime fire test pending interactive Codex. |
-| `pre-tool-use-deny` | supported | Projected to Codex `PreToolUse`. Bundled at `.codex/plugins/aegis/hooks/pre-tool-use-deny.sh`. Deny config (`permissions.json`) bundled alongside — script resolves it via `$(dirname "$0")/permissions.json` (script-relative, fail-open). Codex deny contract is Claude-compatible (verified 2026-06-20). **Protected-branch git guard** fires on Codex — runtime verification pending interactive test. |
-| `pre-compact` | supported | Projected to Codex `PreCompact`. Bundled at `.codex/plugins/aegis/hooks/pre-compact.sh`. Snapshot + restore pattern compatible with Codex compaction flow. Runtime fire test pending interactive Codex. |
-| `post-compact` | supported | Projected to Codex `PostCompact`. Bundled at `.codex/plugins/aegis/hooks/post-compact.sh`. Runtime fire test pending interactive Codex. |
-| `verify-no-secrets-touched` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `no-silent-failures` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `no-rationalization` | gap | No LLM-evaluated hook primitive; `enabled:false`. |
-| `verification-before-completion` | gap | No agent-dispatch hook primitive; `enabled:false`. |
-| `instructions-loaded` | gap | No `InstructionsLoaded` counterpart in Codex events. |
-| `prompt-injection-guard` | gap | No dedicated event; `enabled:false`; advisory scanner is Claude-only. |
+| `session-start` | gap | Not bound to `codex` — `plugin_hooks` removed, codex-cli 0.144.6. Codex's native `.codex-plugin/AGENTS.md` project-root read still bootstraps Aegis content without this hook. |
+| `pre-compact` | gap | Not bound to `codex` — `plugin_hooks` removed, codex-cli 0.144.6. No portable substitute; anchor-capture is Claude/OpenCode-only today. |
+| `post-compact` | gap | Not bound to `codex` — `plugin_hooks` removed, codex-cli 0.144.6. Pairs with `pre-compact`; same gap. |
+| `instructions-loaded` | gap | No `InstructionsLoaded` counterpart in Codex events (unrelated to `plugin_hooks` — this intent was never bound to `codex`). |
 
 ## Statuslines
 
@@ -161,7 +165,7 @@ See `manifest/capabilities.json` for the full matrix and per-host evidence.
 
 Helpers: `prefixAegis(name)` for collision-avoidance prefixing, `extractIronLawsBlock()` for the rules surface, plus the `atomicReplace()` idempotency primitive. Reserved-name and name-shape guards are enforced inline via the `CODEX_RESERVED_NAMES` constant and `CODEX_NAME_PATTERN` regex (no dedicated helper function). Dispatcher bodies are composed inline inside `projectCodexCommandsAsDispatchers()`. Idempotent: re-running produces identical output.
 
-- `projectCodexHooks(intents)` — emits `.codex/plugins/aegis/hooks/hooks.json` in Codex matcher-group shape for the 4 mapped events; bundles the Claude hook scripts (version-stamped, executable) into `.codex/plugins/aegis/hooks/`; bundles `manifest/permissions.json` → `.codex/plugins/aegis/hooks/permissions.json` for script-relative deny-config resolution. Called from `projectCodex(hookIntents)`. Idempotent.
+- `projectCodexHooks(intents)` — filters canonical intents to those binding `codex` in `platforms` (via the shared `filterCodexHookIntents()`); today this filter is always empty, so the function removes `.codex/plugins/aegis/hooks/` outright (no `hooks.json`, no bundled scripts) rather than shipping an empty hooks bundle behind a suppressed manifest pointer. If a future intent legitimately binds `codex` again, it emits `hooks.json` in Codex matcher-group shape and bundles the referenced Claude hook scripts (version-stamped, executable), cleaning up anything left over from a removed intent. Called from `projectCodex(hookIntents)`, after `projectCodexPluginManifest(hasCodexHooks)` (same filter result, computed once). Idempotent.
 
 ## Install
 

@@ -138,31 +138,15 @@ Bash(wget * | sh)       Bash(wget * | bash)
 
 Projection:
 
-- **Claude:** enforced at runtime by the plugin **PreToolUse hook**
-  `.claude-plugin/hooks/pre-tool-use-deny.sh`. Claude plugins cannot declare a
-  plugin-level deny (plugin `settings.json` accepts only `agent`/`subagentStatusLine`;
-  no `plugin.json` `permissions` field — `plugins-reference.md:809`), and agent
+- **Claude:** not enforced. Claude plugins cannot declare a plugin-level deny
+  (plugin `settings.json` accepts only `agent`/`subagentStatusLine`; no
+  `plugin.json` `permissions` field — `plugins-reference.md:809`), and agent
   `disallowedTools` filters only the tool pool by bare name, not by path/arg
-  (`sub-agents.md:269,335`). The PreToolUse hook is the host's own recommended
-  mechanism for path/arg-scoped denial (`permissions.md:150-164`): it reads
-  `plugin.deny[]` from the manifest at runtime and returns `permissionDecision:"deny"`
-  for secret-file reads (`.env`, `secrets/**`, `~/.ssh/**`, …) and destructive Bash
-  (`rm -rf /`, `curl … | sh`). The per-agent `tools` allowlist is the primary
-  boundary; this hook is the defense-in-depth deny layer.
-  - **Known limits:** the hook matches by path basename/segment
-    and literal command pattern, so it guards against accidental/model-driven
-    leaks, not a determined adversary — symlink/realpath indirection and shell
-    token-splitting (`rm$IFS-rf /`, base64-decode-pipe) can evade it. These gaps are
-    recorded as known-allow cases in `scripts/test-deny-hook.mjs`; realpath
-    normalization and shell-token canonicalization remain deferred to a future
-    hardening pass. The
-    host-enforced `tools` allowlist remains the real boundary regardless.
+  (`sub-agents.md:269,335`). Aegis ships no runtime mechanism to work around
+  this on Claude, so `plugin.deny[]` is advisory-only here — the per-agent
+  `tools` allowlist is the real boundary. Honest gap.
 - **OpenCode:** into the global `permission` block (`read.{**/.env: deny, ...}`,
   applied to all agents — not redeclared per agent).
-
-(Decision D5, corrected — see `decisions.md` §D5 correction note. The original D5
-assumed a Claude plugin-level deny the host does not support; a per-agent
-`disallowedTools` attempt was also rejected as theater/breaking before the hook.)
 
 > **`Task` is inert for plugin subagents on Claude.** The manifest grants `Task`
 > to `orchestrator`, `subagent-executor`, and `ultra-worker`, but `Agent`/`Task`

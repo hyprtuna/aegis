@@ -8,7 +8,7 @@
       "category": "frontmatter",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/skills.md#paths", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "gap" },
         "zed": { "status": "n/a" }
@@ -60,7 +60,7 @@
       "category": "manifest",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/plugins-reference.md:528", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "n/a" },
         "zed": { "status": "n/a" }
@@ -86,7 +86,7 @@
       "category": "runtime",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/plugins-reference.md:273", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "n/a" },
         "zed": { "status": "n/a" }
@@ -176,47 +176,21 @@
       "description": "Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded.",
       "category": "hooks",
       "hosts": {
-        "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json:99", "since": "v0.0.1" },
+        "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json", "since": "v0.0.1" },
         "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#approach-locked-decisions", "since": "v0.0.2" },
-        "codex": { "status": "partial", "evidence": "adapters/codex/projection.md#honest-gaps", "since": "v0.0.3" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#what-cursor-will-load" },
         "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#unsupported-documented-gaps" }
       }
     },
     {
-      "id": "pre-tool-use-deny-hook",
-      "title": "PreToolUse deny hook",
- "description": "Portable hook intent: cross-cutting path/arg-scoped deny enforced at runtime from manifest/permissions.json plugin.deny[]. Claude PreToolUse command hook; OpenCode applies the deny via its config permission block (not a hook event).",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/pre-tool-use-deny.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
       "id": "compaction-hooks",
       "title": "PreCompact/PostCompact hooks",
- "description": "Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection); OpenCode binds the pair to experimental.session.compacting but the generated region is a no-op placeholder — phase dispatch deferred until the unverified contract is confirmed.",
+ "description": "Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection). On OpenCode only pre-compact has a home — it binds the flat dotted key experimental.session.compacting, which fires once before compaction; post-compact is Claude-only because OpenCode exposes no post-compaction context-injection hook. The registered pre-compact handler body is a deliberate no-op placeholder (no durable anchor store).",
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/pre-compact.json", "since": "v0.0.7" },
         "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#hook-capability-matrix", "since": "v0.0.7" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
-      "id": "judgment-hooks",
-      "title": "Prompt/agent judgment hooks",
- "description": "Portable hook intent: Claude PreToolUse prompt-type and agent-type judgment hooks (verify-no-secrets-touched, no-silent-failures, no-rationalization, verification-before-completion). LLM-evaluated gates with an {ok,reason} contract. No other host has an LLM-evaluated hook primitive.",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/verification-before-completion.agent.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
         "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
@@ -229,19 +203,6 @@
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/instructions-loaded.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
-      "id": "prompt-injection-guard-hook",
-      "title": "Prompt-injection scanner hook",
- "description": "Portable hook intent: advisory Claude PreToolUse scanner (enabled:false, opt-in) that flags prompt-injection phrasing in tool input and emits advisory context only — never blocks. Excluded from the default hooks block; users opt in via .claude/settings.json. Claude-only.",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/prompt-injection-guard.json", "since": "v0.0.7" },
         "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },

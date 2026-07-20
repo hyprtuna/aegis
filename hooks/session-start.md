@@ -3,7 +3,7 @@ kind: hook
 name: session-start
 description: Bootstrap Aegis discovery and core guidance at the start of every agent session.
 visibility: internal
-platforms: [claude]
+platforms: [claude, opencode]
 ---
 
 # Session Start Bootstrap
@@ -22,8 +22,8 @@ Aegis's SessionStart hook fires when an agent host opens a session, clears conte
 | Host | File | Coverage |
 |---|---|---|
 | Claude Code | `.claude-plugin/hooks/session-start.sh` | supported |
-| OpenCode | `.opencode/plugins/aegis.js` (chat.messages.transform) | supported |
-| Codex | `.codex/plugins/aegis/hooks/session-start.sh` (SessionStart, bundled) | supported |
+| OpenCode | `.opencode/plugins/aegis.js` (`experimental.chat.messages.transform`) | supported |
+| Codex | — | gap — `plugin_hooks` removed (codex-cli 0.144.6); no plugin-shipped hook can fire |
 | Cursor | N/A (no hook contract) | gap |
 | Zed | N/A (no hook contract) | gap |
 
@@ -35,6 +35,4 @@ To keep the index current, edit the table in `skills/core/using-aegis/SKILL.md`;
 
 ## Host coverage (honest gaps)
 
-This hook is now bound for `claude` + `opencode` + `codex` (`platforms: [claude, opencode, codex]`). **Cursor and Zed have no portable session-start hook contract**, so the bootstrap does not auto-inject there — those hosts discover Aegis via filesystem/skill auto-discovery instead. The gap is recorded per host in `adapters/<host>/projection.md`. This is an honest gap (Iron Law 6), not a silent drop.
-
-**Codex note:** The hook fires as a Codex `SessionStart` event. Runtime fire-and-deny verification is pending interactive Codex (the `codex exec` mode does not run plugin hooks); static + install validation have been performed.
+This hook is bound for `claude` + `opencode` (`platforms: [claude, opencode]`). **Codex, Cursor, and Zed have no working hook path for this intent**: Cursor and Zed have no portable session-start hook contract at all; Codex has the `SessionStart` event but its `[features] plugin_hooks` flag is **removed** (verified live, codex-cli 0.144.6), so a plugin cannot ship a hook that fires there in any context — the binding was dropped. None of these three hosts auto-inject the bootstrap via this hook; Codex instead discovers Aegis through native Skill discovery and its project-root `.codex-plugin/AGENTS.md` read, and Cursor/Zed discover it via filesystem/skill auto-discovery. The gap is recorded per host in `adapters/<host>/projection.md`. This is an honest gap (Iron Law 6), not a silent drop.

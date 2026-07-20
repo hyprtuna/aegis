@@ -15,8 +15,8 @@ The surface is intentionally flexible while host plugin tooling evolves — ther
 - **82 skills** — reusable capabilities spanning universal workflows, language overlays, and process guidance.
 - **17 agents** — first-class doers invoked via the host's Task tool.
 - **6 commands** — slash-command workflow entry-points.
-- **17 rules** — always-loaded iron-law guidance.
-- **7 hooks** — portable hook intents with per-host implementations.
+- **18 rules** — always-loaded iron-law guidance.
+- **4 hooks** — portable hook intents with per-host implementations.
 - **73 templates** — output skeletons: 22 HTML plus Markdown and JSON siblings; 70 carry slot manifests.
 - **9 statusline presets** — ready-to-use status line configurations.
 - **5 host adapter projections** — projection notes and gap analyses; 3 are active (Claude Code, OpenCode, Codex).
@@ -29,7 +29,7 @@ Each block below is the short form. The full install and verification flow for e
 
 ```bash
 # In Claude Code, add the marketplace, then install the plugin
-/plugin marketplace add /path/to/aegis
+/plugin marketplace add hyprtuna/aegis
 /plugin install aegis@aegis
 ```
 

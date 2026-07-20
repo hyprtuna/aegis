@@ -47,14 +47,14 @@ export function dispatchObjectFor(intent) {
 }
 
 // Build the plugin.json `hooks` object from canonical intents, grouped by
-// x-claude.event, EXCLUDING enabled:false intents (D7). Intents are name-sorted
-// first for determinism, then grouped by event and emitted in EVENT_ORDER. Each
-// entry is { matcher?, hooks: [ <dispatch object> ] } (matcher-first key order to
-// match the previously hand-maintained block).
+// x-claude.event. Intents are name-sorted first for determinism, then grouped
+// by event and emitted in EVENT_ORDER. Each entry is
+// { matcher?, hooks: [ <dispatch object> ] } (matcher-first key order to match
+// the previously hand-maintained block). A hook either ships (appears here) or
+// is deleted from hooks/ — there is no disabled/parked state.
 export function generateClaudeHooksBlock(intents) {
   const claudeIntents = intents
     .filter((i) => Array.isArray(i.platforms) && i.platforms.includes("claude"))
-    .filter((i) => i.enabled !== false)
     .filter((i) => i["x-claude"])
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -78,4 +78,21 @@ export function generateClaudeHooksBlock(intents) {
     if (!seen.has(event)) out[event] = entries;
   }
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared-helper naming convention for the Claude hook implementation tree.
+//
+// A `_`-prefixed entry under .claude-plugin/hooks/ is a library sourced by hook
+// scripts (`source "$(dirname "$0")/_lib.sh"`), not a hook: nothing binds it via
+// x-claude.command by design. Both the projector's orphan prune and the
+// HOOK_INTENT orphan rule must skip exactly the same set — if they disagreed, one
+// would delete a file the other demands, or demand a file the other deleted.
+//
+// Same no-mirror rule as generateClaudeHooksBlock above: one predicate, two
+// callers. A comment in each file asserting the other agrees is not a mechanism.
+export const HOOK_HELPER_PREFIX = "_";
+
+export function isHookHelper(entry) {
+  return typeof entry === "string" && entry.startsWith(HOOK_HELPER_PREFIX);
 }

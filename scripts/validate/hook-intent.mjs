@@ -19,20 +19,29 @@
 // tripwire that keeps the contract honest.
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { generateClaudeHooksBlock } from "../lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, isHookHelper } from "../lib/hook-projection.mjs";
 
 export const id = "HOOK_INTENT";
 
 const INTENT_ENUM = new Set([
   "session-start", "pre-compact", "post-compact", "instructions-loaded",
-  "file-changed", "cwd-changed", "prompt-injection-guard", "pre-tool-use-deny",
+  "file-changed", "cwd-changed",
   "prompt-type", "agent-type",
 ]);
 const CLAUDE_EVENTS = new Set([
   "SessionStart", "PreToolUse", "UserPromptSubmit", "PreCompact", "PostCompact",
   "InstructionsLoaded", "FileChanged", "CwdChanged",
 ]);
-const OPENCODE_EVENTS = new Set(["session.start", "session.compacting", "chat.messages.transform"]);
+// OpenCode hook keys. These are LITERAL flat dotted property names on the Hooks
+// interface — verified against the installed @opencode-ai/plugin type contract
+// (dist/index.d.ts, OpenCode 1.18.3). A nested object binding declares a different
+// property and is silently never invoked, so the canonical value is the exact key
+// string the projector emits.
+const OPENCODE_EVENTS = new Set([
+  "experimental.chat.messages.transform",
+  "experimental.session.compacting",
+]);
+const OPENCODE_COMPACTING = "experimental.session.compacting";
 // Codex hook events (verified against codex 0.141.0).
 const CODEX_EVENTS = new Set([
   "SessionStart", "SubagentStart", "PreToolUse", "PermissionRequest", "PostToolUse",
@@ -118,16 +127,14 @@ export function run(ctx) {
         if (!PLATFORM_ENUM.has(p)) errors.push(`${where}: unknown platform "${p}"`);
       }
     }
-    if (intent.enabled !== undefined && typeof intent.enabled !== "boolean") {
-      errors.push(`${where}: enabled must be a boolean`);
+    if (intent.enabled !== undefined) {
+      errors.push(
+        `${where}: "enabled" is not a supported field — a hook either ships (delete the ` +
+          `field) or is deleted outright (remove the hook); it cannot be parked disabled`,
+      );
     }
 
     const platforms = Array.isArray(intent.platforms) ? intent.platforms : [];
-
-    // ── Conditional intent rules ───────────────────────────────────────────────
-    if (intent.intent === "prompt-injection-guard" && intent.enabled !== false) {
-      errors.push(`${where}: prompt-injection-guard must ship enabled:false (D7)`);
-    }
 
     // ── x-claude host-binding completeness + event→dispatch table ─────────────
     if (platforms.includes("claude")) {
@@ -149,8 +156,14 @@ export function run(ctx) {
         }
         // dispatch→required-field.
         if (xc.dispatch === "command") {
-          if (typeof xc.command !== "string" || !/^\.claude-plugin\/hooks\/.+/.test(xc.command || "")) {
-            errors.push(`${where}: command dispatch requires command matching ^\\.claude-plugin/hooks/.+`);
+          // Flat only: no `/` after the directory. The projector's orphan prune
+          // walks this directory one level deep and refuses to descend, so a
+          // nested path would name a script the prune cannot account for.
+          if (typeof xc.command !== "string" || !/^\.claude-plugin\/hooks\/[^/]+$/.test(xc.command || "")) {
+            errors.push(
+              `${where}: command dispatch requires command matching ` +
+                "^\\.claude-plugin/hooks/[^/]+$ — the hooks tree is flat, no subdirectories",
+            );
           } else if (!existsSync(join(REPO, xc.command))) {
             errors.push(`${where}: x-claude.command file does not exist: ${xc.command}`);
           }
@@ -178,8 +191,12 @@ export function run(ctx) {
       } else {
         if (!OPENCODE_EVENTS.has(xo.event)) errors.push(`${where}: x-opencode.event "${xo.event}" not in allowed enum`);
         if (typeof xo.handler !== "string" || !xo.handler) errors.push(`${where}: x-opencode.handler must be a non-empty string`);
-        if (xo.event === "session.compacting" && xo.phase !== "pre" && xo.phase !== "post") {
-          errors.push(`${where}: x-opencode.event session.compacting requires phase pre|post`);
+        if (xo.event === OPENCODE_COMPACTING && xo.phase !== "pre") {
+          errors.push(
+            `${where}: x-opencode.event ${OPENCODE_COMPACTING} requires phase "pre" — ` +
+              "OpenCode fires this hook before compaction starts and exposes no " +
+              "post-compaction context-injection hook, so a post binding would never fire",
+          );
         }
       }
     }
@@ -193,14 +210,40 @@ export function run(ctx) {
         if (!CODEX_EVENTS.has(xcodex.event)) {
           errors.push(`${where}: x-codex.event "${xcodex.event}" not in allowed Codex event enum`);
         }
-        if (!DISPATCH_ENUM.has(xcodex.dispatch)) {
-          errors.push(`${where}: x-codex.dispatch "${xcodex.dispatch}" not in command|prompt|agent`);
+        // Restricted to "command": projectCodexHooks() builds a
+        // { type: "command", command } entry before any dispatch check, so a
+        // prompt/agent binding emits { "type": "command" } with the command key
+        // dropped by JSON.stringify(undefined) — a malformed hooks.json.
+        if (xcodex.dispatch !== "command") {
+          errors.push(
+            `${where}: x-codex.dispatch "${xcodex.dispatch}" is not supported — only "command" ` +
+              "has a projector path; any other value emits a malformed Codex hooks.json entry",
+          );
         }
+        // Flat only, same constraint as x-claude.command and for a sharper reason:
+        // projectCodexHooks() emits this value VERBATIM into hooks.json but writes
+        // the bundled file to basename(x-claude.command). A nested path therefore
+        // ships a manifest naming a script that was never placed there.
         if (xcodex.dispatch === "command") {
-          if (typeof xcodex.command !== "string" || !xcodex.command) {
-            errors.push(`${where}: x-codex.dispatch "command" requires a non-empty "command"`);
+          if (typeof xcodex.command !== "string" || !/^\.\/hooks\/[^/]+$/.test(xcodex.command || "")) {
+            errors.push(
+              `${where}: x-codex.dispatch "command" requires command matching ` +
+                "^\\./hooks/[^/]+$ — the bundled Codex hooks tree is flat, and the path is " +
+                "emitted verbatim into hooks.json while the script is written to its basename",
+            );
           }
         }
+      }
+      // projectCodexHooks() copies the script it bundles from the CLAUDE binding —
+      // an x-codex intent with no x-claude.command emits a hooks.json entry naming
+      // a script that never gets bundled: a binding that cannot fire (Iron Law 6).
+      const xc = intent["x-claude"];
+      if (!xc || xc.dispatch !== "command" || typeof xc.command !== "string" || !xc.command) {
+        errors.push(
+          `${where}: platforms includes "codex" but there is no x-claude command binding to ` +
+            "bundle from — projectCodexHooks() copies the script it ships from x-claude.command, " +
+            "so a codex binding without one advertises a script that is never bundled",
+        );
       }
     }
 
@@ -224,6 +267,57 @@ export function run(ctx) {
   const intentKinds = new Set(intents.map((i) => i.intent));
   if (intentKinds.has("pre-compact") !== intentKinds.has("post-compact")) {
     errors.push(`hooks/: compaction hooks must ship as a pre-compact ⇔ post-compact pair (D9)`);
+  }
+
+  // ── OpenCode key uniqueness ──────────────────────────────────────────────────
+  // The projector emits one object literal keyed by x-opencode.event. Two intents
+  // claiming the same key means one silently overwrites the other at parse time —
+  // no error, no warning, one dead hook. Reject it here instead.
+  const byOpencodeKey = new Map();
+  for (const intent of intents) {
+    const key = intent["x-opencode"]?.event;
+    if (!key || !Array.isArray(intent.platforms) || !intent.platforms.includes("opencode")) continue;
+    if (!byOpencodeKey.has(key)) byOpencodeKey.set(key, []);
+    byOpencodeKey.get(key).push(intent.name);
+  }
+  for (const [key, names] of byOpencodeKey) {
+    if (names.length > 1) {
+      errors.push(
+        `hooks/: intents ${names.join(", ")} all bind x-opencode.event "${key}" — ` +
+          "the generated handler object is a JS object literal, so a duplicate key " +
+          "silently wins and the others never fire. One intent per OpenCode key.",
+      );
+    }
+  }
+
+  // ── Claude hook-script orphans ───────────────────────────────────────────────
+  // Every file under .claude-plugin/hooks/ must be referenced by some intent's
+  // x-claude.command. A script left behind by a deleted intent still ships inside
+  // the plugin and is reachable by anything that discovers the directory by
+  // convention, while nothing in canonical mentions it any more. The projector
+  // prunes these; this rule is the tripwire for a projector that was never re-run.
+  const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
+  if (existsSync(claudeHooksDir)) {
+    const referenced = new Set();
+    for (const intent of intents) {
+      const xc = intent["x-claude"];
+      if (xc && xc.dispatch === "command" && typeof xc.command === "string") {
+        referenced.add(xc.command.split("/").pop());
+      }
+    }
+    for (const entry of readdirSync(claudeHooksDir).sort()) {
+      if (referenced.has(entry)) continue;
+      // `_`-prefixed entries are shared helpers sourced by hook scripts, not
+      // orphans — nothing binds them via x-claude.command by design. The predicate
+      // is shared with the projector's prune (no mirror), so the two cannot drift
+      // into the validator demanding a file the projector has already deleted.
+      if (isHookHelper(entry)) continue;
+      errors.push(
+        `.claude-plugin/hooks/${entry}: orphaned — no hooks/*.json intent references it ` +
+          "via x-claude.command. A hook either ships (an intent binds it) or is deleted " +
+          "outright; run `node scripts/project.mjs` to prune it.",
+      );
+    }
   }
 
   // ── plugin.json drift (D6) ───────────────────────────────────────────────────

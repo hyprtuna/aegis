@@ -14,7 +14,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync
 import { join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
-import { generateClaudeHooksBlock } from "./lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, isHookHelper } from "./lib/hook-projection.mjs";
 import { SUBAGENT_PRIMITIVE_KEYS, validateSubagentPrimitive, assertIsolationWritable } from "./lib/subagent-primitives.mjs";
 
 const PKG_VERSION = JSON.parse(
@@ -470,9 +470,20 @@ function projectCodexRules() {
 // The repo-root .codex-plugin/plugin.json (old location) is deleted after the
 // first run — it's no longer the correct location. .codex-plugin/AGENTS.md
 // stays (rules surface for Codex at project root, out of scope for Phase B).
+//
+// `hooks` pointer: Codex's `plugin_hooks` feature is REMOVED (not
+// merely disabled) as of codex-cli 0.144.6 — a plugin cannot ship hooks that
+// fire, in any context. No canonical hooks/*.json intent binds `codex` in
+// `platforms` today, so `hasCodexHooks` is always false in practice. The
+// parameter (and the `./hooks/hooks.json` branch) stay so a future Codex
+// release that un-removes plugin_hooks has a real re-enable path — but the
+// default posture is explicit suppression: `hooks: {}`, the same pattern
+// Superpowers uses (`.codex-plugin/plugin.json`) to stop Codex from
+// auto-discovering a `hooks/` directory by convention. See
+// adapters/codex/projection.md "Honest Gaps" for the full writeup.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function projectCodexPluginManifest() {
+function projectCodexPluginManifest(hasCodexHooks) {
   const pluginRoot = join(REPO, ".codex/plugins/aegis");
   const manifestDir = join(pluginRoot, ".codex-plugin");
   const manifestPath = join(manifestDir, "plugin.json");
@@ -492,7 +503,9 @@ function projectCodexPluginManifest() {
 
   // Build the official plugin.json with component pointers.
   // keywords replaces tags. skills + mcpServers are mandatory pointers.
-  // hooks added in v0.2.1 when the hooks bundle is projected.
+  // hooks is a real pointer only when at least one canonical intent binds
+  // `codex`; otherwise it is the explicit-suppression `{}` form so
+  // Codex never auto-discovers a stale/absent hooks/hooks.json by convention.
   const manifest = {
     name: CODEX_MANIFEST_DEFAULTS.name,
     version: PKG_VERSION,
@@ -502,7 +515,7 @@ function projectCodexPluginManifest() {
     author: CODEX_MANIFEST_DEFAULTS.author,
     keywords: ["agentic", "skills", "agents", "anvil"],
     skills: "./skills/",
-    hooks: "./hooks/hooks.json",
+    hooks: hasCodexHooks ? "./hooks/hooks.json" : {},
     mcpServers: "./.mcp.json",
   };
 
@@ -594,26 +607,50 @@ function projectClaudeMarketplace() {
   );
 }
 
+// Filter to Codex-bound intents that have an x-codex.event. Shared by
+// projectCodexPluginManifest's caller (to decide the `hooks` pointer shape)
+// and projectCodexHooks (to decide what to bundle). This is
+// always empty — no canonical hooks/*.json intent binds `codex` — because
+// Codex's `plugin_hooks` feature is removed (codex-cli 0.144.6). The filter
+// stays live (not hardcoded to []) so a future intent that legitimately binds
+// `codex` again projects with zero code changes here.
+function filterCodexHookIntents(intents) {
+  return (intents ?? []).filter(
+    (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
+           i["x-codex"] && typeof i["x-codex"].event === "string",
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Codex hooks projection (v0.2.1)
 //
 // Emits .codex/plugins/aegis/hooks/hooks.json in Codex matcher-group shape and
 // bundles the referenced hook scripts (copied from .claude-plugin/hooks/ and
-// version-stamped) into .codex/plugins/aegis/hooks/. Also bundles
-// manifest/permissions.json → .codex/plugins/aegis/hooks/permissions.json so
-// the deny script can resolve its config file script-relative. Idempotent.
+// version-stamped) into .codex/plugins/aegis/hooks/. A hook either ships (its
+// intent projects here) or is deleted from hooks/ — there is no disabled/parked
+// state, so any bundled script/config left over from a removed intent is
+// cleaned up on every run. Idempotent.
+//
+// When no intent binds `codex` (the current, expected state — see
+// filterCodexHookIntents above), this ships NOTHING — no hooks.json, no
+// bundled scripts, not even an empty hooks/ directory. Shipping an empty
+// hooks.json behind a suppressed `{}` manifest pointer would still leave a
+// stale artifact on disk for a host that might auto-discover it by
+// convention; removing the directory entirely is the honest-gap posture.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function projectCodexHooks(intents) {
   const pluginHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
-  mkdirSync(pluginHooksDir, { recursive: true });
+  const codexIntents = filterCodexHookIntents(intents);
 
-  // Filter to Codex-bound, enabled intents that have an x-codex.event.
-  const codexIntents = (intents ?? []).filter(
-    (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
-           i.enabled !== false &&
-           i["x-codex"] && typeof i["x-codex"].event === "string",
-  );
+  if (codexIntents.length === 0) {
+    if (existsSync(pluginHooksDir)) {
+      rmSync(pluginHooksDir, { recursive: true, force: true });
+    }
+    return 0;
+  }
+
+  mkdirSync(pluginHooksDir, { recursive: true });
 
   // Build the Codex hooks.json: group by event into matcher-group shape.
   // Shape: { "hooks": { "<Event>": [ { "matcher": "…", "hooks": [ { "type": "command", "command": "…" } ] } ] } }
@@ -641,6 +678,7 @@ function projectCodexHooks(intents) {
 
   // Bundle each referenced script: copy .claude-plugin/hooks/<name>.sh →
   // .codex/plugins/aegis/hooks/<name>.sh with version stamp. Idempotent via atomicWrite.
+  const expectedScripts = new Set();
   for (const intent of codexIntents) {
     const xclause = intent["x-codex"];
     if (xclause.dispatch !== "command" || typeof xclause.command !== "string") continue;
@@ -651,6 +689,7 @@ function projectCodexHooks(intents) {
     if (!existsSync(srcPath)) continue;
     // Target filename is the basename of the x-codex command path.
     const targetName = basename(xclause.command);
+    expectedScripts.add(targetName);
     const dstPath = join(pluginHooksDir, targetName);
     const srcContent = readFileSync(srcPath, "utf8");
     const token = hookCommentSyntax(targetName);
@@ -670,16 +709,32 @@ function projectCodexHooks(intents) {
     if (needsChmod) chmodSync(dstPath, 0o755);
   }
 
-  // Bundle manifest/permissions.json → .codex/plugins/aegis/hooks/permissions.json
-  // so the deny script can resolve config file script-relative (A4).
-  const permSrc = join(REPO, "manifest", "permissions.json");
-  if (existsSync(permSrc)) {
-    const permDst = join(pluginHooksDir, "permissions.json");
-    const permContent = readFileSync(permSrc, "utf8");
-    const existingPerm = existsSync(permDst) ? readFileSync(permDst, "utf8") : null;
-    if (existingPerm !== permContent) {
-      writeFileSync(permDst, permContent, "utf8");
+  // Clean up any bundled file left over from a hook intent that no longer
+  // exists (or no longer bundles a config file) — e.g. a removed hook's script,
+  // or the permissions.json config a since-removed hook once needed.
+  // A hook either ships (its script is in expectedScripts) or is gone entirely.
+  //
+  // The keep test is membership in expectedScripts and NOTHING else. An extension
+  // filter here would delete a file this same function bundled seconds earlier:
+  // the bundler writes basename(x-codex.command) whatever its extension, and
+  // hookCommentSyntax() deliberately supports .mjs/.js/.cjs/.ts, so a `.sh`-only
+  // keep silently reaped every non-shell hook in the run that created it.
+  // expectedScripts already encodes exactly what belongs here.
+  for (const entry of readdirSync(pluginHooksDir).sort()) {
+    if (entry === "hooks.json") continue;
+    if (expectedScripts.has(entry)) continue;
+    const target = join(pluginHooksDir, entry);
+    // Never delete a tree — same rule as the Claude prune. The bundled tree is
+    // flat (x-codex.command allows no `/`), so a directory is an authoring error.
+    if (statSync(target).isDirectory()) {
+      throw new Error(
+        `.codex/plugins/aegis/hooks/${entry} is a directory — this tree is flat. ` +
+          "Bundled Codex hooks are written to the basename of x-codex.command; " +
+          "delete the directory by hand.",
+      );
     }
+    rmSync(target, { force: true }); // no `recursive` — a directory must throw, never vanish
+    console.log(`  pruned orphan Codex hook file: .codex/plugins/aegis/hooks/${entry}`);
   }
 
   return codexIntents.length;
@@ -890,8 +945,10 @@ function projectCodex(hookIntents) {
 
   // Emit the official plugin manifest + MCP stub at plugin-root.
   // Deletes the old repo-root .codex-plugin/plugin.json and .codex-plugin/mcp.json.
-  // hooks pointer added in v0.2.1 — always present now.
-  projectCodexPluginManifest();
+  // hooks pointer is real only when a canonical intent binds `codex`;
+  // computed up front so the manifest and the hooks bundle agree.
+  const codexHookIntents = filterCodexHookIntents(hookIntents ?? []);
+  projectCodexPluginManifest(codexHookIntents.length > 0);
 
   // Emit .agents/plugins/marketplace.json (canonical) and correct
   // .claude-plugin/marketplace.json to use the object source form.
@@ -1261,8 +1318,7 @@ function projectClaude(hookIntents) {
     // Per-agent disallowedTools carries ONLY bare tool-name denials (the field
     // filters the tool pool, not path/arg specifiers — sub-agents.md:269,335).
     // The cross-cutting secret/destructive-Bash deny (plugin.deny[]) is NOT
-    // expressible here; it is enforced at runtime by the PreToolUse hook
-    // .claude-plugin/hooks/pre-tool-use-deny.sh (decisions.md D5 correction).
+    // expressible here and has no runtime enforcement on Claude — advisory only.
     if (perm?.disallowedTools) outFm.disallowedTools = perm.disallowedTools;
 
     // Memory guard (D-01 footgun prevention): native `memory` auto-enables
@@ -1392,13 +1448,12 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
     .map((name) => `./adapters/claude/commands/${name}.md`);
 
   // hooks: generated from canonical hooks/*.json. Replaces the
-  // previously hand-maintained block; enabled:false intents are excluded.
+  // previously hand-maintained block. A hook either ships (appears here) or is
+  // deleted from hooks/ — there is no disabled/parked state.
   const hooks = generateClaudeHooksBlock(hookIntents ?? []);
 
   // userConfig. Schema per plugins-reference.md:550 requires
   // type/title/description; default is optional. Keep it minimal.
-  // promptInjectionScanner: opt-in toggle for the advisory scanner
-  // hook that ships disabled; users flip this in their own settings.json.
   const userConfig = {
     preferredLanguageOverlay: {
       type: "string",
@@ -1410,12 +1465,6 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
       type: "boolean",
       title: "Telemetry opt-in",
       description: "Allow Aegis to collect anonymous usage telemetry.",
-      default: false,
-    },
-    promptInjectionScanner: {
-      type: "boolean",
-      title: "Prompt-injection scanner",
-      description: "Enable the advisory prompt-injection scanner hook (opt-in, never blocks).",
       default: false,
     },
   };
@@ -1454,9 +1503,10 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 // the sibling hooks/<name>.md is the human intent doc). loadHookIntents() globs
 // them, hand-validates shape (fail loud), and returns a deterministically sorted
 // array. generateClaudeHooksBlock() builds the .claude-plugin/plugin.json `hooks`
-// object from the claude-platform intents (excluding enabled:false, D7).
+// object from the claude-platform intents.
 // injectOpencodeCompactionBridge() rewrites the guarded AEGIS:HOOKS-GEN region in
-// .opencode/plugins/aegis.js (Phase A ships a no-op placeholder; Phase B fills it).
+// .opencode/plugins/aegis.js, emitting aegisHookHandlers() — the flat dotted-key
+// object OpenCode resolves plugin handlers from.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Glob hooks/*.json (non-recursive), JSON.parse, hand-validate the minimal
@@ -1543,25 +1593,78 @@ function hookFilesFromIntents(intents) {
 }
 
 // Idempotently rewrite ONLY the guarded AEGIS:HOOKS-GEN region in aegis.js text.
-// Phase A emits a no-op placeholder body (Phase B fills it). Two projector runs
-// must produce identical bytes. Fails loud if the markers are absent.
+// The region declares aegisHookHandlers() — the object OpenCode resolves handlers
+// from. Two projector runs must produce identical bytes. Fails loud if the markers
+// are absent or an intent names a handler the plugin does not define.
 const OPENCODE_HOOKS_GEN_START = "// >>> AEGIS:HOOKS-GEN (generated by scripts/project.mjs — do not edit) >>>";
 const OPENCODE_HOOKS_GEN_END = "// <<< AEGIS:HOOKS-GEN <<<";
 
-function injectOpencodeCompactionBridge(text, _intents) {
+// Canonical x-opencode.handler → the hand-written expression in aegis.js it binds
+// to. Unknown handler names are a hard error: a binding that names a function the
+// plugin does not define would emit a ReferenceError at plugin load, and a silently
+// skipped binding would reproduce the exact dead-hook class this map exists to
+// prevent. Handler bodies stay hand-written; only the KEY→handler wiring is
+// generated, because the key strings are what must never drift from canonical.
+const OPENCODE_HANDLER_EXPR = {
+  bootstrap: "aegisBootstrapTransform(ctx)",
+  compaction: "aegisCompaction",
+};
+
+function generateOpencodeHandlerMap(intents) {
+  const lines = [];
+  const seen = new Set();
+  for (const intent of intents) {
+    if (!Array.isArray(intent.platforms) || !intent.platforms.includes("opencode")) continue;
+    const xo = intent["x-opencode"];
+    if (!xo || typeof xo !== "object") {
+      throw new Error(`hooks/${intent.name}.json: platforms includes "opencode" but x-opencode binding is missing`);
+    }
+    if (typeof xo.event !== "string" || !xo.event) {
+      throw new Error(`hooks/${intent.name}.json: x-opencode requires a non-empty "event" (the literal OpenCode hook key)`);
+    }
+    if (seen.has(xo.event)) {
+      throw new Error(
+        `hooks/${intent.name}.json: x-opencode.event "${xo.event}" is already bound by another intent — ` +
+          "duplicate keys in the generated object literal silently overwrite each other",
+      );
+    }
+    const expr = OPENCODE_HANDLER_EXPR[xo.handler];
+    if (!expr) {
+      throw new Error(
+        `hooks/${intent.name}.json: unknown x-opencode.handler "${xo.handler}" ` +
+          `(known: ${Object.keys(OPENCODE_HANDLER_EXPR).join(", ")})`,
+      );
+    }
+    seen.add(xo.event);
+    lines.push(`    ${JSON.stringify(xo.event)}: ${expr},`);
+  }
+  return lines;
+}
+
+function injectOpencodeCompactionBridge(text, intents) {
   const startIdx = text.indexOf(OPENCODE_HOOKS_GEN_START);
   const endIdx = text.indexOf(OPENCODE_HOOKS_GEN_END);
   if (startIdx < 0 || endIdx < 0 || endIdx < startIdx) {
     throw new Error(
-      "OpenCode aegis.js is missing the AEGIS:HOOKS-GEN marker region — cannot inject compaction bridge.",
+      "OpenCode aegis.js is missing the AEGIS:HOOKS-GEN marker region — cannot inject the handler map.",
     );
   }
-  // Placeholder body. Shape verified: input {sessionID} -> output
-  // {context:string[], prompt?}. No phase param — single hook, no pre/post split.
-  // Phase dispatch deferred until the pre/post semantics gap is resolved.
+  // OpenCode's Hooks interface declares these handlers as flat, quoted, dotted
+  // property names (verified against the installed @opencode-ai/plugin type
+  // contract, dist/index.d.ts, OpenCode 1.18.3). Emitting a nested object literal
+  // instead declares different properties and the handlers are never invoked, with
+  // no error. Keys below are the canonical x-opencode.event values, verbatim.
   const body = [
     OPENCODE_HOOKS_GEN_START,
-    "const aegisCompaction = async (_input, _output) => { /* no-op: pre/post phase split deferred */ };",
+    "// OpenCode resolves plugin hooks by LITERAL flat dotted key (@opencode-ai/plugin",
+    "// dist/index.d.ts). A nested binding such as `experimental: { session: { compacting } }`",
+    "// declares a different property and is silently never invoked. Keys come verbatim",
+    "// from canonical hooks/*.json `x-opencode.event`.",
+    "function aegisHookHandlers(ctx) {",
+    "  return {",
+    ...generateOpencodeHandlerMap(intents),
+    "  };",
+    "}",
     OPENCODE_HOOKS_GEN_END,
   ].join("\n");
   const before = text.slice(0, startIdx);
@@ -1618,9 +1721,31 @@ function stampHookContent(content, commentToken, version) {
   return lines.join("\n");
 }
 
-// Stamp every projected command hook. The file list is DERIVED from the canonical
-// intents (every x-claude.dispatch:"command" command path), so a new .sh/.mjs hook
-// auto-stamps with no hardcoded list to maintain.
+// Stamp every projected command hook, then prune anything in
+// `.claude-plugin/hooks/` no live intent references. The file list is DERIVED from
+// the canonical intents (every x-claude.dispatch:"command" command path), so a new
+// .sh/.mjs hook auto-stamps with no hardcoded list to maintain.
+//
+// The prune mirrors projectCodexHooks(): a hook either ships (some hooks/*.json
+// binds it via x-claude.command) or it is gone. Stamping alone is not enough —
+// deleting an intent left its script on disk, shipped inside the plugin and
+// reachable by anything that discovers the directory by convention, while nothing
+// in canonical mentioned it any more. `HOOK_INTENT` hard-fails on the same
+// condition, so an orphan cannot survive a projector that was never re-run.
+//
+// Three properties keep the prune safe, because a delete-by-default loop is only
+// as good as its escape hatches:
+//   - FLAT ONLY. A directory raises instead of being removed. `.claude-plugin/
+//     hooks/` is flat by contract (the x-claude.command regex allows no `/`), so
+//     a directory is an authoring error — and reaping it recursively could take a
+//     correctly-referenced script down with it.
+//   - HELPERS ARE EXEMPT. A `_`-prefixed entry is a shared library sourced by hook
+//     scripts, not an orphan; nothing binds it via x-claude.command by design. The
+//     test is the shared isHookHelper() — the HOOK_INTENT orphan rule calls the
+//     same predicate, so the two cannot drift apart.
+//   - DELETIONS ARE PRINTED. Every pruned path goes to stdout. A silent prune is
+//     invisible to the author and to the gate, which is exactly how it would eat
+//     a file nobody notices until a user's hook breaks at runtime.
 function projectHooks(intents) {
   const HOOK_FILES = hookFilesFromIntents(intents ?? []);
   let stamped = 0;
@@ -1634,6 +1759,32 @@ function projectHooks(intents) {
       stamped++; // count only hooks actually (re)written
     }
   }
+
+  const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
+  if (existsSync(claudeHooksDir)) {
+    const expected = new Set(HOOK_FILES.map((p) => basename(p)));
+    for (const entry of readdirSync(claudeHooksDir).sort()) {
+      if (expected.has(entry)) continue;
+      if (isHookHelper(entry)) continue; // shared helper, not an orphan
+      const target = join(claudeHooksDir, entry);
+      // Never delete a tree. `.claude-plugin/hooks/` is FLAT (the x-claude.command
+      // regex enforces it), so a directory here is an authoring error, not an
+      // orphan to reap — raise it instead of silently destroying whatever is
+      // inside, which could include a correctly-referenced script.
+      if (statSync(target).isDirectory()) {
+        throw new Error(
+          `.claude-plugin/hooks/${entry} is a directory — this tree is flat. ` +
+            "Move the script to .claude-plugin/hooks/<name>.sh and point " +
+            "x-claude.command at it, or delete the directory by hand.",
+        );
+      }
+      rmSync(target, { force: true }); // no `recursive` — a directory must throw, never vanish
+      // A deletion is never silent: an unobservable prune is how a destructive
+      // bug hides from both the author and the gate.
+      console.log(`  pruned orphan hook: .claude-plugin/hooks/${entry}`);
+    }
+  }
+
   return stamped;
 }
 
@@ -1662,7 +1813,9 @@ console.log(
     codex.commands +
     " commands-as-dispatchers, rules → .codex-plugin/AGENTS.md; plugin manifest + .mcp.json → .codex/plugins/aegis/.codex-plugin/; marketplace → .agents/plugins/; " +
     codex.hooks +
-    " hook(s) bundled → .codex/plugins/aegis/hooks/)",
+    " hook(s) bundled → .codex/plugins/aegis/hooks/" +
+    (codex.hooks === 0 ? " (none bound — plugin.json hooks: {} suppresses discovery)" : "") +
+    ")",
 );
 
 const statuslineCount = projectStatuslines();
@@ -1712,17 +1865,19 @@ console.log("  - .opencode/INSTALL.md");
 console.log("  - .codex/INSTALL.md");
 console.log("");
 console.log("Generated by projectCodexPluginManifest() + projectCodexMarketplaces():");
-console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/hooks/mcpServers pointers + keywords)");
+console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/mcpServers pointers + keywords; hooks: {} unless a canonical intent binds codex)");
 console.log("  - .codex/plugins/aegis/.mcp.json (empty mcpServers stub)");
 console.log("  - .agents/plugins/marketplace.json (Codex marketplace, object source form)");
 console.log("");
 console.log("Generated by projectClaudeMarketplace() (v0.3.4):");
 console.log("  - .claude-plugin/marketplace.json (Claude marketplace, string source \"./\")");
 console.log("");
-console.log("Generated by projectCodexHooks() (v0.2.1):");
-console.log("  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, 4 events)");
-console.log("  - .codex/plugins/aegis/hooks/*.sh (bundled scripts, version-stamped)");
-console.log("  - .codex/plugins/aegis/hooks/permissions.json (deny-config, script-relative resolution)");
+console.log("Generated by projectCodexHooks():");
+console.log(
+  codex.hooks === 0
+    ? "  - .codex/plugins/aegis/hooks/ — not shipped (no intent binds codex; plugin_hooks is removed, codex-cli 0.144.6)"
+    : `  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, ${codex.hooks} events)`,
+);
 console.log("");
 console.log("Future projections:");
 console.log("  v0.0.6: dist/aegis.skill bundle (E2), dependencies population (E1)");

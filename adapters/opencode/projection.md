@@ -9,7 +9,7 @@
 - **Install instructions:** `.opencode/INSTALL.md` (agent-readable) tells an AI agent how to edit the user's `opencode.json`. NO install script Aegis runs.
 - **Skill discovery:** Plugin `config(cfg)` pushes 3 absolute paths into `cfg.skills.paths` (`skills/core`, `skills/languages`, `skills/workflows`).
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
-- **Bootstrap (verified):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once at plugin-factory init (`aegis.js:50,128`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`aegis.js:176-179`) and injects into the **first USER message** (`aegis.js:171`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This confirms the superpowers-audit recommendations were already satisfied.
+- **Bootstrap (static review):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once and memoized (`aegis.js:50,73,85`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`BOOTSTRAP_MARKER`, `aegis.js:39`; guard at `aegis.js:221-224`) and injects into the **first USER message** (selected at `aegis.js:216`, injected at `aegis.js:226-227`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This satisfies the superpowers-audit recommendations by static review of the shipped source; no live OpenCode run has been performed.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.
 - **Commands:** Generated `.opencode/commands/<name>.md`. `argument-hint` is a Claude-only command field (not documented for OpenCode's `config.command`) and is intentionally NOT promoted here (v0.1.3) — it stays only on the Claude command carrier.
 - **Rules:** Embedded in bootstrap text, NOT via `cfg.instructions[]` (per Superpowers' tested approach; avoids per-turn token cost).
@@ -56,7 +56,7 @@ Aegis can use option 7 to point at canonical `skills/` directly OR option 5 to m
 `.opencode/plugins/aegis.js` should:
 - Use `config(cfg)` loader hook to push `skills.paths` pointing at the canonical `skills/`.
 - Register `experimental.chat.messages.transform` for bootstrap injection (idempotency marker pattern from Anvil's `src/opencode-plugin/index.ts`).
-- Map portable hook intents to OpenCode event names.
+- Map portable hook intents to OpenCode hook keys — as flat dotted string keys on the returned object, never nested (see the hook capability matrix).
 
 ## Constraints (V/U marked)
 
@@ -92,36 +92,58 @@ OpenCode — only Layer 2 (Claude's 200-line auto-injection) is absent. Start wi
 ## Hook capability matrix
 
 OpenCode has no Claude-style hook-JSON config and no LLM-evaluated hook primitive,
-so only the bootstrap and compaction intents have an OpenCode home. The compaction
-pair binds to `experimental.session.compacting` — whose field shape **is now
-documented** (`opencode-docs/docs/18-plugins.md:329-333`): `input { sessionID }` →
-`output { context: string[], prompt?: string }` (D8 corrected). The REAL
-gap is that OpenCode's `session.compacting` is a **single combined hook** with no
-`phase` parameter — it fires once per compaction event, before the LLM summarises
-the context. Aegis's canonical model exposes distinct `pre-compact` / `post-compact`
-intents (pre = inject guidance before summarisation; post = react after). A correct
-projection would require either (a) treating `session.compacting` as `pre-compact`
-only and accepting that `post-compact` has no OpenCode home, or (b) deferring both
-until this pre/post semantics gap is resolved. Current stance: the generated
-`AEGIS:HOOKS-GEN` region in `.opencode/plugins/aegis.js` remains a **no-op
-placeholder** (`const aegisCompaction = async (_input, _output) => {}`), phase
-dispatch is deferred, and the OpenCode rows stay `partial`. The canonical
-`pre-compact` / `post-compact` intents project **fully to Claude** (`PreCompact` /
-`PostCompact` command hooks). Every judgment hook and every Claude-only lifecycle
-event is a `gap` — documented here, never silently dropped.
+so only the bootstrap and pre-compaction intents have an OpenCode home.
+
+**Handler registration shape (verified).** OpenCode resolves plugin handlers by
+**literal, flat, dotted string key**. This is settled against the installed
+`@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3), whose
+`Hooks` interface declares `"experimental.chat.messages.transform"`,
+`"experimental.session.compacting"`, `"experimental.chat.system.transform"` and
+`"experimental.compaction.autocontinue"` as quoted dotted properties. Only
+`event`, `config`, `tool`, `auth` and `provider` are plain/nested members. A
+nested object literal — `experimental: { session: { compacting } }` — therefore
+declares a *different* property than `"experimental.session.compacting"`, and a
+handler bound that way is registered, shipped, and **never invoked, with no
+error**. The generated `AEGIS:HOOKS-GEN` region in `.opencode/plugins/aegis.js`
+emits the flat keys; the key strings come verbatim from canonical
+`hooks/*.json` `x-opencode.event`, so canonical and generated cannot disagree.
+`HOOK_INTENT` hard-fails on an out-of-enum key and on two intents binding the
+same key (in a JS object literal a duplicate key silently wins).
+
+**Compaction is one hook, not two.** OpenCode's `experimental.session.compacting`
+fires **once, before compaction starts** — `input { sessionID }` →
+`output { context: string[], prompt?: string }` (shape confirmed by the same
+`.d.ts` and by `opencode-docs/docs/18-plugins.md:329-333`). Aegis's canonical model
+exposes distinct `pre-compact` / `post-compact` intents. Only `pre-compact` maps:
+it binds `experimental.session.compacting`. **`post-compact` has no OpenCode
+home** and no longer claims one — `platforms` is now `["claude"]`. The nearest
+candidate, `experimental.compaction.autocontinue`, fires after compaction but its
+output is only `{ enabled: boolean }`; it can suppress the synthetic continue turn
+and cannot re-surface anchors, so it cannot express the `post-compact` semantic.
+Declared gap, not a silent drop.
+
+The registered `pre-compact` handler body is a deliberate **no-op placeholder**
+(`const aegisCompaction = async (_input, _output) => {}`): anchor capture needs
+durable cross-turn state the plugin has no store for. The binding is real and the
+row stays `partial` for that reason — not because the registration is broken.
+Both compaction intents project **fully to Claude** (`PreCompact` / `PostCompact`
+command hooks). Every judgment hook and every Claude-only lifecycle event is a
+`gap` — documented here, never silently dropped.
+
+**Verified vs unverified.** Verified: the type contract above; and that the plugin
+factory returns exactly `config`, `"experimental.session.compacting"`,
+`"experimental.chat.messages.transform"` with no nested `experimental` member, that
+the bootstrap handler injects the marker-guarded body into the first user message,
+and that a second call does not double-inject (in-process assertions in the K1 test
+family, `scripts/tests/projection-hooks.test.mjs`). **Not** verified: a live OpenCode run. No
+end-to-end invocation against a running host has been performed for this change.
 
 | Intent / name | Status | OpenCode binding | Notes |
 |---|---|---|---|
-| `session-start` | supported | `chat.messages.transform` (bootstrap) | Existing bootstrap transform. `experimental.chat.messages.transform` is a **verified-real** OpenCode hook (`opencode-docs/docs/18-plugins.md:317`) — a prior audit false-positive; do not re-flag. |
-| `pre-compact` | partial | `session.compacting` | Shape verified (D8): `input {sessionID}` → `output {context:string[], prompt?}`. Real gap: no `phase` param — single hook, no pre/post split. No-op placeholder; phase dispatch deferred. Full projection on Claude only. |
-| `post-compact` | partial | `session.compacting` | Same combined hook; no `phase` param means `post-compact` has no distinct OpenCode home. No-op placeholder; deferred. Full projection on Claude only. |
-| `pre-tool-use-deny` | gap | — | Enforced via the `config(cfg)` permission block, not a hook; no PreToolUse hook event. **Protected-branch git guard:** the protected-branch / force-push / `reset --hard` / `restore` / `clean` guard added to the Claude PreToolUse hook is Claude-only — OpenCode has no equivalent runtime command-classification hook, so it inherits this gap (approximable via `permission.bash` literal matchers, with the same evasion caveat noted above). `permission.ask` runtime hook evaluated — see decisions below. |
-| `verify-no-secrets-touched` | gap | — | No LLM-evaluated hook primitive; Claude-only judgment hook. |
-| `no-silent-failures` | gap | — | No LLM-evaluated hook primitive; Claude-only. |
-| `no-rationalization` | gap | — | No LLM-evaluated hook primitive; Claude-only. |
-| `verification-before-completion` | gap | — | No agent-dispatch hook primitive; Claude-only. |
+| `session-start` | supported | `experimental.chat.messages.transform` | Bootstrap transform. A **verified-real** OpenCode hook — declared in `@opencode-ai/plugin` `dist/index.d.ts:258` and documented at `opencode-docs/docs/18-plugins.md:317`. A prior audit false-positive; do not re-flag. |
+| `pre-compact` | partial | `experimental.session.compacting` | Registered as a flat dotted key. Shape verified: `input {sessionID}` → `output {context:string[], prompt?}`. Fires once, pre-compaction. Handler body is a deliberate no-op placeholder (no durable store); full projection on Claude only. |
+| `post-compact` | gap | — | OpenCode has no post-compaction context-injection hook. `experimental.session.compacting` is pre-only; `experimental.compaction.autocontinue` returns only `{enabled}`. Intent is Claude-only (`platforms: ["claude"]`). |
 | `instructions-loaded` | gap | — | No `InstructionsLoaded` counterpart. |
-| `prompt-injection-guard` | gap | — | No PreToolUse hook event; the advisory scanner is Claude-only. |
 
 ## Statuslines
 
@@ -137,7 +159,7 @@ OpenCode does **not** honour a `permission:` key in agent markdown frontmatter �
 
 - **Per-agent (D4):** for each agent in the manifest, sets `cfg.agent["aegis-<name>"].permission = spec.opencode` — the tri-state map of `read`/`grep`/`glob`/`list`/`bash`/`task` etc. (e.g. read-only reviewers get `{ "*": "deny", "read": "allow", "grep": "allow", "glob": "allow", "list": "allow" }`). It writes only when `.permission` is absent, so user pins and re-runs of the hook are never clobbered.
 - **Global cross-cutting deny (D5):** translates the manifest's `plugin.deny[]` into OpenCode's global `permission` block — `Read(<glob>)` denies become `permission.read.{<glob>: "deny"}` and `Bash(<cmd>)` denies become `permission.bash.{<cmd>: "deny"}`. `./`-prefixed paths are anchored as `**/`-globs so they match at any depth. Tool denies with no OpenCode global equivalent are an honest gap (no false enforcement).
-  - **Caveat (within-Bash patterns):** the `read` glob denies (`**/.env`, `**/secrets/**`, `~/.ssh/**`) are reliable, but a `Bash(curl * | sh)`-style deny is matched by OpenCode's command matcher as a literal command-string pattern; embedded pipes/option-reordering can evade it (the same fragility `permissions.md:150-164` warns about on Claude). Treat the within-Bash denies as best-effort, not airtight. Claude enforces the same Bash patterns more robustly via the `pre-tool-use-deny.sh` PreToolUse hook. The `permission.ask` runtime hook (documented in `opencode-docs/docs/18-plugins.md:154-168`) was evaluated as a potential improvement path — see the build-or-defer decisions below.
+  - **Caveat (within-Bash patterns):** the `read` glob denies (`**/.env`, `**/secrets/**`, `~/.ssh/**`) are reliable, but a `Bash(curl * | sh)`-style deny is matched by OpenCode's command matcher as a literal command-string pattern; embedded pipes/option-reordering can evade it. Treat the within-Bash denies as best-effort, not airtight — Aegis ships no other runtime mechanism on any host that enforces these patterns more robustly. The `permission.ask` runtime hook (documented in `opencode-docs/docs/18-plugins.md:154-168`) was evaluated as a potential improvement path — see the build-or-defer decisions below.
 
 If the manifest is missing or malformed, the plugin **refuses to register agents** — permissions are a security boundary, not best-effort. See [`docs/agent-permissions.md`](../../docs/agent-permissions.md) for the full per-agent table. `agent-tools-allowlist` is `opencode: supported` in `manifest/capabilities.json`.
 
@@ -163,7 +185,7 @@ agent can resolve at runtime. On both Codex and OpenCode, Q2 may still offer
 HTML (the option set is index-driven, not host-gated), but the runtime `Read`
 of the template body has no resolvable path today.
 
-## Unsupported (Documented Gaps)
+## Claude-Only Capabilities (Documented Gaps)
 
 The following capabilities are **Claude-only** and have no OpenCode equivalent. Each is a `gap`/`partial`/`n-a` row in [`manifest/capabilities.json`](../../manifest/capabilities.json) — the source of truth; this list must not contradict it.
 
@@ -184,7 +206,13 @@ Model aliases (`manifest/models.json`) and provider-tagged prose (`<opencode>…
 
 Three OpenCode experimental features were evaluated for adoption. Each has a documented API shape in
 `opencode-docs/docs/18-plugins.md`; the evaluation criterion is: clean + low-risk + statically-verifiable
-AND confirmed by docs. We have no OpenCode CLI for runtime verification.
+AND confirmed by docs.
+
+**Verification state.** An OpenCode CLI **is** available (1.18.3) — it is the same install whose
+`@opencode-ai/plugin` type contract is this adapter's primary static evidence. What is missing is a
+**live run**: no end-to-end invocation against a running host has been performed for any of the three
+decisions below. So the constraint is availability of *evidence from execution*, not availability of a
+host. Each DEFER below states its own surviving justification; none rests on "no CLI exists".
 
 ### `experimental.compaction.autocontinue` — DEFER
 
@@ -194,7 +222,12 @@ synthetic "continue" user message that OpenCode injects after compaction to rest
 
 **Evaluation:** Aegis has no use case requiring suppression of the autocontinue turn — the intent is
 compaction guidance injection (a `pre-compact` concern), not turn-skipping. Building this now would
-be adopting an API without a real requirement. Deferred until a concrete need emerges.
+be adopting an API without a real requirement. Deferred until a concrete need emerges. It is also
+**not** a home for `post-compact`: its output is `{enabled: boolean}` only, so it cannot re-surface
+captured anchors — see the hook capability matrix above.
+
+This DEFER rests on absence of a requirement and on the documented output shape, neither of which a
+live run would change. Unaffected by the verification state above.
 
 ### `permission.ask` runtime hook — DEFER
 
@@ -210,9 +243,14 @@ at runtime. However: (1) the docs do not show the full `input` shape for Bash pe
 no documented field confirming the command string is accessible; (2) any implementation would execute
 unverified logic on a live permission decision; (3) the existing `config(cfg)` deny block is already
 best-effort by design (documented, not silently dropped). Honest-gaps discipline: a runtime security
-hook built against an under-documented input shape and with no runtime testing path would be worse than
-the current documented caveat. DEFER. Re-evaluate when docs show the full Permission input shape and
-a test path exists.
+hook built against an under-documented input shape would be worse than the current documented caveat.
+DEFER on the input-shape gap alone.
+
+**Re-openable.** The "no test path" half of the original rationale is withdrawn — an OpenCode 1.18.3
+install is present, so the Permission input shape is discoverable from the installed
+`@opencode-ai/plugin` types or a live probe rather than from docs alone. Re-evaluate as soon as
+someone reads that shape out of the installed contract; if the Bash command string turns out to be
+exposed, objection (1) dissolves and this should be reconsidered on its merits.
 
 ### `experimental.chat.system.transform` — DEFER
 
@@ -221,14 +259,24 @@ a test path exists.
 the system prompt, which is a cleaner channel than the current user-message bootstrap inject.
 
 **Evaluation:** The current bootstrap via `experimental.chat.messages.transform` (user-message inject
-with `<!-- aegis:bootstrap -->` idempotency guard) is verified and working. Switching
-channels is a behavioral change with real risk: (1) the current approach is battle-tested and
-explicitly confirmed per-audit; (2) system prompt injection via this hook may
-interact differently with multi-turn context, compaction, or per-model system-prompt handling;
-(3) the current approach deliberately targets the FIRST USER MESSAGE to avoid per-turn token bloat —
-a system-transform hook would need equivalent deduplication logic to avoid adding Aegis bootstrap on
-every turn. A blind switch without controlled testing would be reckless. DEFER pending a controlled
-A/B validation on a non-primary session, not a production swap.
+with `<!-- aegis:bootstrap -->` idempotency guard) was **just corrected in this release**: the handler
+had been registered under a nested `experimental` object key, which OpenCode never resolves, so it was
+shipped and never invoked. It is now registered under the flat dotted key the `@opencode-ai/plugin`
+type contract declares. That channel is verified by static review and in-process assertions (the K1
+test family, `scripts/tests/projection-hooks.test.mjs`) only — it has **not** been live-run verified,
+and it has no track record to lean on.
+
+So this is not a defer-because-the-incumbent-is-proven. It defers on the two grounds that survive:
+(1) system-prompt injection via this hook may interact differently with multi-turn context,
+compaction, or per-model system-prompt handling; (2) the messages-transform approach deliberately
+targets the FIRST USER MESSAGE to avoid per-turn token bloat — a system-transform hook would need
+equivalent deduplication logic to avoid re-injecting the bootstrap every turn. Swapping an unproven
+channel for a second unproven channel adds risk without retiring any.
+
+**Re-openable.** The incumbent's freshly-corrected, unexercised state is itself a reason to revisit:
+once a live run establishes how the messages-transform channel actually behaves, that same run is the
+natural place to A/B the system-transform alternative. DEFER pending controlled A/B validation on a
+non-primary session, not a production swap.
 
 ## Early Plan
 

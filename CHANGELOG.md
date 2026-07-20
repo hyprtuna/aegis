@@ -6,6 +6,15 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.2.0] — 2026-07-20
+
+- **The git guard is gone.** The PreToolUse deny hook is removed entirely — protected-branch policy, destructive-ops checks, and the `AEGIS_ALLOW_GIT_GUARD` override. It blocked legitimate work repeatedly while catching nothing dangerous: it classified commands by matching their text rather than by what they would do, and it resolved the current branch from the session directory, so every commit made inside a git worktree was denied as a commit to `main`. Protected-branch guidance now lives in `rules/protected-branch-discipline.md`, where a team practising trunk-based development is advised rather than blocked, and a team wanting a hard block is pointed at forge branch protection or their own `pre-push` hook.
+- **Hooks halved, and the survivors are honest.** Five hooks declared `enabled: false` and never fired; they and their payloads are deleted, along with an unregistered script that shipped to users regardless, and the `enabled` field is gone from the schema so the state cannot recur. Aegis now ships four live hooks: `SessionStart`, `PreCompact`, `PostCompact`, `InstructionsLoaded`.
+- **Codex hook bindings removed.** Verified against `codex features list` on codex-cli 0.144.6: `plugin_hooks` is `removed`, so a plugin-distributed hook cannot fire on Codex in any context. The bindings are gone and the gap is declared in `adapters/codex/projection.md` rather than silently dropped. Aegis's Codex bootstrap continues through native skill discovery.
+- **OpenCode hooks were registered under keys OpenCode never resolves.** The generated plugin nested its handlers (`experimental: { chat: { messages: { transform } } }`) while OpenCode's own type contract declares them as flat quoted dotted properties. The bootstrap was shipped and never invoked. Handlers now emit flat dotted keys, and `pre-compact`/`post-compact` no longer collide on one event.
+- **Install from git.** `/plugin marketplace add hyprtuna/aegis` replaces the clone-and-add-a-local-path flow. A local-path marketplace copies the working directory including gitignored content — measured at 1.1 GB per installed version, most of it vendored reference docs that are not in the repository.
+- **The projector now prunes what it stops generating.** Removing a hook left its generated script behind, unreferenced, shipped. Both host trees now prune orphans, announce every deletion, and refuse to delete a directory; a validator rule fails the build if an unreferenced script survives. The hook counter also stopped miscounting — it read `hooks/*.md`, so any hook without a doc file was invisible.
+
 ## [v0.1.6] — 2026-07-20
 
 - **Validation no longer walks the private planning repo.** The shared validation walk made an explicit exception to include it, so broken internal links belonging to a separate repository failed the public repo's gate — while CI, which clones fresh and never sees that gitignored directory, passed. Local and CI results disagreed; they now agree. Maintainer tooling only, no user-facing change.

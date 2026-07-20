@@ -13,7 +13,7 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
 - `hooks/<name>.json` — the **machine binding** and source of truth for projection. Validated against `manifest/schemas/hook-intent.schema.json` by the `HOOK_INTENT` rule (`scripts/validate/hook-intent.mjs`). The projector (`scripts/project.mjs`) builds the Claude `.claude-plugin/plugin.json` `hooks` block and the OpenCode compaction region in `.opencode/plugins/aegis.js` from these.
 - `hooks/<name>.md` — the **human intent doc** (lean 5-field frontmatter, `kind: hook`). When both files exist, `json.name` MUST equal `.md` frontmatter `name`.
 
-`.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `pre-tool-use-deny`, `prompt-injection-guard`).
+`.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `instructions-loaded`).
 
 ## Intent JSON shape (authoritative: `manifest/schemas/hook-intent.schema.json`)
 
@@ -25,7 +25,6 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
   "description": "…",
   "visibility": "internal",
   "platforms": ["claude", "opencode"],
-  "enabled": true,                       // false → excluded from generated block (D7)
   "x-claude": {                          // required when platforms ⊇ claude
     "event": "SessionStart",
     "matcher": "startup|clear|compact",
@@ -33,13 +32,30 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
     "command": ".claude-plugin/hooks/session-start.sh"
   },
   "x-opencode": {                        // required when platforms ⊇ opencode
-    "event": "chat.messages.transform",
+    "event": "experimental.chat.messages.transform",
     "handler": "bootstrap"
   }
 }
 ```
 
+`x-opencode.event` is the **literal flat dotted hook key** OpenCode resolves the handler by — verified against the installed `@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3), where every one of these is declared as a quoted dotted property on the `Hooks` interface. The projector emits the value verbatim as the generated key string. A nested binding (`experimental: { session: { compacting } }`) declares a *different* property, so the handler is registered and never invoked — with no error. Two intents may not bind the same key: the generated handler object is a JS object literal, where a duplicate key silently wins and the loser never fires. Both rules are `HOOK_INTENT` hard-fails.
+
 `prompt`/`agent` dispatch carry `x-claude.prompt` (+ optional `model`) — **not** an agent-name (D4). `command` dispatch carries `x-claude.command` under `.claude-plugin/hooks/`.
+
+## `.claude-plugin/hooks/` is flat
+
+The implementation tree is **flat** — `x-claude.command` must match `^\.claude-plugin/hooks/[^/]+$` (schema + `HOOK_INTENT`). No subdirectories.
+
+`projectHooks()` prunes this directory on every run: any entry no live intent references via `x-claude.command` is deleted, so a retired hook cannot leave its script shipping inside the plugin. Two consequences follow from that, and both are load-bearing:
+
+- **A directory raises, it is never removed.** The prune refuses to descend, because reaping a subtree could take a correctly-referenced script down with it. A directory here is an authoring error — fix the path, don't nest.
+- **`_`-prefixed entries are exempt.** A shared helper sourced by hook scripts (`_lib.sh`, sourced as `source "$(dirname "$0")/_lib.sh"`) has nothing binding it via `x-claude.command` by design, so the prune and the `HOOK_INTENT` orphan rule both skip the `_` prefix. Name every shared helper that way or the projector will delete it.
+
+Every pruned path is printed to stdout. A deletion is never silent.
+
+The **bundled Codex tree** (`.codex/plugins/aegis/hooks/`) is flat for the same reason: `x-codex.command` must match `^\./hooks/[^/]+$`. `projectCodexHooks()` emits that value verbatim into `hooks.json` but writes the bundled script to its **basename**, so a nested path would ship a manifest telling Codex to run something that was never placed there. That tree is entirely projector-owned — it holds `hooks.json` plus the bundled scripts and nothing else, so anything unexpected there is pruned (printed, and raising rather than descending into a directory). Bundled scripts are **not** restricted by extension: whatever `x-codex.command`'s basename names is kept, matching `hookCommentSyntax()`'s support for `.sh`/`.mjs`/`.js`/`.cjs`/`.ts`.
+
+**`.codex/plugins/aegis/hooks/` has three consumers that must agree:** the bundler and the prune (both in `projectCodexHooks()`, `scripts/project.mjs`) and the byte-equality drift gate (FIX-V9 in `scripts/validate/codex.mjs`). Changing what any one of them accepts requires checking the other two — an extension assumption left in just one of the three is enough to either delete a file the bundler wrote or let a stale copy ship unchecked.
 
 ## Intent doc frontmatter (`<name>.md`)
 
@@ -81,9 +97,9 @@ Battle-tested rules for any shipped hook implementation under `.claude-plugin/ho
    case ",${AEGIS_SKIP_HOOKS:-}," in *",<hook-name>,"*) exit 0 ;; esac
    ```
 
-   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=session-start,instructions-loaded` disables named ones. Applied to the lifecycle hooks + `prompt-injection-guard.mjs` (JS variant). **Exception — `pre-tool-use-deny` (the security boundary) does NOT honor the global disable.** It has its own scoped, auditable overrides (`AEGIS_ALLOW_GIT_GUARD`, the `# aegis:allow-git` marker, and `plugin.deny`/`plugin.gitGuard` config), so a blanket debug switch can never silently drop the rm-rf / secret-read / git guardrail.
+   `AEGIS_DISABLE=1` disables all Aegis hooks; `AEGIS_SKIP_HOOKS=session-start,instructions-loaded` disables named ones. Applied to every shipped hook — there is no security-boundary exception today.
 
-2. **Fail open; always exit 0 (advisory + lifecycle hooks).** Any internal error → exit 0 with no output ("no opinion"), never crash the user's turn. On oversized or truncated stdin, emit empty stdout + exit 0 — never echo a mid-stream-truncated JSON payload. (The deny hook also fails open.)
+2. **Fail open; always exit 0 (advisory + lifecycle hooks).** Any internal error → exit 0 with no output ("no opinion"), never crash the user's turn. On oversized or truncated stdin, emit empty stdout + exit 0 — never echo a mid-stream-truncated JSON payload.
 
 3. **Flush stdout before exit (Node hooks).** Write through the callback before `process.exit()` — a bare exit can truncate output past the ~64 KB pipe buffer (ECC #2222).
 
@@ -94,3 +110,7 @@ Battle-tested rules for any shipped hook implementation under `.claude-plugin/ho
 6. **Project key = git basename.** A project-scoped hook resolves the project as `AEGIS_PROJECT_NAME` env → `git rev-parse --show-toplevel` basename → `basename(cwd)`, never a raw full-path match (which silently filters by cwd) — agentmemory #687.
 
 7. **"Am I inside Claude" detection.** If a hook or statusline ever needs to detect a Claude session, prefer `CLAUDE_CODE_CHILD_SESSION` (true only in Claude-spawned subprocesses) over `CLAUDECODE` (false-positives in IDE/tmux/MCP terminals) — cc-docs `env-vars.md:137`. *No Aegis runtime gates on this today; rule applies when one is added.*
+
+8. **Match the decision to the kind of rule: `deny` for invariants, `ask` for preference.** `deny` fires ahead of any permission mode and cannot be bypassed even with `--dangerously-skip-permissions`, so it is correct only where the decision is genuinely not the user's to make per call — secret reads, `rm -rf /`, force-push, `reset --hard`, working-tree discards. A workflow *preference* gated with `deny` becomes a standing tax: the user's only escape is prefixing an override on every invocation forever. Use `ask` there instead — it surfaces the normal permission prompt and the user decides per call, with no plugin-internal config to edit. Aegis ships no hook using either decision today; this is forward guidance for the next one that's authored.
+
+9. **Classify from the command, never from resolved session state.** A hook sees the tool-call JSON, and its `cwd` is the session's working directory — NOT the directory the command runs in. Anything derived from it (current git branch, current repo) is wrong whenever the command `cd`s first, which is the normal case in a multi-worktree repo. A future command-inspecting hook should check only destinations named IN the command itself, never resolve and match against the current branch. A check that cannot be made sound is dropped, not approximated.

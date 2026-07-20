@@ -4,7 +4,7 @@
   "name": "session-start",
   "description": "Bootstrap Aegis discovery and core guidance at the start of every agent session (startup, clear, compact).",
   "visibility": "internal",
-  "platforms": ["claude", "opencode", "codex"],
+  "platforms": ["claude", "opencode"],
   "trigger": {
     "matcher": "startup|clear|compact"
   },
@@ -15,13 +15,7 @@
     "command": ".claude-plugin/hooks/session-start.sh"
   },
   "x-opencode": {
-    "event": "chat.messages.transform",
+    "event": "experimental.chat.messages.transform",
     "handler": "bootstrap"
-  },
-  "x-codex": {
-    "event": "SessionStart",
-    "matcher": "startup|clear|compact",
-    "dispatch": "command",
-    "command": "./hooks/session-start.sh"
   }
 }

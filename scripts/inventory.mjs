@@ -45,7 +45,10 @@ const languageRules = all.filter((p) => /^skills\/languages\/[^/]+\/rules\/[^/]+
 const agents = all.filter((p) => /^agents\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
 const commands = all.filter((p) => /^commands\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
 const rules = all.filter((p) => /^rules\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
-const hooks = all.filter((p) => /^hooks\/.+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
+// Count the intent JSON, not the .md: hooks/<name>.json is the source of truth per
+// hooks/AGENTS.md, and the sibling .md is OPTIONAL for pure command hooks — counting
+// .md silently undercounts every hook that legitimately ships without one.
+const hooks = all.filter((p) => /^hooks\/[^/]+\.json$/.test(rel(p)));
 const templates = all.filter((p) => /^templates\/.+\.(md|json|html)$/.test(rel(p)) && !/\.template\.json$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
 const templateManifests = all.filter((p) => /^templates\/.+\.template\.json$/.test(rel(p)));
 const statuslinePresets = all.filter((p) => /^statuslines\/(?!_shared\/)[^/]+\/statusline\.json$/.test(rel(p)));

@@ -103,15 +103,9 @@ Every portable hook intent is a `gap`, documented here and never silently droppe
 | Intent / name | Status | Notes |
 |---|---|---|
 | `session-start` | gap | No session-hook extension point. |
-| `pre-tool-use-deny` | gap | No PreToolUse hook extension point. |
 | `pre-compact` | gap | No compaction hook extension point. |
 | `post-compact` | gap | No compaction hook extension point. |
-| `verify-no-secrets-touched` | gap | No LLM-evaluated hook primitive. |
-| `no-silent-failures` | gap | No LLM-evaluated hook primitive. |
-| `no-rationalization` | gap | No LLM-evaluated hook primitive. |
-| `verification-before-completion` | gap | No agent-dispatch hook primitive. |
 | `instructions-loaded` | gap | No `InstructionsLoaded` counterpart. |
-| `prompt-injection-guard` | gap | No PreToolUse hook event; advisory scanner is Claude-only. |
 
 ## Statuslines
 
