@@ -26,7 +26,7 @@ The folder is flat. Each hook is up to two files:
 
 `.md` is **required** when the dispatch is `prompt` or `agent`, or the intent is
 `pre-compact` / `post-compact`; it is **optional** for pure command hooks
-(`session-start`, `pre-tool-use-deny`, `instructions-loaded`). When both files
+(`session-start`, `instructions-loaded`). When both files
 exist, the `.json` `name` must equal the `.md` frontmatter `name`.
 
 Judgment hooks (`prompt-type` / `agent-type` intent) may carry a cosmetic
@@ -55,7 +55,7 @@ authored.
 ### `intent` enum
 
 `session-start`, `pre-compact`, `post-compact`, `instructions-loaded`,
-`pre-tool-use-deny`, `prompt-type`, `agent-type`.
+`prompt-type`, `agent-type`.
 
 Command intents map one-to-one to a host event. The two judgment categories —
 `prompt-type` and `agent-type` — are keyed by `name` (D10) and bind to
@@ -76,11 +76,14 @@ Command intents map one-to-one to a host event. The two judgment categories —
 
 Event enum (verified against `references/claude-code-docs/docs/hooks.md`, D2):
 `SessionStart`, `PreToolUse`, `UserPromptSubmit`, `PreCompact`, `PostCompact`,
-`InstructionsLoaded`. `FileChanged` and `CwdChanged` remain in the schema enum
-as permitted-not-required forward-compat entries — no shipped intent binds
-them as of v0.1.3; both were removed as non-functional (neither could deliver
-its intended effect: `FileChanged`'s matcher only accepts literal filenames,
-and both events' `additionalContext` output is not injected into the model).
+`InstructionsLoaded`. No shipped intent currently binds `PreToolUse` or
+`UserPromptSubmit`; both stay in the enum as permitted-not-required
+forward-compat entries for the next `prompt`/`agent`-dispatch judgment hook.
+`FileChanged` and `CwdChanged` remain in the schema enum too — no shipped
+intent binds them as of v0.1.3; both were removed as non-functional (neither
+could deliver its intended effect: `FileChanged`'s matcher only accepts
+literal filenames, and both events' `additionalContext` output is not
+injected into the model).
 
 ### Dispatch types
 
@@ -132,7 +135,7 @@ The `prompt-type` and `agent-type` intent categories exist in the schema and the
 event→dispatch support table for `PreToolUse` judgment hooks, but Aegis ships no
 hook using either category today — a `command`-dispatch hook covers every
 currently-shipped intent (`session-start`, `pre-compact`, `post-compact`,
-`instructions-loaded`, `pre-tool-use-deny`). A future judgment hook is free to
+`instructions-loaded`). A future judgment hook is free to
 use them; see "Adding a new intent" below.
 
 ## Adding a new intent — the loop

@@ -137,7 +137,7 @@ So Aegis's cost watcher **tails the active session transcript JSONL** best-effor
 Agent permissions are projected from [`manifest/permissions.json`](../../manifest/permissions.json), the single agent-level trust boundary (read-only baseline, opt-in elevation):
 
 - **Per-agent `tools:` allowlist** — injected into each generated `adapters/claude/agents/<name>.md` from the manifest's `claude.tools` for that agent (e.g. read-only reviewers get `["Read", "Grep", "Glob"]`; `ultra-worker` gets the full set incl. `Task`/`WebFetch`/`WebSearch`). Never sourced from canonical frontmatter (DH3).
-- **Cross-cutting deny → PreToolUse hook** — Claude plugins cannot declare a plugin-level deny (`settings.json` accepts only `agent`/`subagentStatusLine`; no `plugin.json` `permissions` field — `references/claude-code-docs/docs/plugins-reference.md:809`), and agent `disallowedTools` filters the tool pool by bare name, not path/arg (`sub-agents.md:269,335`). So the manifest's `plugin.deny[]` (secret-file reads like `Read(./.env)`, `Read(~/.ssh/**)`, and destructive `Bash` like `rm -rf /`, `curl * | sh`) is enforced at runtime by the plugin **PreToolUse hook** `.claude-plugin/hooks/pre-tool-use-deny.sh` — the host's recommended mechanism for path/arg-scoped denial (`permissions.md:150-164`). The hook reads `plugin.deny[]` from the manifest at runtime and returns `permissionDecision:"deny"` on a match. `Task` is inert for plugin subagents (`sub-agents.md:306`), so the manifest's `Task` grants apply on OpenCode, not Claude.
+- **Cross-cutting deny — not enforced (honest gap).** Claude plugins cannot declare a plugin-level deny (`settings.json` accepts only `agent`/`subagentStatusLine`; no `plugin.json` `permissions` field — `references/claude-code-docs/docs/plugins-reference.md:809`), and agent `disallowedTools` filters the tool pool by bare name, not path/arg (`sub-agents.md:269,335`). Aegis ships no runtime mechanism to work around this on Claude, so the manifest's `plugin.deny[]` (secret-file reads like `Read(./.env)`, `Read(~/.ssh/**)`, and destructive `Bash` like `rm -rf /`, `curl * | sh`) is advisory-only here — the per-agent `tools` allowlist is the real boundary. `Task` is inert for plugin subagents (`sub-agents.md:306`), so the manifest's `Task` grants apply on OpenCode, not Claude.
 
 See [`docs/agent-permissions.md`](../../docs/agent-permissions.md) for the full per-agent table and bucket definitions.
 
@@ -258,7 +258,6 @@ Claude-only — keyed by `name` per D10. The scanner is opt-in (`enabled: false`
 | Intent / name | Status | Claude event → dispatch | Notes |
 |---|---|---|---|
 | `session-start` | supported | `SessionStart` → command | Bootstrap pointer via `additionalContext`. |
-| `pre-tool-use-deny` | supported | `PreToolUse` → command | Path/arg-scoped deny from `manifest/permissions.json`. |
 | `pre-compact` | supported | `PreCompact` → command | Captures decision/test anchors before compaction. |
 | `post-compact` | supported | `PostCompact` → command | Restores the anchors after compaction. |
 | `instructions-loaded` | supported | `InstructionsLoaded` → command | Reports loaded-rule count + silent drops. |

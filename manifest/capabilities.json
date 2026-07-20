@@ -184,19 +184,6 @@
       }
     },
     {
-      "id": "pre-tool-use-deny-hook",
-      "title": "PreToolUse deny hook",
- "description": "Portable hook intent: cross-cutting path/arg-scoped deny enforced at runtime from manifest/permissions.json plugin.deny[]. Claude PreToolUse command hook; OpenCode applies the deny via its config permission block (not a hook event).",
-      "category": "hooks",
-      "hosts": {
-        "claude": { "status": "supported", "evidence": "hooks/pre-tool-use-deny.json", "since": "v0.0.7" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#hook-capability-matrix" },
-        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
-        "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#hook-capability-matrix" },
-        "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#hook-capability-matrix" }
-      }
-    },
-    {
       "id": "compaction-hooks",
       "title": "PreCompact/PostCompact hooks",
  "description": "Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection); OpenCode binds the pair to experimental.session.compacting but the generated region is a no-op placeholder — phase dispatch deferred until the unverified contract is confirmed.",

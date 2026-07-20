@@ -25,7 +25,7 @@ export const id = "HOOK_INTENT";
 
 const INTENT_ENUM = new Set([
   "session-start", "pre-compact", "post-compact", "instructions-loaded",
-  "file-changed", "cwd-changed", "pre-tool-use-deny",
+  "file-changed", "cwd-changed",
   "prompt-type", "agent-type",
 ]);
 const CLAUDE_EVENTS = new Set([

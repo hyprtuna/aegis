@@ -103,7 +103,6 @@ Every portable hook intent is a `gap`, documented here and never silently droppe
 | Intent / name | Status | Notes |
 |---|---|---|
 | `session-start` | gap | No session-hook extension point. |
-| `pre-tool-use-deny` | gap | No PreToolUse hook extension point. |
 | `pre-compact` | gap | No compaction hook extension point. |
 | `post-compact` | gap | No compaction hook extension point. |
 | `instructions-loaded` | gap | No `InstructionsLoaded` counterpart. |

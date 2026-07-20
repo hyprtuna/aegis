@@ -21,7 +21,6 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 | **Model aliases**<br/><sub>model-aliases</sub> | ✅ supported<br/>`manifest/models.json` | ✅ supported<br/>`references/opencode-docs/docs/35-models.md:19` | 🟡 partial<br/>`manifest/models.json` | — n/a | — n/a |
 | **Provider-tagged prose forking**<br/><sub>provider-tagged-prose</sub> | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | ✅ supported<br/>`adapters/claude/projection.md#generated-tree-projection` | 🟡 partial<br/>`adapters/claude/projection.md#generated-tree-projection` | ⛔ gap | ⛔ gap |
 | **SessionStart hook**<br/><sub>session-start-hook</sub> | ✅ supported<br/>`.claude-plugin/plugin.json:99` | 🟡 partial<br/>`adapters/opencode/projection.md#approach-locked-decisions` | 🟡 partial<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap<br/>`adapters/cursor/projection.md#what-cursor-will-load` | ⛔ gap<br/>`adapters/zed/projection.md#unsupported-documented-gaps` |
-| **PreToolUse deny hook**<br/><sub>pre-tool-use-deny-hook</sub> | ✅ supported<br/>`hooks/pre-tool-use-deny.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **PreCompact/PostCompact hooks**<br/><sub>compaction-hooks</sub> | ✅ supported<br/>`hooks/pre-compact.json` | 🟡 partial<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **InstructionsLoaded hook**<br/><sub>instructions-loaded-hook</sub> | ✅ supported<br/>`hooks/instructions-loaded.json` | ⛔ gap<br/>`adapters/opencode/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/codex/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/cursor/projection.md#hook-capability-matrix` | ⛔ gap<br/>`adapters/zed/projection.md#hook-capability-matrix` |
 | **MCP servers**<br/><sub>mcp-servers</sub> | ⛔ gap<br/>`adapters/claude/projection.md#unsupported-documented-gaps` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | 🟡 partial<br/>`adapters/codex/projection.md#surfaces--verification` | ⛔ gap | ⛔ gap |
@@ -112,12 +111,6 @@ Inline <claude>...</claude> / <opencode>...</opencode> blocks in skill bodies ke
 *Category: hooks*
 
 Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded.
-
-### PreToolUse deny hook (`pre-tool-use-deny-hook`)
-
-*Category: hooks*
-
-Portable hook intent: cross-cutting path/arg-scoped deny enforced at runtime from manifest/permissions.json plugin.deny[]. Claude PreToolUse command hook; OpenCode applies the deny via its config permission block (not a hook event).
 
 ### PreCompact/PostCompact hooks (`compaction-hooks`)
 

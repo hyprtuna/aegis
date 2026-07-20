@@ -31,17 +31,6 @@
         ]
       }
     ],
-    "PreToolUse": [
-      {
-        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/hooks/pre-tool-use-deny.sh"
-          }
-        ]
-      }
-    ],
     "PreCompact": [
       {
         "matcher": "manual|auto",

@@ -156,33 +156,12 @@ export function run(ctx) {
     for (const f of templatePlaceholderHits) warnings.push(`  - ${f}`);
   }
 
-  // FIX-V9: Codex bundle drift gate. Assert that the bundled deny-config and
-  // hook scripts in .codex/plugins/aegis/hooks/ byte-equal their canonical
-  // sources. A stale copy would silently weaken the security boundary on Codex.
-  // Fires on every validate-structure run.
+  // FIX-V9: Codex bundle drift gate. Assert that the bundled hook scripts in
+  // .codex/plugins/aegis/hooks/ byte-equal their canonical sources. A stale
+  // copy would silently weaken a Codex-bundled hook. Fires on every
+  // validate-structure run.
   const codexHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
   if (existsSync(codexHooksDir)) {
-    // permissions.json drift check (security-critical).
-    const bundledPermissions = join(codexHooksDir, "permissions.json");
-    const canonicalPermissions = join(REPO, "manifest/permissions.json");
-    if (existsSync(canonicalPermissions)) {
-      if (!existsSync(bundledPermissions)) {
-        errors.push(
-          "Codex bundled deny-config drift: .codex/plugins/aegis/hooks/permissions.json is missing " +
-          "while manifest/permissions.json exists — re-run `node scripts/project.mjs`"
-        );
-      } else {
-        const bundledBytes = readFileSync(bundledPermissions);
-        const canonicalBytes = readFileSync(canonicalPermissions);
-        if (!bundledBytes.equals(canonicalBytes)) {
-          errors.push(
-            "Codex bundled deny-config drift: .codex/plugins/aegis/hooks/permissions.json " +
-            "does not match manifest/permissions.json — re-run `node scripts/project.mjs`"
-          );
-        }
-      }
-    }
-
     // Hook script drift check. Each bundled .sh must byte-equal the corresponding
     // .claude-plugin/hooks/<name>.sh (both are version-stamped to the same version
     // post-project, so byte equality holds when in sync).

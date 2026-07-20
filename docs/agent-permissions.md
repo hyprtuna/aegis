@@ -138,46 +138,15 @@ Bash(wget * | sh)       Bash(wget * | bash)
 
 Projection:
 
-- **Claude:** enforced at runtime by the plugin **PreToolUse hook**
-  `.claude-plugin/hooks/pre-tool-use-deny.sh`. Claude plugins cannot declare a
-  plugin-level deny (plugin `settings.json` accepts only `agent`/`subagentStatusLine`;
-  no `plugin.json` `permissions` field — `plugins-reference.md:809`), and agent
+- **Claude:** not enforced. Claude plugins cannot declare a plugin-level deny
+  (plugin `settings.json` accepts only `agent`/`subagentStatusLine`; no
+  `plugin.json` `permissions` field — `plugins-reference.md:809`), and agent
   `disallowedTools` filters only the tool pool by bare name, not by path/arg
-  (`sub-agents.md:269,335`). The PreToolUse hook is the host's own recommended
-  mechanism for path/arg-scoped denial (`permissions.md:150-164`): it reads
-  `plugin.deny[]` from the manifest at runtime and returns `permissionDecision:"deny"`
-  for secret-file reads (`.env`, `secrets/**`, `~/.ssh/**`, …) and destructive Bash
-  (`rm -rf /`, `curl … | sh`, plus destructive git: force-push, `reset --hard`,
-  `restore`, `checkout --`, `clean -f`). The per-agent `tools` allowlist is the primary
-  boundary; this hook is the defense-in-depth deny layer.
-  - **`deny` vs `ask`.** The hook also returns `permissionDecision:"ask"` for one
-    case: a `git push` to an explicitly-named protected branch (`git push origin main`).
-    The distinction is deliberate. `deny` fires ahead of any permission mode and cannot
-    be bypassed, which is right for a safety invariant but wrong for a workflow
-    *preference* — trunk-based development is a legitimate model, and denying it leaves
-    the user prefixing an override forever. `ask` surfaces the normal permission prompt
-    and the user decides per call. Destructive checks run first, so
-    `git push --force origin main` is denied on the force rather than prompted. The
-    judgment behind the prompt lives in `rules/protected-branch-discipline.md`.
-  - **Only command-named destinations are checked.** The hook classifies from the
-    command text; the tool-call `cwd` is the session directory, not the directory the
-    command runs in, so any current-branch resolution is wrong once a command `cd`s
-    first — the normal case in a multi-worktree repo. A bare `git push` (destination =
-    current branch) and `git commit` are therefore not branch-checked at all.
-  - **Known limits:** the hook matches by path basename/segment
-    and literal command pattern, so it guards against accidental/model-driven
-    leaks, not a determined adversary — symlink/realpath indirection and shell
-    token-splitting (`rm$IFS-rf /`, base64-decode-pipe) can evade it. These gaps are
-    recorded as known-allow cases in `scripts/test-deny-hook.mjs`; realpath
-    normalization and shell-token canonicalization remain deferred to a future
-    hardening pass. The
-    host-enforced `tools` allowlist remains the real boundary regardless.
+  (`sub-agents.md:269,335`). Aegis ships no runtime mechanism to work around
+  this on Claude, so `plugin.deny[]` is advisory-only here — the per-agent
+  `tools` allowlist is the real boundary. Honest gap.
 - **OpenCode:** into the global `permission` block (`read.{**/.env: deny, ...}`,
   applied to all agents — not redeclared per agent).
-
-(Decision D5, corrected — see `decisions.md` §D5 correction note. The original D5
-assumed a Claude plugin-level deny the host does not support; a per-agent
-`disallowedTools` attempt was also rejected as theater/breaking before the hook.)
 
 > **`Task` is inert for plugin subagents on Claude.** The manifest grants `Task`
 > to `orchestrator`, `subagent-executor`, and `ultra-worker`, but `Agent`/`Task`

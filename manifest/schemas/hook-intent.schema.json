@@ -20,7 +20,6 @@
         "instructions-loaded",
         "file-changed",
         "cwd-changed",
-        "pre-tool-use-deny",
         "prompt-type",
         "agent-type"
       ],

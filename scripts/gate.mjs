@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // gate.mjs — one-shot ready-to-push check. Runs structure + counts validation,
-// projection/deny-hook/unit tests, doctor, and the five security scanners in
-// sequence. Prints PASS/FAIL per step; exits 1 if any step fails. This is the
-// single entry point CI runs (`npm run gate`) and the local pre-push check.
+// projection/unit tests, doctor, and the five security scanners in sequence.
+// Prints PASS/FAIL per step; exits 1 if any step fails. This is the single
+// entry point CI runs (`npm run gate`) and the local pre-push check.
 import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -15,7 +15,6 @@ const nodeSteps = [
   "validate-structure.mjs",
   "validate-counts.mjs",
   "test-projection.mjs",
-  "test-deny-hook.mjs",
   "doctor.mjs",
 ];
 const unitTests = readdirSync(join(SCRIPTS, "tests"))

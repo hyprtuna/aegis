@@ -17,21 +17,7 @@
       "Bash(curl * | bash)",
       "Bash(wget * | sh)",
       "Bash(wget * | bash)"
-    ],
-    "gitGuard": {
-      "protectedBranches": ["main", "master"],
-      "dangerousOps": {
-        "forcePush": true,
-        "resetHard": true,
-        "restore": true,
-        "clean": true,
-        "checkoutDiscard": true
-      },
-      "override": {
-        "env": "AEGIS_ALLOW_GIT_GUARD",
-        "marker": "# aegis:allow-git"
-      }
-    }
+    ]
   },
   "defaults": {
     "bucket": "RO",

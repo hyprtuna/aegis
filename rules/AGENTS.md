@@ -28,12 +28,12 @@ platforms: [claude, opencode, codex, cursor, zed]
 
 Iron laws (ported from Anvil): `tdd-iron-law`, `evidence-before-assertion`, `verification-before-completion`, `rationalization-prevention`, `agentic-engineering`, `coding-standards`, `context-budget`, `decision-template-discipline`, `one-percent-rule`, `orchestrator-first`, `user-choice-discipline`, `templates`, `skeptical-stance`.
 
-Also here: judgment a runtime primitive can prompt for but cannot decide.
-`protected-branch-discipline` is the worked example — the PreToolUse hook returns
-`ask` for a push to an explicitly-named protected branch, and the rule carries what
-the prompt cannot express (whether the trunk is the right destination, and the
-forge/`pre-push` mechanisms a team uses for a genuine hard block). When a hook asks
-a question, the answer belongs in `rules/`.
+Also here: judgment no runtime primitive enforces, so an agent must apply it
+itself. `protected-branch-discipline` is the worked example — Aegis has no hook
+that blocks or prompts before a push to a protected branch, so the rule carries
+the whole judgment (whether the trunk is the right destination, and the
+forge/`pre-push` mechanisms a team uses for a genuine hard block). When no
+runtime primitive answers a question, the answer belongs in `rules/`.
 
 ## What Does NOT Belong Here
 

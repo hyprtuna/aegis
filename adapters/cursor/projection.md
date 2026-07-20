@@ -61,7 +61,6 @@ every portable hook intent is a `gap` — documented here, never silently droppe
 | Intent / name | Status | Notes |
 |---|---|---|
 | `session-start` | gap | No verified Cursor session-hook contract. |
-| `pre-tool-use-deny` | gap | No verified PreToolUse hook contract. |
 | `pre-compact` | gap | No verified compaction hook contract. |
 | `post-compact` | gap | No verified compaction hook contract. |
 | `instructions-loaded` | gap | No `InstructionsLoaded` counterpart. |
