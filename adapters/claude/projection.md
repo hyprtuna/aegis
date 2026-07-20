@@ -150,6 +150,44 @@ See [`docs/agent-permissions.md`](../../docs/agent-permissions.md) for the full 
 /plugin install aegis@aegis
 ```
 
+### `source: "./"` is load-bearing — do not change it casually
+
+`marketplace.json` sets `"source": "./"`, which resolves to the marketplace root. That single value is
+the only thing preventing every Aegis skill from registering twice.
+
+Per `references/claude-code-docs/docs/plugins-reference.md:623`, the `skills` manifest key normally
+**adds to** the default scan: *"The default `skills/` directory is always scanned, and directories
+listed in `skills` are loaded alongside it."* Aegis has both a canonical root `skills/` tree and a
+`skills` key pointing at the generated `./adapters/claude/skills/` tree, so the default behaviour would
+register both copies of every skill. Aegis escapes it via the documented exception in the same line:
+*"for a marketplace entry whose `source` resolves to the marketplace root, declaring specific
+subdirectories replaces the default `skills/` scan."*
+
+**Consequence:** changing `source` to anything that does not resolve to the marketplace root — a
+`github` object entry, a subdirectory path — silently re-enables the default scan and double-registers
+the entire skill corpus. The failure is quiet: no error, no warning, just duplicate skills competing in
+the listing. If `source` ever must change, the `skills` key has to be re-derived at the same time.
+
+### The `commands`/`agents` install notes are expected, not a defect
+
+A freshly installed Aegis reports two entries in `claude plugin list` and the `/plugin` detail view:
+
+```
+Note: Default commands/ folder is ignored because the manifest sets "commands"
+Note: Default agents/ folder is ignored because the manifest sets "agents"
+```
+
+Both are accurate and both are intended. Per `plugins-reference.md:622`, `commands` and `agents`
+**replace** the default scan rather than adding to it, and per `:626` the host warns whenever a plugin
+has both a default folder and the matching manifest key. Aegis's root `commands/` and `agents/` are
+*canonical source* — they must never auto-load, or every surface would register twice. The ignore is
+the correct outcome; the note is the host reporting it.
+
+The suppression rule at `:626` (no warning when the manifest path points *into* the default folder,
+e.g. `"commands": ["./commands/deploy.md"]`) cannot apply here, because Aegis's manifest points at
+`./adapters/claude/`. Suppressing these notes therefore requires moving canonical source out of the
+plugin-root folder names the host scans — tracked as a deliberate change, not a quick manifest edit.
+
 ## Constraints (V — verified against `references/claude-code-docs/`)
 
 - Plugin-root `CLAUDE.md` is NOT loaded by Claude. Aegis ships guidance via:
