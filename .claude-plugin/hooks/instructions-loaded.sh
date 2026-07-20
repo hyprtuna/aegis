@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.2.1
+# aegis-hook-version: 0.2.2
 # instructions-loaded.sh — Aegis InstructionsLoaded hook (Claude Code).
 #
 # WHY THIS EXISTS: InstructionsLoaded fires once per CLAUDE.md or
