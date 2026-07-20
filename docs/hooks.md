@@ -21,8 +21,8 @@ The folder is flat. Each hook is up to two files:
 
 - **`hooks/<name>.json`** — the machine binding and source of truth for
   projection.
-- **`hooks/<name>.md`** — the human intent doc (lean 5-field frontmatter,
-  `kind: hook`).
+- **`hooks/<name>.md`** — the human intent doc (lean 4-field frontmatter:
+  `name`, `description`, `visibility`, `platforms`).
 
 `.md` is **required** when the dispatch is `prompt` or `agent`, or the intent is
 `pre-compact` / `post-compact`; it is **optional** for pure command hooks

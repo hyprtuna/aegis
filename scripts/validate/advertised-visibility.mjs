@@ -22,14 +22,20 @@ export const id = "ADVERTISED_VISIBILITY";
 
 const BOOTSTRAP = "skills/core/using-aegis/SKILL.md";
 
-// Rows in the entry-point table look like:  | Build a feature end-to-end | `default-feature` skill |
-// Pull every backticked skill name out of the table body.
-function advertisedSkills(bootstrapBody) {
+// Rows in the entry-point table look like:
+//   | Build a feature end-to-end | `default-feature` skill (or `sdd-workflow` for spec-first) |
+//   | Review a diff              | `code-reviewer` agent (`--type both`) |
+//
+// Capture EVERY backticked token in the row, then classify by what it resolves to on disk. An
+// earlier version keyed on the literal word "skill" following the name, which silently missed
+// `sdd-workflow` — advertised in the same row, but trailed by "for spec-first)" instead. A guard
+// against silent hiding that can itself be silently bypassed is worse than none, so the extractor
+// no longer depends on prose shape.
+function advertisedNames(bootstrapBody) {
   const names = new Set();
-  const lines = bootstrapBody.split("\n");
   let inTable = false;
 
-  for (const line of lines) {
+  for (const line of bootstrapBody.split("\n")) {
     if (/Top User-Invocable Surfaces/i.test(line)) {
       inTable = true;
       continue;
@@ -38,7 +44,7 @@ function advertisedSkills(bootstrapBody) {
     if (inTable && /^#{1,6}\s/.test(line)) break;
     if (!inTable || !line.trim().startsWith("|")) continue;
 
-    for (const m of line.matchAll(/`([a-z0-9-]+)`\s*skill/g)) names.add(m[1]);
+    for (const m of line.matchAll(/`([a-z0-9-]+)`/g)) names.add(m[1]);
   }
   return names;
 }
@@ -56,14 +62,19 @@ export function run(ctx) {
     return { errors, warnings };
   }
 
-  const advertised = advertisedSkills(ctx.read(bootstrap));
+  const advertised = advertisedNames(ctx.read(bootstrap));
   if (advertised.size === 0) {
     warnings.push(
-      `${BOOTSTRAP}: no advertised skills parsed from the entry-point table — ` +
+      `${BOOTSTRAP}: no backticked names parsed from the entry-point table — ` +
         `the table shape may have changed and this check is now vacuous`,
     );
     return { errors, warnings };
   }
+
+  // Backticked tokens that resolve to a skill on disk are the ones this rule governs. Anything
+  // else in the table (agent names, flags like `--type both`) resolves to nothing here and is
+  // ignored — classification comes from the filesystem, not from the surrounding prose.
+  let matched = 0;
 
   for (const p of files) {
     const r = relative(REPO, p);
@@ -72,6 +83,7 @@ export function run(ctx) {
 
     const name = m[1];
     if (!advertised.has(name)) continue;
+    matched++;
 
     const body = ctx.read(p);
     if (/^visibility:\s*internal\s*$/m.test(body)) {
@@ -81,6 +93,15 @@ export function run(ctx) {
           `/ menu. Either set visibility: user, or stop advertising it in the entry-point table.`,
       );
     }
+  }
+
+  // Second vacuity guard: names parsed, but none of them resolved to a skill. That means the table
+  // still exists and still has backticks, while this rule is checking nothing at all.
+  if (matched === 0) {
+    warnings.push(
+      `${BOOTSTRAP}: parsed ${advertised.size} name(s) from the entry-point table but none ` +
+        `resolved to a skill — this check ran vacuously`,
+    );
   }
 
   return { errors, warnings };

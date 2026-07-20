@@ -151,6 +151,48 @@ export function run(ctx) {
 
     const platforms = Array.isArray(intent.platforms) ? intent.platforms : [];
 
+    // ── Declared helper dependencies (platform-independent) ───────────────────
+    // The shared libraries this hook sources. A declaration is what protects a file from the
+    // projector's prune, so a malformed or dangling one is a hard error — a phantom entry
+    // would keep a name reserved that no file answers to, and a nested path would name
+    // something the flat tree cannot hold.
+    //
+    // Validated whenever the key is PRESENT, not only when the intent binds claude. The
+    // keep-set (scripts/lib/hook-projection.mjs) reads x-claude.helpers from every intent with
+    // no platform filter, so gating this check on the claude branch let a non-claude intent
+    // reserve a keep-set name that was never existence-checked — the exact phantom entry the
+    // comment above calls a hard error. Both consumers now read the declaration under
+    // identical conditions.
+    {
+      const xc = intent["x-claude"];
+      if (xc && typeof xc === "object" && xc.helpers !== undefined) {
+
+          if (!Array.isArray(xc.helpers)) {
+            errors.push(`${where}: x-claude.helpers must be an array of helper filenames`);
+          } else {
+            for (const helper of xc.helpers) {
+              if (typeof helper !== "string" || !helper) {
+                errors.push(`${where}: x-claude.helpers entries must be non-empty strings`);
+                continue;
+              }
+              if (helper.includes("/")) {
+                errors.push(
+                  `${where}: x-claude.helpers entry "${helper}" must be a bare filename — ` +
+                    ".claude-plugin/hooks/ is flat, no subdirectories",
+                );
+                continue;
+              }
+              if (!existsSync(join(REPO, ".claude-plugin", "hooks", helper))) {
+                errors.push(
+                  `${where}: x-claude.helpers declares "${helper}" but ` +
+                    `.claude-plugin/hooks/${helper} does not exist`,
+                );
+              }
+            }
+          }
+      }
+    }
+
     // ── x-claude host-binding completeness + event→dispatch table ─────────────
     if (platforms.includes("claude")) {
       const xc = intent["x-claude"];
@@ -186,36 +228,6 @@ export function run(ctx) {
         if (xc.dispatch === "prompt" || xc.dispatch === "agent") {
           if (typeof xc.prompt !== "string" || !xc.prompt) {
             errors.push(`${where}: ${xc.dispatch} dispatch requires a non-empty prompt (D4: no agent-name field)`);
-          }
-        }
-        // Declared helper dependencies: the shared libraries this hook sources.
-        // A declaration is what protects a file from the projector's prune, so a
-        // malformed or dangling one is a hard error — a phantom entry would keep
-        // a name reserved that no file answers to, and a nested path would name
-        // something the flat tree cannot hold.
-        if (xc.helpers !== undefined) {
-          if (!Array.isArray(xc.helpers)) {
-            errors.push(`${where}: x-claude.helpers must be an array of helper filenames`);
-          } else {
-            for (const helper of xc.helpers) {
-              if (typeof helper !== "string" || !helper) {
-                errors.push(`${where}: x-claude.helpers entries must be non-empty strings`);
-                continue;
-              }
-              if (helper.includes("/")) {
-                errors.push(
-                  `${where}: x-claude.helpers entry "${helper}" must be a bare filename — ` +
-                    ".claude-plugin/hooks/ is flat, no subdirectories",
-                );
-                continue;
-              }
-              if (!existsSync(join(REPO, ".claude-plugin", "hooks", helper))) {
-                errors.push(
-                  `${where}: x-claude.helpers declares "${helper}" but ` +
-                    `.claude-plugin/hooks/${helper} does not exist`,
-                );
-              }
-            }
           }
         }
         // Judgment category ↔ dispatch coupling.

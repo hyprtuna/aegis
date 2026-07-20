@@ -11,7 +11,7 @@ Each host's implementation lives in its native location (`.claude-plugin/hooks/`
 The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The old `sessions/`/`tools/`/`prompts/` subdirectory sketch is **superseded** — there are no subfolders. The projector and the `HOOK_INTENT` validator glob `hooks/*.json` non-recursively.
 
 - `hooks/<name>.json` — the **machine binding** and source of truth for projection. Validated by the `HOOK_INTENT` rule (`scripts/validate/hook-intent.mjs`), which is **hand-rolled and loads no schema file**: Aegis ships zero dependencies, so there is no validator to execute JSON Schema with. `manifest/schemas/hook-intent.schema.json` documents the contract for humans and stays in sync by review, not by enforcement — the rule is the only gate. The projector (`scripts/project.mjs`) builds the Claude `.claude-plugin/plugin.json` `hooks` block and the OpenCode compaction region in `.opencode/plugins/aegis.js` from these.
-- `hooks/<name>.md` — the **human intent doc** (lean 5-field frontmatter, `kind: hook`). When both files exist, `json.name` MUST equal `.md` frontmatter `name`.
+- `hooks/<name>.md` — the **human intent doc** (lean 4-field frontmatter: `name`, `description`, `visibility`, `platforms` — `kind` is retired per Iron Law 3, and these docs are checked by the `FRONTMATTER` rule like any other canonical surface). When both files exist, `json.name` MUST equal `.md` frontmatter `name`.
 
 `.md` is **required** when dispatch is `prompt`/`agent`, or the intent is `pre-compact`/`post-compact`. It is **optional** for pure command hooks (`session-start`, `instructions-loaded`).
 
@@ -49,7 +49,7 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
 
 The implementation tree is **flat** — `x-claude.command` must match `^\.claude-plugin/hooks/[^/]+$` (schema + `HOOK_INTENT`). No subdirectories.
 
-`projectHooks()` prunes this directory on every run: any entry no live intent references via `x-claude.command` is deleted, so a retired hook cannot leave its script shipping inside the plugin. Two consequences follow from that, and both are load-bearing:
+`projectHooks()` prunes this directory on every run: any entry no live intent references via `x-claude.command` **or declares in `x-claude.helpers`** is deleted, so a retired hook cannot leave its script shipping inside the plugin. Two consequences follow from that, and both are load-bearing:
 
 - **A directory raises, it is never removed.** The prune refuses to descend, because reaping a subtree could take a correctly-referenced script down with it. A directory here is an authoring error — fix the path, don't nest.
 - **Helper files are protected by declaration, not by spelling.** A shared library sourced by hook scripts (`lib.sh`, sourced as `source "$(dirname "$0")/lib.sh"`) has nothing binding it via `x-claude.command` by design. Declare it in the sourcing hook's `x-claude.helpers` array and the prune keeps it:
@@ -75,7 +75,6 @@ Every pruned path is printed to stdout. A deletion is never silent.
 
 ```yaml
 ---
-kind: hook
 name: session-start
 description: Bootstrap Aegis discovery and rules at session start.
 visibility: internal

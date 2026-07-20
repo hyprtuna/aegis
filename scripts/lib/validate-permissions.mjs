@@ -36,11 +36,18 @@ const RO_BUCKETS = new Set(["RO", "RO-web", "RO-bash"]);
 //   deep     — heavy reasoning: planning, strict review, architecture
 //   balanced — default implementation work
 //   fast     — cheap, low-latency mechanical work
-// `inherit` defers entirely to the host and is expressed by OMITTING the key, so it is
-// not declarable here either. The retired Anthropic-family names (opus/sonnet/haiku) and
-// `best`/`fable` remain RESOLVABLE through models.json for back-compat but are not
-// declarable tiers — same status `best` has always had.
-const KNOWN_MODEL_TIERS = new Set(["deep", "balanced", "fast"]);
+//   inherit  — defer entirely to the host: run on the main conversation's model
+//
+// `inherit` is DECLARED explicitly, not expressed by omission. Claude accepts both forms
+// (`references/claude-code-docs/docs/sub-agents.md:298` for the explicit value, `:299` for
+// omission defaulting to it), but `model` stays a required key here: an agent that means
+// "whatever the caller is running" should say so, rather than being indistinguishable from
+// one whose tier was forgotten.
+//
+// The retired Anthropic-family names (opus/sonnet/haiku) and `best`/`fable` remain
+// RESOLVABLE through models.json for back-compat but are not declarable tiers — same status
+// `best` has always had.
+const KNOWN_MODEL_TIERS = new Set(["deep", "balanced", "fast", "inherit"]);
 
 // Tools every RO bucket must deny.
 const REQUIRED_RO_DISALLOW = ["Edit", "Write"];

@@ -1,5 +1,4 @@
 ---
-kind: hook
 name: pre-compact
 description: Capture session anchors before Claude compacts the context window.
 visibility: internal

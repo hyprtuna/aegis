@@ -1,5 +1,4 @@
 ---
-kind: hook
 name: post-compact
 description: Re-surface the captured session anchors after Claude compacts the context window.
 visibility: internal

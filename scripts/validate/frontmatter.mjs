@@ -14,7 +14,11 @@ export function run(ctx) {
       /^skills\/[^/]+\/[^/]+\/SKILL\.md$/.test(r) ||
       (/^agents\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
       (/^commands\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
-      (/^rules\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r))
+      (/^rules\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r)) ||
+      // Hook intent docs carry the same lean frontmatter as any other canonical surface.
+      // They were unscoped until v0.2.1, which is how `kind: hook` survived the retirement
+      // in three files while Iron Law 3 said the field was gone.
+      (/^hooks\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r))
     );
   });
 

@@ -1,5 +1,4 @@
 ---
-kind: hook
 name: session-start
 description: Bootstrap Aegis discovery and core guidance at the start of every agent session.
 visibility: internal
