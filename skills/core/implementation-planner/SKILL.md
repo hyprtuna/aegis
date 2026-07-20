@@ -1,7 +1,7 @@
 ---
 name: implementation-planner
 description: Use when an approved spec exists and an implementation plan with phases, MustHaves frontmatter, and verification gates is needed
-visibility: internal
+visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:
   primitiveHint: skill

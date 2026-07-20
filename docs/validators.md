@@ -442,6 +442,40 @@ worktree/branch names in prose, private-repo file paths outside the
 `ag-NNNN`-lowercase citation form — pass the rule clean even though they may
 still leak internal planning context.
 
+## New v0.2.1 rules
+
+### `ADVERTISED_VISIBILITY` — an advertised entry point must stay in the `/` menu (hard-fail)
+
+Module: `scripts/validate/advertised-visibility.mjs`.
+
+Parses the "Top User-Invocable Surfaces" table in `skills/core/using-aegis/SKILL.md` — the
+bootstrap table users are pointed at first — and hard-fails when any skill named there declares
+`visibility: internal`, which now projects to native `user-invocable: false` and hides it from the
+host's `/` menu.
+
+**Why it exists.** `visibility:` was declared on 123 surfaces while branching zero lines of code.
+Because nothing read it, nothing ever checked the values were right. Projecting it to
+`user-invocable: false` made it load-bearing — promoting every one of those unaudited declarations
+into user-facing behaviour in a single release. Two of the eight `internal` skills turned out to be
+`default-feature` and `implementation-planner`: the documented ways to start a feature and to write
+a plan, both advertised in the bootstrap table, both about to vanish from the `/` menu while the
+table went on recommending them. Nothing would have errored. The skills would simply have stopped
+appearing.
+
+**Stage: hard-fail immediately — a deliberate exception to the warn-then-error rollout.** That
+convention exists so a new rule does not break the build on a pre-existing backlog. Here the backlog
+is empty: canonical is clean as of this release, so the rule cannot fire on legacy content. Landing
+it warn-only would leave the exact regression it was written for shippable for one more release,
+against a failure that is silent and user-facing. Verified by negative test — flipping
+`default-feature` back to `internal` produces the error and exit 1; restoring it clears.
+
+**Vacuity guard.** If the bootstrap file is missing, or the table shape changes such that no skill
+names parse out of it, the rule emits a warning saying so rather than passing silently. A check that
+quietly stops checking is worse than no check.
+
+**Remediation:** set `visibility: user` on the advertised skill, or remove it from the entry-point
+table if it genuinely should not be user-reachable. The two must agree.
+
 ## Standalone gates
 
 These two scripts are **not** wired into `validate-structure.mjs`. Run them

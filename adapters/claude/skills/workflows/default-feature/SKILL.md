@@ -1,7 +1,6 @@
 ---
 name: default-feature
 description: 'Use when a user requests a new feature or significant change and no more specific workflow applies.'
-user-invocable: false
 ---
 
 # default-feature workflow

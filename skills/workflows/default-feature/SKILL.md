@@ -1,7 +1,7 @@
 ---
 name: default-feature
 description: Use when a user requests a new feature or significant change and no more specific workflow applies.
-visibility: internal
+visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:
   pipeline:
