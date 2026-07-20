@@ -16,7 +16,6 @@
   ],
   "skills": [
     "./adapters/claude/skills/core/",
-    "./adapters/claude/skills/languages/",
     "./adapters/claude/skills/workflows/"
   ],
   "hooks": {
@@ -87,7 +86,7 @@
     "preferredLanguageOverlay": {
       "type": "string",
       "title": "Preferred language overlay",
-      "description": "Default language overlay skill to bias toward (e.g. python-developer). Empty for none.",
+      "description": "Default language practice fragment for the develop skill to bias toward (e.g. python). Empty for none.",
       "default": ""
     },
     "telemetryOptIn": {

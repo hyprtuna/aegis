@@ -2,10 +2,11 @@
  * Aegis plugin for OpenCode.
  *
  * Three responsibilities:
- *   1. Register Aegis's canonical skill directories (`skills/core`, `skills/languages`,
- *      `skills/workflows`) via `config.skills.paths`. OpenCode does not recurse into
- *      scope subdirectories by default; this pushes the three absolute paths so all
- *      82 SKILL.md files are discoverable.
+ *   1. Register Aegis's canonical skill directories (`skills/core`, `skills/workflows`)
+ *      via `config.skills.paths`. OpenCode does not recurse into scope subdirectories
+ *      by default; this pushes the absolute paths so all 63 SKILL.md files are
+ *      discoverable. (`skills/languages` is gone — language practice is now fragments
+ *      under the `develop` skill, not registered skills.)
  *   2. Register the 17 Aegis agents and 6 Aegis commands inline via `config.agent.<name>`
  *      and `config.command.<name>`. OpenCode supports JSON inline config for both
  *      surfaces (see docs/official/{agents,commands}.md). The plugin reads each
@@ -40,7 +41,6 @@ const BOOTSTRAP_MARKER = "<!-- aegis:bootstrap -->";
 
 const SKILL_DIRS = [
   path.join(aegisRoot, "skills", "core"),
-  path.join(aegisRoot, "skills", "languages"),
   path.join(aegisRoot, "skills", "workflows"),
 ];
 

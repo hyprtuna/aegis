@@ -14,7 +14,7 @@ You scaffold a new skill folder following Aegis conventions; read existing skill
 
 ## Process
 
-1. Gather `name` (kebab-case verb-noun), one-line `description`, `visibility`, target `platforms`, and which folder family (`core/`, `languages/<lang>-developer/`, `workflows/`).
+1. Gather `name` (kebab-case verb-noun), one-line `description`, `visibility`, target `platforms`, and which folder family (`core/`, `workflows/`).
 2. **Classify the baseline failure first** (see "Match the Form to the Failure" below) — the failure type drives the body's form.
 3. Pick the closest existing skill in the same family as a structural template; read its `SKILL.md`.
 4. Create the folder `skills/<family>/<name>/` and write `SKILL.md` inside it. Every skill is a folder; abilities go in `abilities/<x>.md` (no frontmatter, not registered).

@@ -164,7 +164,7 @@ body-length cap moved out of this module to `skill-size.mjs` — see
 
 Module: `scripts/validate/bucket-readme.mjs`.
 
-Every skill bucket (`skills/core`, `skills/languages`, `skills/workflows`) and
+Every skill bucket (`skills/core`, `skills/workflows`) and
 every template family (`templates/html`, `templates/markdown`, `templates/json`)
 that exists must contain a `README.md` that mentions every shipping child. Skill
 children are subdirectories holding a `SKILL.md`; template-family children are

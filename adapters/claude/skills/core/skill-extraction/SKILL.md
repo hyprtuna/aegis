@@ -30,7 +30,7 @@ Capture the *decision procedure* — when to do X vs Y, what to check, what trad
 
 ## Handoff to skill-creation
 
-Assemble the candidate's `name` (kebab-case verb-noun), one-line trigger-style `description`, target family (`core/`, `languages/<lang>-developer/`, `workflows/`), and the distilled heuristic body, then invoke `skill-creation` to scaffold and validate. Do not write frontmatter or run the static gate here — `skill-creation` owns that; see `skills/core/skill-creation/SKILL.md`.
+Assemble the candidate's `name` (kebab-case verb-noun), one-line trigger-style `description`, target family (`core/`, `workflows/`), and the distilled heuristic body, then invoke `skill-creation` to scaffold and validate. Do not write frontmatter or run the static gate here — `skill-creation` owns that; see `skills/core/skill-creation/SKILL.md`.
 
 ## Common Mistakes
 

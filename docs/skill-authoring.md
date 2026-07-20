@@ -94,24 +94,36 @@ Brief purpose (1-2 lines).
 Describe expected output format (markdown, JSON, or templates/html/<name>.html).
 ```
 
-## Language Skills
+## Language Practice (not a skill)
 
-Language skills live at `skills/languages/<lang>-developer/`:
+Language and framework practice is **not** a registered skill. It lives as on-demand
+fragments under the single `develop` skill, which selects them from the files a task
+touches:
 
 ```
-skills/languages/typescript-developer/
-├── SKILL.md
-├── abilities/
-│   ├── typescript-development.md
-│   └── typescript-typing.md
-└── rules/
-    ├── coding-style.md
-    ├── patterns.md
-    ├── security.md
-    └── testing.md
+skills/core/develop/
+├── SKILL.md                                # the ONLY registered surface here
+└── abilities/
+    ├── general.md                          # language-agnostic baseline
+    └── languages/
+        ├── typescript.md                   # the per-language index fragment
+        └── typescript/
+            ├── typescript-development.md
+            ├── typescript-typing.md
+            └── rules/
+                ├── coding-style.md
+                ├── patterns.md
+                ├── security.md
+                └── testing.md
 ```
 
-The parent SKILL.md routes to abilities and rules based on the request.
+`develop/SKILL.md` names the file signals that select each fragment and states that a task
+touching several languages or frameworks loads **all** of the matching fragments. The
+per-language `<lang>.md` index then names its own practice files and `rules/` overlay.
+
+To add a language, add `abilities/languages/<lang>.md`, put its practice files in the
+sibling `<lang>/` directory, and add a row to the selection table in `develop/SKILL.md`.
+Do **not** give it frontmatter — Iron Law 4: fragments are not registered skills.
 
 ## Workflow Skills
 

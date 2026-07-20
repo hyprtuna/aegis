@@ -157,7 +157,7 @@ below for what is unverified on this path.
    ```
    Use the skill tool to list available skills.
    ```
-   A loaded install lists the Aegis skill set (~82 skills). You can also
+   A loaded install lists the Aegis skill set (~63 skills). You can also
    invoke an Aegis command or agent directly to confirm the surface loaded.
 
 4. Honest gaps — read before relying on this path:

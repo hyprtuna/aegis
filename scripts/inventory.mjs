@@ -40,8 +40,16 @@ const all = walk(REPO);
 const rel = (p) => relative(REPO, p);
 
 const skills = all.filter((p) => /^skills\/[^/]+\/[^/]+\/SKILL\.md$/.test(rel(p)));
-const abilities = all.filter((p) => /^skills\/[^/]+\/[^/]+\/abilities\/[^/]+\.md$/.test(rel(p)));
-const languageRules = all.filter((p) => /^skills\/languages\/[^/]+\/rules\/[^/]+\.md$/.test(rel(p)));
+// Fragments live at ANY depth under a skill's abilities/ tree — a parent skill may group
+// them (e.g. develop/abilities/languages/<lang>.md plus a sibling <lang>/ directory of
+// practice files). A depth-1-only pattern counted the flat layout correctly and silently
+// undercounted every nested one, which is the shape the corpus is moving to.
+const abilityTree = /^skills\/[^/]+\/[^/]+\/abilities\/.+\.md$/;
+// A rules/ overlay nested inside an abilities tree is counted separately, so exclude it
+// here rather than counting the same file under two keys.
+const nestedRules = /\/rules\/[^/]+\.md$/;
+const abilities = all.filter((p) => abilityTree.test(rel(p)) && !nestedRules.test(rel(p)));
+const languageRules = all.filter((p) => abilityTree.test(rel(p)) && nestedRules.test(rel(p)));
 const agents = all.filter((p) => /^agents\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
 const commands = all.filter((p) => /^commands\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));
 const rules = all.filter((p) => /^rules\/[^/]+\.md$/.test(rel(p)) && !/AGENTS\.md|CLAUDE\.md/.test(rel(p)));

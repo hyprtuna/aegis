@@ -33,7 +33,7 @@ exception, not hand-copied canonical.
 
 | Aegis canonical | Claude native path | Notes |
 |---|---|---|
-| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,languages,workflows}/` | An earlier release repointed this to the generated tree. Bucket roots are a **choice, not a constraint** — 3 entries instead of 82. See "Why bucket roots, not per-skill paths" below; the earlier claim that per-skill paths "registered zero" is not supported by the evidence and has been corrected. |
+| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,workflows}/` | An earlier release repointed this to the generated tree. Bucket roots are a **choice, not a constraint** — one entry per bucket instead of one per skill. See "Why bucket roots, not per-skill paths" below; the earlier claim that per-skill paths "registered zero" is not supported by the evidence and has been corrected. |
 | Marketplace | **Generated** `.claude-plugin/marketplace.json` (string `source: "./"`) | Claude's own marketplace, separate from Codex's `.agents/plugins/marketplace.json` (object source). Claude rejects the object form. Lets `/plugin marketplace add <repo>` + `/plugin install aegis@aegis` work. |
 | `agents/<name>.md` | **Generated** `adapters/claude/agents/<name>.md`, via `plugin.json` `agents: ["./adapters/claude/agents/"]` | The `agents` key replaces the default root scan; carries injected `tools:`. |
 | `commands/<name>.md` | **Generated** `adapters/claude/commands/<name>.md`, via `plugin.json` `commands: ["./adapters/claude/commands/<name>.md", …]` | Projected with flattened Claude-native frontmatter (`description` + `argument-hint`; canonical `name`/`visibility`/`platforms`/`x-*` dropped). Declaring `commands` replaces the default `./commands/` scan. Before this, the raw canonical files were default-scanned and listed but **not invokable** (`/aegis:<cmd>` → "Unknown command"). |
@@ -62,7 +62,7 @@ adapters/claude/
 2. Provider-tagged prose: keep `<claude>…</claude>` blocks, strip `<opencode>…</opencode>` and any other host's blocks.
 3. **Re-inject the Invoke-via blockquote (Claude-only).** Canonical bodies are host-neutral — they no longer carry the `> **Invoke via …**` blockquote. The projector rebuilds it from `x-claude.primitiveHint` (`skill` → `Skill({skill: "aegis:<name>"})`, `agent` → `Agent({subagent_type: "aegis:<name>"})`) and PREPENDS it to the Claude body. Surfaces without `primitiveHint` get nothing; OpenCode/Codex/Cursor/Zed get nothing. `primitiveHint` is consumed here, never emitted into generated frontmatter.
 4. Frontmatter: start from the canonical 4 fields → map `visibility: internal` → native `user-invocable: false` (**skills only**, see below), drop `visibility`/`platforms`/`source` (not Claude-native) → flatten `x-claude.*` into native keys (`x-claude.paths` → `paths:`, `x-claude.agent` → `agent:`, `x-claude.disallowed-tools` → `disallowedTools:`) and strip the whole `x-claude`/`x-opencode` block → resolve the `model` alias via `manifest/models.json` → for agents, inject `tools:`/`disallowedTools:` from `manifest/permissions.json` (never from frontmatter).
-5. Copy `abilities/`, `references/`, **and `rules/`** siblings verbatim so a SKILL.md's relative links (e.g. `python-developer`'s `rules/` sibling) resolve in the generated tree.
+5. Copy `abilities/`, `references/`, **and `rules/`** siblings verbatim — walking subdirectories — so a SKILL.md's relative links (e.g. `develop`'s `abilities/languages/<lang>/rules/` overlay) resolve in the generated tree.
 6. Atomic emit (`*.tmp` → `atomicReplace`).
 
 ### `visibility: internal` → `user-invocable: false` (and why not `disable-model-invocation`)
@@ -104,7 +104,7 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 {
   "name": "aegis",
   "version": "0.0.5",
-  "skills": ["./adapters/claude/skills/core/", "./adapters/claude/skills/languages/", "./adapters/claude/skills/workflows/"],
+  "skills": ["./adapters/claude/skills/core/", "./adapters/claude/skills/workflows/"],
   "agents": ["./adapters/claude/agents/"],
   "userConfig": { "preferredLanguageOverlay": { "type": "string", "default": "" },
                   "telemetryOptIn": { "type": "boolean", "default": false } },
@@ -122,8 +122,8 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 
 ### Why bucket roots, not per-skill paths
 
-`skills` lists the three scope bucket roots. This is an **entry-count preference — 3 lines instead
-of 82 — not a limitation of the host.** Per-skill directory paths work.
+`skills` lists the scope bucket roots. This is an **entry-count preference — one line per bucket
+instead of one per skill — not a limitation of the host.** Per-skill directory paths work.
 
 A previous version of this document claimed the opposite: that per-skill paths "landed one level too
 deep and registered zero". That claim is retracted. It is contradicted by two independent sources:
@@ -157,7 +157,7 @@ resolves to the marketplace root, so per `plugins-reference.md:623` declaring sp
 
 `plugin.json` declares a `userConfig` block prompted at enable time:
 
-- `preferredLanguageOverlay` (string, default `""`) — default language overlay skill to bias toward (e.g. `python-developer`).
+- `preferredLanguageOverlay` (string, default `""`) — default language practice fragment for the `develop` skill to bias toward (e.g. `python`).
 - `telemetryOptIn` (boolean, default `false`) — opt-in for anonymous usage telemetry.
 
 Values flow into `${USER_CONFIG_*}` substitutions exposed to skills and to monitor commands (`${user_config.*}`). This is **Claude-only** (DH7); OpenCode/Codex/Cursor/Zed have no equivalent and carry a `gap` row in `manifest/capabilities.json`.

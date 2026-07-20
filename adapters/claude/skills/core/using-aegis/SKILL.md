@@ -37,7 +37,7 @@ violation.
 
 ## What's Available
 
-- **Skills** at `skills/`: universal capabilities (`skills/core/`), language overlays (`skills/languages/`), workflow skills (`skills/workflows/`).
+- **Skills** at `skills/`: universal capabilities (`skills/core/`), workflow skills (`skills/workflows/`). Language and framework practice is not a separate skill — it lives as on-demand fragments under the `develop` skill.
 - **Agents** at `agents/`: first-class doers — researcher, plan-verifier, code-reviewer, orchestrator, etc.
 - **Commands** at `commands/`: composed workflow entry-points (capped ~15).
 - **Rules** at `rules/`: iron-law guidance (TDD, evidence-before-assertion, verification-before-completion, etc.). Always-loaded.
@@ -59,7 +59,7 @@ A curated index of the most-reached-for surfaces — not the full catalog. Disco
 | Research a topic / weigh options | `research` skill or `researcher` agent |
 | Verify a plan against its goal | `plan-verifier` agent |
 | Onboard to an unfamiliar codebase | `codebase-onboarding` skill |
-| Language-specific work | `skills/languages/<lang>-developer/SKILL.md` |
+| Write or change application code (any language) | `develop` skill |
 
 ## How to Use
 
@@ -80,7 +80,7 @@ The full text lives in `rules/<rule-name>.md`. Highlights:
 
 ## How to Discover More
 
-- For language work, route through `skills/languages/<lang>-developer/SKILL.md`.
+- For language work, invoke the `develop` skill — it selects the language and framework fragments the task touches.
 - For workflow work (plan → spec → implement → review), route through `skills/workflows/<workflow>/SKILL.md`.
 - For a new domain, check `skills/core/` for a matching skill name.
 

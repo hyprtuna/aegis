@@ -7,7 +7,7 @@
 - **Plugin file:** `.opencode/plugins/aegis.js` — plain ESM JS, no build step (~100 lines).
 - **Distribution:** OpenCode's native git-spec; users add `"plugin": ["aegis@git+https://github.com/.../aegis.git"]` to `opencode.json`. Mirrors Superpowers' pattern.
 - **Install instructions:** `.opencode/INSTALL.md` (agent-readable) tells an AI agent how to edit the user's `opencode.json`. NO install script Aegis runs.
-- **Skill discovery:** Plugin `config(cfg)` pushes 3 absolute paths into `cfg.skills.paths` (`skills/core`, `skills/languages`, `skills/workflows`).
+- **Skill discovery:** Plugin `config(cfg)` pushes 2 absolute paths into `cfg.skills.paths` (`skills/core`, `skills/workflows`).
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
 - **Bootstrap (static review):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once and memoized (`aegis.js:50,73,85`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`BOOTSTRAP_MARKER`, `aegis.js:39`; guard at `aegis.js:221-224`) and injects into the **first USER message** (selected at `aegis.js:216`, injected at `aegis.js:226-227`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This satisfies the superpowers-audit recommendations by static review of the shipped source; no live OpenCode run has been performed.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.

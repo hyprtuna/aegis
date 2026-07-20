@@ -13,14 +13,18 @@ skills/
 │   ├── REFERENCE.md        # optional — dense facts / data tables
 │   ├── EXAMPLES.md         # optional — worked transcripts
 │   └── abilities/<x>.md    # optional — on-demand fragments loaded by a pointer
-├── languages/<lang>-developer/
-│   ├── SKILL.md
-│   ├── abilities/<ability>.md            # on-demand fragments
-│   └── rules/{coding-style,patterns,security,testing}.md
+│       └── <group>/…       # optional — fragments may nest; the projector walks the tree
 └── workflows/<workflow>/
     ├── SKILL.md
     └── abilities/<step>.md
 ```
+
+**Fragments may nest.** `abilities/` is copied verbatim into every host tree *walking
+subdirectories*, so a parent with many fragments may group them. `develop` is the worked
+example: `abilities/languages/<lang>.md` is the per-language index, and its sibling
+`abilities/languages/<lang>/` directory holds that language's practice files and a `rules/`
+overlay. Nesting changes nothing about registration — the parent `SKILL.md` is still the only
+registered surface (Iron Law 4).
 
 ## Frontmatter
 
@@ -180,7 +184,7 @@ For security guidance, see `abilities/security.md`.
 ## Naming
 
 - Kebab-case verb-noun: `code-review`, `implementation-planner`, `dependency-management`.
-- Language skills: `<lang>-developer` (e.g. `typescript-developer`, `go-developer`).
+- Language practice is NOT a skill. It lives as fragments under `skills/core/develop/abilities/languages/<lang>.md`, with the per-language practice files and `rules/` overlay in the sibling `<lang>/` directory.
 - Workflow skills: descriptive of the workflow (e.g. `spec-driven-development`, `default-feature`).
 
 ## What NOT to put here

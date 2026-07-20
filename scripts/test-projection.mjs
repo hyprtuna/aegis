@@ -70,13 +70,84 @@ test("F2: Claude code-review skill flattens x-claude.agent and drops x-blocks", 
   assert.ok(!/x-opencode/.test(fm), "Claude skill frontmatter must not carry x-opencode");
 });
 
-test("F2: Claude python-developer skill flattens x-claude.paths and drops x-blocks", () => {
-  const c = read("adapters/claude/skills/languages/python-developer/SKILL.md");
-  const fm = parseFrontmatterBlock(c);
-  assert.match(fm, /^paths:\s*\[/m, "expected flattened `paths:` sequence");
-  assert.match(fm, /\*\*\/\*\.py/, "expected the python glob to survive flattening");
-  assert.ok(!/x-claude/.test(fm), "Claude skill frontmatter must not carry x-claude");
-  assert.ok(!/x-opencode/.test(fm), "Claude skill frontmatter must not carry x-opencode");
+// x-claude.paths flattening, discovered from source rather than pinned to one skill.
+//
+// This used to assert against `python-developer`, one of four language overlays that
+// carried `x-claude.paths`. Those overlays are now fragments under the `develop` skill,
+// so the corpus currently carries ZERO `x-claude.paths` declarations and a test pinned to
+// a named carrier would either fail or, worse, be quietly rewritten to assert nothing.
+//
+// So the test derives its subjects from canonical. When a skill declares `x-claude.paths`
+// it must project a flattened `paths:` with its globs intact. When none does — today's
+// state — the assertion inverts: no generated skill may carry a `paths:` key the canonical
+// source never declared. Both directions fail loudly on a projector regression; neither
+// passes vacuously, and the empty case is a stated fact rather than an accident.
+function pathsCarryingSkills() {
+  const out = [];
+  for (const scope of ["core", "workflows"]) {
+    const scopeDir = join(REPO, "skills", scope);
+    let entries;
+    try {
+      entries = readdirSync(scopeDir);
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      let text;
+      try {
+        text = readFileSync(join(scopeDir, entry, "SKILL.md"), "utf8");
+      } catch {
+        continue;
+      }
+      const fm = parseFrontmatterBlock(text);
+      const m = /^\s+paths:\s*(\[.*\])\s*$/m.exec(fm);
+      if (m) out.push({ rel: `adapters/claude/skills/${scope}/${entry}/SKILL.md`, globs: m[1] });
+    }
+  }
+  return out;
+}
+
+test("F2: Claude skills flatten x-claude.paths and drop x-blocks", () => {
+  const carriers = pathsCarryingSkills();
+
+  for (const { rel, globs } of carriers) {
+    const fm = parseFrontmatterBlock(read(rel));
+    assert.match(fm, /^paths:\s*\[/m, `${rel}: expected flattened \`paths:\` sequence`);
+    for (const glob of globs.matchAll(/"([^"]+)"/g)) {
+      assert.ok(
+        fm.includes(glob[1]),
+        `${rel}: glob ${glob[1]} did not survive flattening`,
+      );
+    }
+    assert.ok(!/x-claude/.test(fm), `${rel}: Claude skill frontmatter must not carry x-claude`);
+    assert.ok(!/x-opencode/.test(fm), `${rel}: Claude skill frontmatter must not carry x-opencode`);
+  }
+
+  if (carriers.length === 0) {
+    // No canonical carrier: assert the projector invents nothing.
+    for (const scope of ["core", "workflows"]) {
+      const genScope = join(REPO, "adapters/claude/skills", scope);
+      let entries;
+      try {
+        entries = readdirSync(genScope);
+      } catch {
+        continue;
+      }
+      for (const entry of entries) {
+        const rel = `adapters/claude/skills/${scope}/${entry}/SKILL.md`;
+        let fm;
+        try {
+          fm = parseFrontmatterBlock(read(rel));
+        } catch {
+          continue;
+        }
+        assert.ok(
+          !/^paths:/m.test(fm),
+          `${rel}: generated a \`paths:\` key no canonical skill declares`,
+        );
+      }
+    }
+  }
 });
 
 test("F2: every committed OpenCode agent drops x-claude / x-opencode blocks", () => {
@@ -141,7 +212,7 @@ test("plugin.json skills lists bucket roots, not per-skill dirs", () => {
       `skills entry "${s}" must be a bucket root (…/skills/<scope>/), not a per-skill dir — Claude scans each entry one level deep for <name>/SKILL.md`,
     );
   }
-  // Small set (buckets), not the full ~82 skill dirs.
+  // Small set (buckets), not the full ~63 skill dirs.
   assert.ok(p.skills.length <= 10, `expected a few bucket roots, got ${p.skills.length}`);
 });
 
@@ -187,7 +258,7 @@ test("Claude marketplace uses a string source; Codex uses an object", () => {
 // test cannot silently pass by asserting an empty set.
 function internalCanonicalSkills() {
   const out = [];
-  for (const scope of ["core", "languages", "workflows"]) {
+  for (const scope of ["core", "workflows"]) {
     const scopeDir = join(REPO, "skills", scope);
     let entries;
     try {
@@ -230,7 +301,7 @@ test("V1: every canonical internal skill projects user-invocable: false on Claud
 test("V2: user-facing skills project no user-invocable key", () => {
   const internal = new Set(internalCanonicalSkills());
   let checked = 0;
-  for (const scope of ["core", "languages", "workflows"]) {
+  for (const scope of ["core", "workflows"]) {
     const genScope = join(REPO, "adapters/claude/skills", scope);
     let entries;
     try {
