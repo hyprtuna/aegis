@@ -3,7 +3,7 @@ kind: hook
 name: post-compact
 description: Re-surface the captured session anchors after Claude compacts the context window.
 visibility: internal
-platforms: [claude, opencode, codex]
+platforms: [claude, opencode]
 ---
 
 # Post-Compact Restore
@@ -22,7 +22,7 @@ After compaction, the agent resumes against a freshly summarized transcript. The
 |---|---|---|
 | Claude Code | `.claude-plugin/hooks/post-compact.sh` | supported |
 | OpenCode | `.opencode/plugins/aegis.js` (session.compacting, phase post) | partial (no-op placeholder) |
-| Codex | `.codex/plugins/aegis/hooks/post-compact.sh` (PostCompact, bundled) | supported |
+| Codex | — | gap — `plugin_hooks` removed (codex-cli 0.144.6); no plugin-shipped hook can fire |
 | Cursor | N/A (no hook contract) | — |
 | Zed | N/A (no hook contract) | — |
 

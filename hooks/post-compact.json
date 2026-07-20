@@ -4,7 +4,7 @@
   "name": "post-compact",
   "description": "Re-surface the anchors captured before compaction (decisions, test names, task anchors) once Claude has produced the compacted summary, so the agent resumes with them in view.",
   "visibility": "internal",
-  "platforms": ["claude", "opencode", "codex"],
+  "platforms": ["claude", "opencode"],
   "trigger": {
     "matcher": "manual|auto"
   },
@@ -18,11 +18,5 @@
     "event": "session.compacting",
     "phase": "post",
     "handler": "compaction"
-  },
-  "x-codex": {
-    "event": "PostCompact",
-    "matcher": "manual|auto",
-    "dispatch": "command",
-    "command": "./hooks/post-compact.sh"
   }
 }

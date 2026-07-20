@@ -27,7 +27,7 @@ Generated from `manifest/capabilities.json`. See [capability-matrix.md](capabili
 | `templates-surface` | ✅ supported | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |
 | `model-aliases` | ✅ supported | ✅ supported | 🟡 partial | — n/a | — n/a |
 | `provider-tagged-prose` | ✅ supported | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap |
-| `session-start-hook` | ✅ supported | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |
+| `session-start-hook` | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap | ⛔ gap |
 | `compaction-hooks` | ✅ supported | 🟡 partial | ⛔ gap | ⛔ gap | ⛔ gap |
 | `instructions-loaded-hook` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap |
 | `mcp-servers` | ⛔ gap | 🟡 partial | 🟡 partial | ⛔ gap | ⛔ gap |

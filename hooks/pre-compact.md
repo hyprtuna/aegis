@@ -3,7 +3,7 @@ kind: hook
 name: pre-compact
 description: Capture session anchors before Claude compacts the context window.
 visibility: internal
-platforms: [claude, opencode, codex]
+platforms: [claude, opencode]
 ---
 
 # Pre-Compact Capture
@@ -22,7 +22,7 @@ Compaction rewrites the conversation into a shorter summary. The summary is loss
 |---|---|---|
 | Claude Code | `.claude-plugin/hooks/pre-compact.sh` | supported |
 | OpenCode | `.opencode/plugins/aegis.js` (session.compacting, phase pre) | partial (no-op placeholder) |
-| Codex | `.codex/plugins/aegis/hooks/pre-compact.sh` (PreCompact, bundled) | supported |
+| Codex | — | gap — `plugin_hooks` removed (codex-cli 0.144.6); no plugin-shipped hook can fire |
 | Cursor | N/A (no hook contract) | — |
 | Zed | N/A (no hook contract) | — |
 

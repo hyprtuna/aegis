@@ -14,6 +14,6 @@
     "anvil"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
+  "hooks": {},
   "mcpServers": "./.mcp.json"
 }

@@ -470,9 +470,20 @@ function projectCodexRules() {
 // The repo-root .codex-plugin/plugin.json (old location) is deleted after the
 // first run — it's no longer the correct location. .codex-plugin/AGENTS.md
 // stays (rules surface for Codex at project root, out of scope for Phase B).
+//
+// `hooks` pointer: Codex's `plugin_hooks` feature is REMOVED (not
+// merely disabled) as of codex-cli 0.144.6 — a plugin cannot ship hooks that
+// fire, in any context. No canonical hooks/*.json intent binds `codex` in
+// `platforms` today, so `hasCodexHooks` is always false in practice. The
+// parameter (and the `./hooks/hooks.json` branch) stay so a future Codex
+// release that un-removes plugin_hooks has a real re-enable path — but the
+// default posture is explicit suppression: `hooks: {}`, the same pattern
+// Superpowers uses (`.codex-plugin/plugin.json`) to stop Codex from
+// auto-discovering a `hooks/` directory by convention. See
+// adapters/codex/projection.md "Honest Gaps" for the full writeup.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function projectCodexPluginManifest() {
+function projectCodexPluginManifest(hasCodexHooks) {
   const pluginRoot = join(REPO, ".codex/plugins/aegis");
   const manifestDir = join(pluginRoot, ".codex-plugin");
   const manifestPath = join(manifestDir, "plugin.json");
@@ -492,7 +503,9 @@ function projectCodexPluginManifest() {
 
   // Build the official plugin.json with component pointers.
   // keywords replaces tags. skills + mcpServers are mandatory pointers.
-  // hooks added in v0.2.1 when the hooks bundle is projected.
+  // hooks is a real pointer only when at least one canonical intent binds
+  // `codex`; otherwise it is the explicit-suppression `{}` form so
+  // Codex never auto-discovers a stale/absent hooks/hooks.json by convention.
   const manifest = {
     name: CODEX_MANIFEST_DEFAULTS.name,
     version: PKG_VERSION,
@@ -502,7 +515,7 @@ function projectCodexPluginManifest() {
     author: CODEX_MANIFEST_DEFAULTS.author,
     keywords: ["agentic", "skills", "agents", "anvil"],
     skills: "./skills/",
-    hooks: "./hooks/hooks.json",
+    hooks: hasCodexHooks ? "./hooks/hooks.json" : {},
     mcpServers: "./.mcp.json",
   };
 
@@ -594,6 +607,20 @@ function projectClaudeMarketplace() {
   );
 }
 
+// Filter to Codex-bound intents that have an x-codex.event. Shared by
+// projectCodexPluginManifest's caller (to decide the `hooks` pointer shape)
+// and projectCodexHooks (to decide what to bundle). This is
+// always empty — no canonical hooks/*.json intent binds `codex` — because
+// Codex's `plugin_hooks` feature is removed (codex-cli 0.144.6). The filter
+// stays live (not hardcoded to []) so a future intent that legitimately binds
+// `codex` again projects with zero code changes here.
+function filterCodexHookIntents(intents) {
+  return (intents ?? []).filter(
+    (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
+           i["x-codex"] && typeof i["x-codex"].event === "string",
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Codex hooks projection (v0.2.1)
 //
@@ -603,17 +630,27 @@ function projectClaudeMarketplace() {
 // intent projects here) or is deleted from hooks/ — there is no disabled/parked
 // state, so any bundled script/config left over from a removed intent is
 // cleaned up on every run. Idempotent.
+//
+// When no intent binds `codex` (the current, expected state — see
+// filterCodexHookIntents above), this ships NOTHING — no hooks.json, no
+// bundled scripts, not even an empty hooks/ directory. Shipping an empty
+// hooks.json behind a suppressed `{}` manifest pointer would still leave a
+// stale artifact on disk for a host that might auto-discover it by
+// convention; removing the directory entirely is the honest-gap posture.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function projectCodexHooks(intents) {
   const pluginHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
-  mkdirSync(pluginHooksDir, { recursive: true });
+  const codexIntents = filterCodexHookIntents(intents);
 
-  // Filter to Codex-bound intents that have an x-codex.event.
-  const codexIntents = (intents ?? []).filter(
-    (i) => Array.isArray(i.platforms) && i.platforms.includes("codex") &&
-           i["x-codex"] && typeof i["x-codex"].event === "string",
-  );
+  if (codexIntents.length === 0) {
+    if (existsSync(pluginHooksDir)) {
+      rmSync(pluginHooksDir, { recursive: true, force: true });
+    }
+    return 0;
+  }
+
+  mkdirSync(pluginHooksDir, { recursive: true });
 
   // Build the Codex hooks.json: group by event into matcher-group shape.
   // Shape: { "hooks": { "<Event>": [ { "matcher": "…", "hooks": [ { "type": "command", "command": "…" } ] } ] } }
@@ -890,8 +927,10 @@ function projectCodex(hookIntents) {
 
   // Emit the official plugin manifest + MCP stub at plugin-root.
   // Deletes the old repo-root .codex-plugin/plugin.json and .codex-plugin/mcp.json.
-  // hooks pointer added in v0.2.1 — always present now.
-  projectCodexPluginManifest();
+  // hooks pointer is real only when a canonical intent binds `codex`;
+  // computed up front so the manifest and the hooks bundle agree.
+  const codexHookIntents = filterCodexHookIntents(hookIntents ?? []);
+  projectCodexPluginManifest(codexHookIntents.length > 0);
 
   // Emit .agents/plugins/marketplace.json (canonical) and correct
   // .claude-plugin/marketplace.json to use the object source form.
@@ -1654,7 +1693,9 @@ console.log(
     codex.commands +
     " commands-as-dispatchers, rules → .codex-plugin/AGENTS.md; plugin manifest + .mcp.json → .codex/plugins/aegis/.codex-plugin/; marketplace → .agents/plugins/; " +
     codex.hooks +
-    " hook(s) bundled → .codex/plugins/aegis/hooks/)",
+    " hook(s) bundled → .codex/plugins/aegis/hooks/" +
+    (codex.hooks === 0 ? " (none bound — plugin.json hooks: {} suppresses discovery)" : "") +
+    ")",
 );
 
 const statuslineCount = projectStatuslines();
@@ -1704,16 +1745,19 @@ console.log("  - .opencode/INSTALL.md");
 console.log("  - .codex/INSTALL.md");
 console.log("");
 console.log("Generated by projectCodexPluginManifest() + projectCodexMarketplaces():");
-console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/hooks/mcpServers pointers + keywords)");
+console.log("  - .codex/plugins/aegis/.codex-plugin/plugin.json (skills/mcpServers pointers + keywords; hooks: {} unless a canonical intent binds codex)");
 console.log("  - .codex/plugins/aegis/.mcp.json (empty mcpServers stub)");
 console.log("  - .agents/plugins/marketplace.json (Codex marketplace, object source form)");
 console.log("");
 console.log("Generated by projectClaudeMarketplace() (v0.3.4):");
 console.log("  - .claude-plugin/marketplace.json (Claude marketplace, string source \"./\")");
 console.log("");
-console.log("Generated by projectCodexHooks() (v0.2.1):");
-console.log("  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, 3 events)");
-console.log("  - .codex/plugins/aegis/hooks/*.sh (bundled scripts, version-stamped)");
+console.log("Generated by projectCodexHooks():");
+console.log(
+  codex.hooks === 0
+    ? "  - .codex/plugins/aegis/hooks/ — not shipped (no intent binds codex; plugin_hooks is removed, codex-cli 0.144.6)"
+    : `  - .codex/plugins/aegis/hooks/hooks.json (Codex matcher-group shape, ${codex.hooks} events)`,
+);
 console.log("");
 console.log("Future projections:");
 console.log("  v0.0.6: dist/aegis.skill bundle (E2), dependencies population (E1)");

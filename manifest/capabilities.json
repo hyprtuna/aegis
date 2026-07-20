@@ -178,7 +178,7 @@
       "hosts": {
         "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json:99", "since": "v0.0.1" },
         "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#approach-locked-decisions", "since": "v0.0.2" },
-        "codex": { "status": "partial", "evidence": "adapters/codex/projection.md#honest-gaps", "since": "v0.0.3" },
+        "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#what-cursor-will-load" },
         "zed": { "status": "gap", "evidence": "adapters/zed/projection.md#unsupported-documented-gaps" }
       }

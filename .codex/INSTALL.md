@@ -1,6 +1,6 @@
 # Aegis — Codex Install
 
-Installing Aegis on Codex gives you the full Aegis surface tree projected into Codex's first-class primitives: Agent Skills, native hooks, and an MCP stub. You get canonical Aegis skills, Aegis agents folded into skills (agent-as-skill), Aegis commands as thin dispatcher skills (command-as-dispatcher), and the Aegis Iron-Law rules concatenated into a single `AGENTS.md` that Codex reads at session start.
+Installing Aegis on Codex gives you the full Aegis surface tree projected into Codex's first-class primitives: Agent Skills and an MCP stub. You get canonical Aegis skills, Aegis agents folded into skills (agent-as-skill), Aegis commands as thin dispatcher skills (command-as-dispatcher), and the Aegis Iron-Law rules concatenated into a single `AGENTS.md` that Codex reads at session start. Aegis ships no hooks on Codex — its `plugin_hooks` feature is removed (see `adapters/codex/projection.md#hook-capability-matrix`); bootstrap and rules loading work entirely through Skill discovery and the `AGENTS.md` read above.
 
 ## Prerequisites
 
