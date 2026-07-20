@@ -1,7 +1,8 @@
 // codex.mjs — section 8 + FIX-V5/V6/V7/V8/V9: Codex projection checks.
 // Skipped silently if `.codex/` is absent. Push order is preserved exactly:
 // section-8 per-skill errors, then FIX-V5, FIX-V6, FIX-V7 (warning), FIX-V8 (warnings),
-// FIX-V9 (error) Codex bundle drift gate.
+// FIX-V9 (error) Codex bundle drift gate — byte-equality of every bundled hook
+// script (any extension) against its .claude-plugin/hooks/ source.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -156,20 +157,28 @@ export function run(ctx) {
     for (const f of templatePlaceholderHits) warnings.push(`  - ${f}`);
   }
 
-  // FIX-V9: Codex bundle drift gate. Assert that the bundled hook scripts in
-  // .codex/plugins/aegis/hooks/ byte-equal their canonical sources. A stale
+  // FIX-V9: Codex bundle drift gate. Assert that every bundled hook script in
+  // .codex/plugins/aegis/hooks/ byte-equals its canonical source. A stale
   // copy would silently weaken a Codex-bundled hook. Fires on every
   // validate-structure run.
   const codexHooksDir = join(REPO, ".codex/plugins/aegis/hooks");
   if (existsSync(codexHooksDir)) {
-    // Hook script drift check. Each bundled .sh must byte-equal the corresponding
-    // .claude-plugin/hooks/<name>.sh (both are version-stamped to the same version
+    // Hook script drift check. Each bundled script must byte-equal the corresponding
+    // .claude-plugin/hooks/<name> (both are version-stamped to the same version
     // post-project, so byte equality holds when in sync).
+    //
+    // NO extension filter: the bundler writes basename(x-codex.command) whatever its
+    // extension and hookCommentSyntax() supports .sh/.mjs/.js/.cjs/.ts, so a `.sh`-only
+    // gate leaves every non-shell bundled hook unchecked against its source. The
+    // existing "no canonical counterpart → skip" guard below already covers entries
+    // that legitimately have no .claude-plugin/hooks/ twin.
     const claudeHooksDir = join(REPO, ".claude-plugin/hooks");
     if (existsSync(claudeHooksDir)) {
       let bundledScripts;
       try {
-        bundledScripts = readdirSync(codexHooksDir).filter((f) => f.endsWith(".sh"));
+        bundledScripts = readdirSync(codexHooksDir, { withFileTypes: true })
+          .filter((e) => e.isFile() && e.name !== "hooks.json")
+          .map((e) => e.name);
       } catch {
         bundledScripts = [];
       }
