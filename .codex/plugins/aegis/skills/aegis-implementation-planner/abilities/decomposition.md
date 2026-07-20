@@ -41,4 +41,6 @@ Stop and ask the user if the goal is ambiguous in a way that changes the plan st
 
 ## Chains
 
-After the plan is approved: `feature-developer` or `test-driven-development`, then `code-reviewer`, then `github-workflow` or `gitlab-workflow`.
+After the plan is approved: `orchestrate` for a multi-task plan, or `test-driven-development` for a
+single task; then `code-review`; then `git-workflow` (its `github.md` / `gitlab.md` fragments cover
+the forge-specific steps).

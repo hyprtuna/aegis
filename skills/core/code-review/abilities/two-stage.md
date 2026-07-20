@@ -76,4 +76,4 @@ Use the Stage 2 dispatch prompt in `two-stage/io-and-prompts.md`.
 ---
 
 ## Done
-two-stage-review done — both review stages complete; merged report produced; status: DONE
+code-review done — both review stages complete; merged report produced; status: DONE

@@ -127,19 +127,21 @@ Do **not** give it frontmatter — Iron Law 4: fragments are not registered skil
 
 ## Workflow Skills
 
-Workflow skills live at `skills/workflows/<workflow>/`:
+Workflow skills are ordinary skills under `skills/core/` — there is no separate
+`skills/workflows/` bucket. A workflow skill is distinguished only by what it does: its
+`SKILL.md` orchestrates a multi-phase sequence, and it hands off with `REQUIRED SUB-SKILL`
+markers rather than doing every phase inline.
 
 ```
 skills/core/default-feature/
 ├── SKILL.md
 └── abilities/
-    ├── brainstorm-spec.md
-    ├── write-plan.md
-    ├── verify-plan.md
-    └── execute-plan.md
+    ├── end-to-end.md
+    └── spec-first.md
 ```
 
-The parent SKILL.md orchestrates the workflow's steps as abilities.
+The parent `SKILL.md` picks the route (here: end-to-end vs. spec-first) and loads the matching
+fragment; each phase then transitions to the next skill via its `REQUIRED SUB-SKILL` marker.
 
 ## Anti-Pattern / Failure-mode Call-outs
 

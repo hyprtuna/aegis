@@ -138,4 +138,4 @@ Document what was done so the next development (or future you) has context.
 **Exit gate**: Summary is delivered. All tests pass. Feature is ready for merge or PR.
 
 ## Done
-feature-developer done — feature implemented, tested, reviewed, and ready for merge; status: DONE
+default-feature done — feature implemented, tested, reviewed, and ready for merge; status: DONE

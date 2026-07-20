@@ -1,7 +1,7 @@
 # Review Requester
 
 > **Review-cluster role: workflow.** This is a workflow that calls the `code-review` skill
-> (the instrument). `review-requesting` assembles context and dispatches the reviewer; the
+> (the instrument). This fragment assembles context and dispatches the reviewer; the
 > actual findings come from `code-review`. Do not re-implement reviewing here.
 
 Review early, review often. Don't wait until the PR to discover issues.

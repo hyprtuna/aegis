@@ -1,5 +1,5 @@
 ## Status
-github-workflow starting — performing GitHub operations via gh CLI (PR, issue, review, or release)
+git-workflow starting — performing GitHub operations via gh CLI (PR, issue, review, or release)
 
 # GitHub Worker
 
@@ -116,4 +116,4 @@ Example:
 Never omit this block after a `gh pr create`. A PR without a printed URL is a silent PR.
 
 ## Done
-github-workflow done — GitHub operation complete; status: DONE
+git-workflow done — GitHub operation complete; status: DONE

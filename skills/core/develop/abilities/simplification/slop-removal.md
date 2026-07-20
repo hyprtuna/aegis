@@ -1,10 +1,10 @@
 # AI Slop Removal
 
-> On-demand ability of the `code-simplification` skill. Load this when the target code smells
+> On-demand ability of the `develop` skill. Load this when the target code smells
 > machine-written: over-commenting, narration comments, excessive JSDoc, verbose AI-pattern
 > boilerplate, runtime validation the type system already guarantees. For general
 > behaviour-preserving structural reduction (dead code, deep nesting, premature abstraction,
-> unclear naming regardless of origin), use the parent `code-simplification` body instead.
+> unclear naming regardless of origin), use the sibling `abilities/simplification.md` body instead.
 
 Identify and remove AI-generated code patterns that reduce clarity, inflate line counts, or add unnecessary complexity.
 

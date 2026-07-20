@@ -54,6 +54,10 @@ paths you are about to read or edit, plus the project's manifest files, and matc
 | `*.jsx` `*.tsx`, `react` in `package.json` | `abilities/languages/react.md` | javascript or typescript |
 | `@SpringBootApplication`, `spring-boot` dependency | `abilities/languages/spring.md` | java or kotlin |
 
+**When the files give no signal** (a fresh repo, a scratch file, a question with no code yet) and
+the user named no language, load `abilities/general.md` alone and ask which language applies. Do
+not guess a language from the project's name or the user's history.
+
 Each language fragment is an index. It names its own practice files (`<lang>/<lang>-development.md`,
 `<lang>/<lang>-testing.md`, …) and, where one exists, a `<lang>/rules/` overlay covering coding
 style, patterns, security, and testing. Read the index, then open only the files the current

@@ -83,5 +83,49 @@ export function run(ctx) {
     }
   }
 
+  // ABILITIES — Iron Law 4: "abilities carry no frontmatter or minimal". Until now that was
+  // unenforced convention. The 28 language rules files were trimmed by hand to `name` +
+  // `description`, correctly, but nothing stopped the next fragment from arriving with a full
+  // surface header — and a fragment carrying `name:`/`visibility:` reads like a registrable
+  // skill to a human skimming it, which is exactly the confusion the law exists to prevent.
+  //
+  // Warn-only per the repo's convention for new rules; graduates to hard-fail a release later.
+  // Fragments live at ANY depth under an abilities/ tree.
+  const ABILITY_ALLOWED = new Set(["name", "description"]);
+  const abilityRe = /^skills\/[^/]+\/[^/]+\/abilities\/.+\.md$/;
+  const abilityFiles = files.filter((p) => abilityRe.test(relative(REPO, p)));
+
+  if (abilityFiles.length === 0) {
+    warnings.push(
+      `no abilities/ fragments matched — the Iron Law 4 frontmatter check is vacuous. ` +
+        `Either no skill ships fragments, or the abilities path shape moved.`,
+    );
+  }
+
+  for (const p of abilityFiles) {
+    const r = relative(REPO, p);
+    const body = ctx.read(p);
+    if (!body.startsWith("---\n")) continue; // no frontmatter at all — the preferred shape.
+    const fmEnd = body.indexOf("\n---", 4);
+    if (fmEnd < 0) {
+      warnings.push(`unclosed frontmatter in ability fragment: ${r}`);
+      continue;
+    }
+    const keys = body
+      .slice(4, fmEnd)
+      .split("\n")
+      .map((l) => l.match(/^([a-zA-Z][\w-]*):/))
+      .filter(Boolean)
+      .map((m) => m[1]);
+    const extra = keys.filter((k) => !ABILITY_ALLOWED.has(k));
+    if (extra.length > 0) {
+      warnings.push(
+        `${r}: ability fragment carries frontmatter key(s) ${extra.map((k) => `'${k}'`).join(", ")} — ` +
+          `Iron Law 4 allows at most 'name' and 'description' on a fragment (it is not a ` +
+          `registered skill). Remove them.`,
+      );
+    }
+  }
+
   return { errors, warnings };
 }

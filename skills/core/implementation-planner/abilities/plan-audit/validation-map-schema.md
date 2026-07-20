@@ -1,6 +1,6 @@
 # ValidationMap JSON Schema
 
-> Loaded by the `plan-structure-audit` skill when the user picks **Structured JSON** or **Both**
+> Loaded by the `abilities/plan-audit.md` fragment when the user picks **Structured JSON** or **Both**
 > as the verification report format (Q2), regardless of which location was chosen in Q1.
 > Extends the generic plan-structure-audit body with the `ValidationMap` JSON schema,
 > the retroactive-validator integration contract, and plan path discovery conventions.
@@ -74,7 +74,7 @@ The retroactive-validator sub-task also accepts a git ref range to narrow diff h
 ## retroactive-validator Integration
 
 The retroactive-validator sub-task (dispatched via the `retroactive-validator.md` ability)
-emits a `ValidationMap` JSON object. The plan-structure-audit skill consumes this output
+emits a `ValidationMap` JSON object. The plan-audit fragment consumes this output
 when the user picks **JSON** or **Both** format for plans that have already been executed.
 
 Chain:

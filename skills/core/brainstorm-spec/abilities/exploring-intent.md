@@ -152,4 +152,5 @@ Approach N because [concrete reason tied to project context].
 
 ## Chains
 
-After the design is approved: `task-decomposition` to decompose, then `feature-developer` or `test-driven-development` to implement.
+After the design is approved: `implementation-planner` to decompose (it owns the `decomposition`
+fragment), then `develop` or `test-driven-development` to implement.

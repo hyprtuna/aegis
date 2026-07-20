@@ -104,4 +104,4 @@ waste more time than any parallelism saves.
 - Pair with `using-git-worktrees` when agents need isolated workspaces to avoid
   filesystem conflicts.
 - When an agent's output contract is "write results to a file," give it an ABSOLUTE path under `.aegis-scratch/` -- never a `.git/` path. See `rules/scratch-dir-convention.md` (Claude Code denies `.git/` writes; the handoff breaks silently).
-- When a brief or an agent's report is large, hand it as a file PATH under `.aegis-scratch/` rather than pasting it inline (pasted text stays controller-resident) -- and pin explicit SHAs, never `HEAD~1`, in the dispatch. See the `subagent-execution` skill for the full file-handoff + explicit-SHA technique.
+- When a brief or an agent's report is large, hand it as a file PATH under `.aegis-scratch/` rather than pasting it inline (pasted text stays controller-resident) -- and pin explicit SHAs, never `HEAD~1`, in the dispatch. See the sibling `abilities/subagent-execution.md` fragment for the full file-handoff + explicit-SHA technique.

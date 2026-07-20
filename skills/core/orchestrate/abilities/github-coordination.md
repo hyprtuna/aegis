@@ -1,5 +1,5 @@
 ## Status
-github-coordination starting — coordinating shared work via GitHub issues over gh
+orchestrate starting — coordinating shared work via GitHub issues over gh
 
 # GitHub Coordination Worker
 
@@ -13,7 +13,7 @@ Durable work-lock coordination via GitHub issues and the `gh` CLI. No daemon, no
 
 ## When NOT to Use
 
-- Single agent working alone — use `github-workflow` directly.
+- Single agent working alone — use `git-workflow` directly.
 - You require true mutual exclusion — this lock is advisory, not atomic. Serialize your writers instead (see **Not atomic** below).
 
 ---
@@ -64,7 +64,7 @@ On completion: set block `status: "done"`, swap label to `coordination:done`, ap
 
 The claim verb issues three separate `gh` calls (read → check → write). Two agents can both pass the check before either writes; the later writer silently clobbers the earlier owner. This is the same non-atomic guard ECC's `assertIssueClaimable()` uses — it is not a mutual-exclusion primitive.
 
-Real mitigation: **one write-subagent at a time** — apply the serialize-writers rule from `skills/core/subagent-execution/SKILL.md` (the sequential-execution rule in its Per-Task Execution Loop section). The coordination block is a durable, restart-surviving record, not a mutex.
+Real mitigation: **one write-subagent at a time** — apply the serialize-writers rule from the sibling `abilities/subagent-execution.md` fragment (the sequential-execution rule in its Per-Task Execution Loop section). The coordination block is a durable, restart-surviving record, not a mutex.
 
 Full TOCTOU analysis and the honest gap list in `github-coordination/toctou-and-gaps.md`.
 
@@ -72,11 +72,11 @@ Full TOCTOU analysis and the honest gap list in `github-coordination/toctou-and-
 
 ## Honest Gaps
 
-- **GitLab / `glab`:** a mirror via `glab` is a future ticket (cross-ref `skills/core/gitlab-workflow/SKILL.md`); not supported here.
+- **GitLab / `glab`:** a mirror via `glab` is a future ticket (cross-ref `git-workflow`'s `abilities/gitlab.md`); not supported here.
 - **Cross-host coordination:** only `gh`-reachable GitHub repos.
 - **Advisory only:** the lock does not prevent concurrent writes; it records intent.
 
 ---
 
 ## Done
-github-coordination done — work claimed, completed, and released; coordination block updated; status: DONE
+orchestrate done — work claimed, completed, and released; coordination block updated; status: DONE

@@ -75,15 +75,15 @@ export function run(ctx) {
 
       // FIX-V2: abilities/<topic>.md and references/<topic>.md references in the
       // projected body must resolve to a real file under the skill folder.
-      const abilityRefs = bodyOnly.match(/abilities\/[a-zA-Z0-9_-]+\.md/g) || [];
-      for (const ref of abilityRefs) {
-        const refPath = join(codexSkillsRoot, dir, ref);
-        if (!existsSync(refPath)) {
-          errors.push(`codex skill ${dir} references missing ${ref}`);
-        }
-      }
-      const refRefs = bodyOnly.match(/references\/[a-zA-Z0-9_-]+\.md/g) || [];
-      for (const ref of refRefs) {
+      // The path segment class must admit `/` so NESTED fragments resolve. The old
+      // `[a-zA-Z0-9_-]+` excluded the separator, so a ref like
+      // `abilities/languages/go/go-development.md` matched nothing at all and went
+      // unchecked — `develop/SKILL.md` alone cites 19 nested fragments, none of which
+      // this guard could see. Each path segment stays restricted; only the joins are new.
+      const NESTED = "(?:[a-zA-Z0-9_-]+\\/)*[a-zA-Z0-9_-]+\\.md";
+      const abilityRefs = bodyOnly.match(new RegExp(`abilities\\/${NESTED}`, "g")) || [];
+      const refRefs = bodyOnly.match(new RegExp(`references\\/${NESTED}`, "g")) || [];
+      for (const ref of [...abilityRefs, ...refRefs]) {
         const refPath = join(codexSkillsRoot, dir, ref);
         if (!existsSync(refPath)) {
           errors.push(`codex skill ${dir} references missing ${ref}`);

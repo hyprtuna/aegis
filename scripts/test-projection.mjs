@@ -109,6 +109,15 @@ function pathsCarryingSkills() {
 }
 
 test("F2: Claude skills flatten x-claude.paths and drop x-blocks", () => {
+  // Both branches below iterate skillScopes(REPO). An empty list makes each loop body
+  // unreachable and the test passes green having asserted nothing — precisely the
+  // vacuous pass the zero-carrier branch was written to prevent. Anchor it first.
+  assert.ok(
+    skillScopes(REPO).length > 0,
+    "skillScopes(REPO) is empty — every assertion in this test would be skipped and it " +
+      "would pass having verified nothing",
+  );
+
   const carriers = pathsCarryingSkills();
 
   for (const { rel, globs } of carriers) {

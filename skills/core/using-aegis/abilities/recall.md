@@ -1,5 +1,5 @@
 ## Status
-recall starting — retrieving relevant memory entries via 3-layer Read+Grep
+using-aegis starting — retrieving relevant memory entries via 3-layer Read+Grep
 
 **Announce:** I'm using the `using-aegis` skill's `recall.md` ability to retrieve relevant entries from MEMORY.md.
 
@@ -68,4 +68,4 @@ fallback store. Layers 1 and 3 (Grep + Read) work identically — only Layer 2
 (auto-injected context window) is unavailable. Start with Layer 1 on those hosts.
 
 ## Done
-recall done — relevant entries retrieved and summarized; status: DONE
+using-aegis done — relevant entries retrieved and summarized; status: DONE

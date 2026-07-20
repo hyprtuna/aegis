@@ -2,11 +2,14 @@
  * Aegis plugin for OpenCode.
  *
  * Three responsibilities:
- *   1. Register Aegis's canonical skill directories (`skills/core`, `skills/workflows`)
- *      via `config.skills.paths`. OpenCode does not recurse into scope subdirectories
- *      by default; this pushes the absolute paths so all 63 SKILL.md files are
- *      discoverable. (`skills/languages` is gone — language practice is now fragments
- *      under the `develop` skill, not registered skills.)
+ *   1. Register Aegis's canonical skill buckets via `config.skills.paths`. OpenCode
+ *      does not recurse into scope subdirectories by default, so the absolute path of
+ *      each bucket is pushed explicitly and all 20 SKILL.md files become discoverable.
+ *      The bucket list is DERIVED from the filesystem (any directory under `skills/`
+ *      holding at least one `<name>/SKILL.md`), never hardcoded — hardcoding is how
+ *      `skills/languages` and `skills/workflows` outlived their own deletion here.
+ *      Specialist capability is now on-demand `abilities/` fragments under a parent
+ *      skill, not registered skills.
  *   2. Register the 17 Aegis agents and 6 Aegis commands inline via `config.agent.<name>`
  *      and `config.command.<name>`. OpenCode supports JSON inline config for both
  *      surfaces (see docs/official/{agents,commands}.md). The plugin reads each
@@ -39,10 +42,36 @@ const aegisRoot = process.env.AEGIS_REPO_ROOT
 
 const BOOTSTRAP_MARKER = "<!-- aegis:bootstrap -->";
 
-const SKILL_DIRS = [
-  path.join(aegisRoot, "skills", "core"),
-  path.join(aegisRoot, "skills", "workflows"),
-];
+// Skill buckets, derived from the filesystem rather than listed literally. A bucket is
+// any directory under `skills/` that holds at least one `<name>/SKILL.md`. This mirrors
+// `scripts/lib/skill-scopes.mjs`; it is reimplemented (not imported) so the plugin keeps
+// working when only `.opencode/` is symlinked into a global OpenCode config and the
+// maintainer `scripts/` tree is not reachable. Adding or dissolving a bucket needs no
+// edit here.
+function discoverSkillDirs(root) {
+  const skillsDir = path.join(root, "skills");
+  let entries;
+  try {
+    entries = fs.readdirSync(skillsDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return entries
+    .filter((e) => e.isDirectory())
+    .map((e) => path.join(skillsDir, e.name))
+    .filter((dir) => {
+      try {
+        return fs
+          .readdirSync(dir, { withFileTypes: true })
+          .some((s) => s.isDirectory() && fs.existsSync(path.join(dir, s.name, "SKILL.md")));
+      } catch {
+        return false;
+      }
+    })
+    .sort();
+}
+
+const SKILL_DIRS = discoverSkillDirs(aegisRoot);
 
 const AGENTS_DIR = path.join(aegisRoot, ".opencode", "agents");
 const COMMANDS_DIR = path.join(aegisRoot, ".opencode", "commands");
@@ -259,7 +288,15 @@ export const AegisPlugin = async () => {
     config: async (cfg) => {
       if (!cfg || typeof cfg !== "object") return;
 
-      // Skills: filesystem discovery via skill paths.
+      // Skills: filesystem discovery via skill paths. An empty bucket list means the
+      // repo root resolved wrong (bad symlink, stale AEGIS_REPO_ROOT) — say so instead
+      // of registering nothing and letting the session look merely skill-less.
+      if (SKILL_DIRS.length === 0) {
+        console.warn(
+          `[aegis] no skill buckets found under ${path.join(aegisRoot, "skills")} — ` +
+            `no Aegis skills will be registered. Check the plugin install path or set AEGIS_REPO_ROOT.`,
+        );
+      }
       cfg.skills ??= {};
       cfg.skills.paths ??= [];
       for (const dir of SKILL_DIRS) {

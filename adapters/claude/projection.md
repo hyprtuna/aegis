@@ -104,10 +104,11 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 {
   "name": "aegis",
   "version": "0.0.5",
-  "skills": ["./adapters/claude/skills/core/", "./adapters/claude/skills/workflows/"],
+  // one entry per skill bucket; the list is generated from filesystem discovery,
+  // not hand-maintained (see scripts/lib/skill-scopes.mjs)
+  "skills": ["./adapters/claude/skills/core/"],
   "agents": ["./adapters/claude/agents/"],
-  "userConfig": { "preferredLanguageOverlay": { "type": "string", "default": "" },
-                  "telemetryOptIn": { "type": "boolean", "default": false } },
+  "userConfig": { "telemetryOptIn": { "type": "boolean", "default": false } },
   "dependencies": [],
   "hooks": {
     "SessionStart": [
@@ -157,7 +158,7 @@ resolves to the marketplace root, so per `plugins-reference.md:623` declaring sp
 
 `plugin.json` declares a `userConfig` block prompted at enable time:
 
-- `preferredLanguageOverlay` (string, default `""`) — default language practice fragment for the `develop` skill to bias toward (e.g. `python`).
+- *(removed)* `preferredLanguageOverlay` — prompted at install and consumed by nothing, so it was dropped rather than left as a dead prompt. `develop` selects language fragments from the task's actual files; when there is no file signal it asks. Re-adding it requires a `<claude>` prose fork in `develop/SKILL.md` that the Codex and OpenCode projectors do not yet strip.
 - `telemetryOptIn` (boolean, default `false`) — opt-in for anonymous usage telemetry.
 
 Values flow into `${USER_CONFIG_*}` substitutions exposed to skills and to monitor commands (`${user_config.*}`). This is **Claude-only** (DH7); OpenCode/Codex/Cursor/Zed have no equivalent and carry a `gap` row in `manifest/capabilities.json`.
@@ -293,11 +294,37 @@ Its generated Claude frontmatter carries `memory: project`; OpenCode/Codex copie
 
 | Canonical concept | Claude native? | Strategy |
 |---|---|---|
-| Per-language overlays as runtime-conditional | Yes — `paths:` glob | **Supported** via `x-claude.paths` → native `paths:` (generated tree). |
+| Per-language overlays as runtime-conditional | Yes — `paths:` glob | **Gap** — the projector still carries `x-claude.paths`, but no shipped skill declares it. See below. |
 | Statusline | Yes (`settings.json.statusLine`) | **Supported** — see Statuslines below. |
 | Output styles | Yes (Claude-only) | Aegis stays format-neutral; not projected. |
 | MCP servers | Yes | `gap` in `manifest/capabilities.json`; no MCP servers shipped from the plugin yet. |
 | Memory decay / last-referenced scoring | No native primitive | Deferred — needs a store. If pursued, agent-maintained annotations in MEMORY.md (never a DB). |
+
+### Skill paths activation: unused (honest gap)
+
+Aegis ships **no** skill declaring `x-claude.paths`, so nothing auto-activates on a file match.
+This is a deliberate trade-off, and a regression against the previous release — state it plainly
+rather than letting the capability table imply otherwise.
+
+**What was lost.** Each per-language skill used to carry its own glob (`go-developer` had
+`paths: ["**/*.go"]`), so opening a Go file pulled Go guidance in unprompted. Folding those
+overlays into `develop` removed the surfaces that carried the globs. The user must now reach for
+`develop`, which then selects the language fragments the task touches.
+
+**Why the obvious fix is worse.** Re-declaring a union of language globs on `develop` looks
+equivalent but is not: per the Claude Code reference, `paths` *limits* activation — "Claude loads
+the skill automatically only when working with files matching the patterns". A union glob would
+make `develop` auto-activate **only** for the listed extensions and hide it from automatic
+selection for general development and for every language not in the union. That trades a narrow
+regression for a broader one, on Aegis's single most general skill.
+
+**What was gained.** One entry point with explicit multi-fragment selection: a task spanning
+TypeScript, React, and Django loads all three fragments from one skill, where the old model needed
+three separately-activating skills that could not see each other.
+
+**If revisited:** the honest fix is per-language activation without per-language skills, which
+needs a host primitive Aegis does not have today (a glob that *adds* context rather than gating a
+whole skill). Do not paper over it with a union glob on `develop`.
 
 ## Statuslines (revamped for the Tier-2 HUD)
 

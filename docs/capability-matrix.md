@@ -7,7 +7,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 
 | Capability | Claude Code | OpenCode | Codex | Cursor | Zed |
 |---|---|---|---|---|---|
-| **Skill paths glob activation**<br/><sub>skill-paths-activation</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md#paths` | ⛔ gap<br/>`adapters/opencode/projection.md#claude-only-capabilities-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | — n/a |
+| **Skill paths glob activation**<br/><sub>skill-paths-activation</sub> | ⛔ gap<br/>`adapters/claude/projection.md#skill-paths-activation-unused-honest-gap` | ⛔ gap<br/>`adapters/opencode/projection.md#claude-only-capabilities-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | — n/a |
 | **Skill agent auto-dispatch**<br/><sub>skill-agent-auto-dispatch</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md#run-skills-in-a-subagent` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | ⛔ gap<br/>`adapters/codex/projection.md#surfaces--verification` | — n/a | — n/a |
 | **Skill disallowed-tools frontmatter**<br/><sub>skill-disallowed-tools</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md:225` | ⛔ gap<br/>`adapters/opencode/projection.md#constraints-vu-marked` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
 | **Agent tools allowlist permissions**<br/><sub>agent-tools-allowlist</sub> | ✅ supported<br/>`references/claude-code-docs/docs/sub-agents.md:315` | ✅ supported<br/>`adapters/opencode/projection.md#constraints-vu-marked` | ⛔ gap<br/>`adapters/codex/projection.md#surfaces--verification` | — n/a | — n/a |
@@ -32,7 +32,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 
 *Category: frontmatter*
 
-A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter; replaces manual language-overlay routing.
+A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter. Claude Code supports it; Aegis currently ships no skill that declares it.
 
 ### Skill agent auto-dispatch (`skill-agent-auto-dispatch`)
 
@@ -56,7 +56,7 @@ An agent declares a tools: allowlist (or disallowedTools: denylist) restricting 
 
 *Category: manifest*
 
-Plugin manifest declares user-configurable values prompted at enable time (e.g. preferredLanguageOverlay, telemetryOptIn). Values flow into ${USER_CONFIG_*} substitutions exposed to skills.
+Plugin manifest declares user-configurable values prompted at enable time (e.g. telemetryOptIn). Values are substitutable as ${user_config.KEY} in skill and agent content on Claude.
 
 ### Plugin defaultEnabled flag (`plugin-default-enabled`)
 

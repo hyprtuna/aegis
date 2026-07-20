@@ -170,7 +170,8 @@ escalating). Do not mark the task DONE until both stages pass.
 In any executor agent body, replace the inline two-stage review prose with:
 
 ```
-After the implementer returns DONE or DONE_WITH_CONCERNS, invoke the `two-stage-review` skill:
+After the implementer returns DONE or DONE_WITH_CONCERNS, invoke the `code-review` skill and load
+its `abilities/two-stage.md` fragment:
   - Pass: task name, acceptance criteria, and the list of changed files.
   - Block on any SPEC_FAIL or QUALITY_FAIL before marking the task DONE.
 ```

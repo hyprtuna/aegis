@@ -37,7 +37,7 @@ violation.
 
 ## What's Available
 
-- **Skills** at `skills/`: universal capabilities (`skills/core/`), workflow skills (`skills/workflows/`). Most specialist capabilities are not separate skills — they live as on-demand `abilities/` fragments under a parent skill (language practice under `develop`, fan-out mechanics under `orchestrate`, the UI construction passes under `ui-design`, and so on). Reach for the parent; it names the fragment to load.
+- **Skills** at `skills/`: every skill lives under `skills/core/`, workflow spines included. Most specialist capabilities are not separate skills — they live as on-demand `abilities/` fragments under a parent skill (language practice under `develop`, fan-out mechanics under `orchestrate`, the UI construction passes under `ui-design`, and so on). Reach for the parent; it names the fragment to load.
 - **Agents** at `agents/`: first-class doers — researcher, plan-verifier, code-reviewer, orchestrator, etc.
 - **Commands** at `commands/`: composed workflow entry-points (capped ~15).
 - **Rules** at `rules/`: iron-law guidance (TDD, evidence-before-assertion, verification-before-completion, etc.). Always-loaded.
@@ -82,7 +82,10 @@ The full text lives in `rules/<rule-name>.md`. Highlights:
 ## How to Discover More
 
 - For language work, invoke the `develop` skill — it selects the language and framework fragments the task touches.
-- For workflow work (plan → spec → implement → review), route through `skills/workflows/<workflow>/SKILL.md`.
+- For workflow work (plan → spec → implement → review), start at the `default-feature` skill, or enter
+  mid-chain at the phase you need (`brainstorm-spec`, `implementation-planner`, `orchestrate`,
+  `code-review`). Each phase names its successor with a `REQUIRED SUB-SKILL` marker, so the chain
+  carries you forward — you do not pick the next step from a directory listing.
 - For a new domain, check `skills/core/` for a matching skill name.
 
 ## What NOT to Do

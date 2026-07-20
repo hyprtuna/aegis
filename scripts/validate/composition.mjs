@@ -203,6 +203,14 @@ export function run(ctx) {
   const skillRe = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const skillFiles = files.filter((p) => skillRe.test(rel(p)));
 
+  // EXISTENCE must also cover abilities/ fragments at any depth. Chaining TRANSITIONS only
+  // ever leave a SKILL.md, so the cycle graph stays SKILL.md-only — but a fragment's prose is
+  // read by the model just as literally, and every dead reference found in the v0.2.2 review
+  // lived in a fragment, not in a SKILL.md. Scoping the subject set to the 20 SKILL.md files
+  // made this rule structurally unable to see the failure class it exists to catch.
+  const fragmentRe = new RegExp(`^skills/[^/]+/[^/]+/abilities/.+\\.md$`);
+  const fragmentFiles = files.filter((p) => fragmentRe.test(rel(p)));
+
   // Pass 1: collect every canonical skill name (from frontmatter `name`) and the
   // prose chaining edges each skill declares in its body.
   const skillNames = new Set();
@@ -295,6 +303,52 @@ export function run(ctx) {
         );
       }
       // Deliberately NOT a graph edge — see parseProseEdges.
+    }
+  }
+
+  // Pass 3: EXISTENCE over abilities/ fragments. Two token classes are checked, both of
+  // which are unambiguous invocation claims rather than incidental prose:
+  //
+  //   * a REQUIRED SUB-SKILL / REQUIRED BACKGROUND marker inside a fragment;
+  //   * any `aegis:<name>` token, which asserts a host-invocable surface by name.
+  //
+  // A bare backticked kebab token (`code-simplification`) is deliberately NOT flagged: the
+  // corpus is full of ordinary hyphenated prose and fragment filenames, so that heuristic
+  // fires far more false positives than findings. The `aegis:` prefix is the author's own
+  // explicit claim that a surface exists, so it can be checked with no ambiguity.
+  const surfaceNames = new Set(skillNames);
+  for (const p of files) {
+    const r = rel(p);
+    if (!/^(agents|commands)\/[^/]+\.md$/.test(r) || /AGENTS|CLAUDE/.test(r)) continue;
+    const split = ctx.fmSplit(ctx.read(p));
+    if (split.fm === null) continue;
+    const m = split.fm.match(/^name:\s*(.+?)\s*$/m);
+    if (m) surfaceNames.add(stripScalar(m[1]));
+  }
+
+  for (const p of fragmentFiles) {
+    const r = rel(p);
+    const text = ctx.read(p);
+    const split = ctx.fmSplit(text);
+    const body = split.fm === null ? text : split.body;
+
+    const edges = parseProseEdges(body);
+    for (const target of [...(edges?.subskills ?? []), ...(edges?.background ?? [])]) {
+      if (!skillNames.has(target)) {
+        warnings.push(
+          `${r}: fragment declares a REQUIRED marker naming \`${target}\`, which is not a ` +
+            `canonical skill. [COMPOSITION, warn-only]`,
+        );
+      }
+    }
+
+    for (const m of body.matchAll(/`aegis:([a-z0-9-]+)`/g)) {
+      if (!surfaceNames.has(m[1])) {
+        warnings.push(
+          `${r}: names \`aegis:${m[1]}\`, which resolves to no canonical skill, agent, or ` +
+            `command. [COMPOSITION, warn-only]`,
+        );
+      }
     }
   }
 

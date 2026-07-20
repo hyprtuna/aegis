@@ -38,7 +38,7 @@ This is heuristic, not a guarantee: a third agent could clobber the second write
 
 ## Real Mitigation: Serialize Your Writers
 
-The only reliable defense against TOCTOU on a non-atomic store is to ensure writes do not overlap in time. Aegis already has this rule — the serialize-writers rule in `skills/core/subagent-execution/SKILL.md` (see its Per-Task Execution Loop section).
+The only reliable defense against TOCTOU on a non-atomic store is to ensure writes do not overlap in time. Aegis already has this rule — the serialize-writers rule in the `orchestrate` skill's `abilities/subagent-execution.md` fragment (see its Per-Task Execution Loop section).
 
 Apply the same rule to coordination writes: **never dispatch two claim-capable subagents at the same time.** Dispatch one, let it claim, then dispatch the next. The coordination block is a durable, restart-surviving record — its value is that it persists across session restarts, not that it provides mutual exclusion.
 
@@ -48,8 +48,8 @@ Apply the same rule to coordination writes: **never dispatch two claim-capable s
 
 | Gap | Status |
 |---|---|
-| GitLab / `glab` mirror | Future ticket — `skills/core/gitlab-workflow/SKILL.md` documents `glab`; a coordination overlay could mirror this skill there. Not built here. |
+| GitLab / `glab` mirror | Future ticket — `git-workflow`'s `abilities/gitlab.md` documents `glab`; a coordination overlay could mirror this fragment there. Not built here. |
 | Cross-host coordination | Not supported. `gh` reaches GitHub only. |
 | Atomic claim (compare-and-swap) | GitHub's issue API has no CAS primitive. True mutual exclusion requires an external atomic store (a database, a Redis lock, etc.) — all of which violate the iron law (no runtime/daemon/MCP). |
-| ECC's `validated` / `review-*` / `published` / `synced` states | Intentionally excluded. Those states belong to `code-review` and `github-workflow`, not to this coordination layer. |
+| ECC's `validated` / `review-*` / `published` / `synced` states | Intentionally excluded. Those states belong to `code-review` and `git-workflow`, not to this coordination layer. |
 | Polling / watch loop | Not supported. Agents check on demand; no daemon watches for dependency closure. |

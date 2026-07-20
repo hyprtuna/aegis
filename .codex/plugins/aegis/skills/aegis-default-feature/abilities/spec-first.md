@@ -42,7 +42,7 @@ Gate checklist before exiting:
 - **No spec yet?** → SPEC phase: invoke `brainstorm-spec`, then gate on approval.
 - **Spec approved?** → PLAN phase: invoke `implementation-planner`; verify every AC maps to a task.
 - **Plan verified?** → IMPLEMENT phase under `test-driven-development`.
-- **Increment built?** → REVIEW phase: route through `two-stage-review` (any FAIL loops back to IMPLEMENT).
+- **Increment built?** → REVIEW phase: route through `code-review` under its `abilities/two-stage.md` fragment (any FAIL loops back to IMPLEMENT).
 - **Both review stages pass?** → COMMIT the phase, then repeat from SPEC for the next feature.
 - **Implementation diverges from spec?** → stop; either update the spec (with approval) or bring code back in line.
 
@@ -59,7 +59,7 @@ Each phase's required outputs and gate mechanics live in `spec-first/cycle-detai
 4. Invoke implementation-planner.       [PLAN]
 5. Review plan for AC coverage.         [VERIFY PLAN]
 6. Execute plan under TDD discipline.   [IMPLEMENT]
-7. Route through two-stage-review.      [REVIEW]  ── any FAIL loops back to step 6
+7. code-review, two-stage fragment.     [REVIEW]  ── any FAIL loops back to step 6
 8. Commit each verified phase.          [COMMIT]
 9. Repeat from 2 for the next feature.
 ```
@@ -73,4 +73,4 @@ convention*.
 ---
 
 ## Done
-sdd-workflow done — spec → plan → implement cycle complete; all phases verified; status: DONE
+default-feature done — spec → plan → implement cycle complete; all phases verified; status: DONE

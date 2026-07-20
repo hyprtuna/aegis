@@ -1,6 +1,6 @@
 # JS Developer
 
-Follow all rules from `general-developer`, plus:
+Follow all rules from `abilities/general.md`, plus:
 
 ## JS-specific conventions
 

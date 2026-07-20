@@ -1,6 +1,6 @@
 # TS Developer
 
-Follow all rules from `javascript-coding`, plus:
+Follow all rules from `abilities/languages/javascript/javascript-development.md`, plus:
 
 - Strict mode assumed.
 - All functions explicitly typed — no implicit `any`.

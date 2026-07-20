@@ -69,9 +69,9 @@ The plan is the schedule. When a phase cannot be completed as written:
 
 ### REVIEW Phase: Two-Stage Review Loop (gated, fail-loops-back)
 
-After implementation produces a verified, tested increment, transition to the `two-stage-review`
-skill — do **not** run a single inline review. `two-stage-review` orchestrates the `code-review`
-instrument across two gated passes:
+After implementation produces a verified, tested increment, transition to the `code-review` skill and
+load its `abilities/two-stage.md` fragment — do **not** run a single inline review. That fragment
+orchestrates the `code-review` instrument across two gated passes:
 
 1. **Stage 1 — spec compliance.** Does the implementation match the approved spec's acceptance
    criteria — every required item present, nothing extra, interfaces correct? A `SPEC_FAIL`
@@ -82,8 +82,8 @@ instrument across two gated passes:
    fix phase) with the findings — it does **not** advance forward to COMMIT.
 
 Only when **both** stages pass does the phase advance to COMMIT. Both stages run over the
-consolidated `code-reviewer` agent (the `code-review` instrument) via `two-stage-review`; the
-internal spec-compliance and code-quality reviewers are dispatch targets inside `two-stage-review`,
+consolidated `code-reviewer` agent (the `code-review` instrument) under the two-stage fragment; the
+internal spec-compliance and code-quality reviewers are dispatch targets inside that fragment,
 not public agents invoked here. A failing gate always routes **back** to IMPLEMENT, never forward.
 This honors SDD's authority rule: a spec-compliance fail means the code drifted from the approved
 spec, and the spec wins.
@@ -126,5 +126,5 @@ feature scope; TDD operates at the code scope.
 - [ ] implementation-planner invoked only after spec approval.
 - [ ] Every AC in the spec maps to at least one plan task.
 - [ ] No implementation code written before the plan is verified.
-- [ ] After implementation, routed through `two-stage-review`; both stages passed (any fail looped back to IMPLEMENT).
+- [ ] After implementation, routed through `code-review` + `abilities/two-stage.md`; both stages passed (any fail looped back to IMPLEMENT).
 - [ ] Each phase committed at green.

@@ -17,4 +17,4 @@ Trace a concept from entry to exit. Report call sites, data transformations, and
 ASCII call-flow diagram + file:line references for every key point.
 
 ## Done
-deep-diving done — call-flow diagram produced with all entry points, transforms, and edge cases documented; status: DONE
+codebase-onboarding done — call-flow diagram produced with all entry points, transforms, and edge cases documented; status: DONE

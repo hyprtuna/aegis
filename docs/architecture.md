@@ -11,7 +11,7 @@ Aegis has **one canonical source tree** and **many host-native projections**. Ca
 | Surface | Path | Purpose |
 |---|---|---|
 | Skills | `skills/core/<name>/SKILL.md` | Reusable capabilities. `core` is the sole bucket; buckets are discovered from the filesystem, not hardcoded. |
-| Abilities | `skills/<name>/abilities/<ability>.md` | On-demand fragments owned by a parent skill. NOT registered. |
+| Abilities | `skills/core/<name>/abilities/<ability>.md` | On-demand fragments owned by a parent skill, nested to any depth. NOT registered. |
 | Agents | `agents/<name>.md` | First-class doers — subagents that complete bounded tasks. |
 | Commands | `commands/<name>.md` | Slash-command workflow entry-points (capped ~15). |
 | Rules | `rules/<name>.md` | Always-loaded iron-law guidance. |
@@ -61,7 +61,7 @@ platforms: [claude, opencode, codex, cursor, zed]
 
 ## Abilities Are Not Skills
 
-Parent `SKILL.md` is the only registered skill (counts against host skill-listing budget). Abilities at `skills/<name>/abilities/<x>.md` are on-demand markdown fragments — no registration, no listing cost. The parent SKILL.md body references them on demand.
+Parent `SKILL.md` is the only registered skill (counts against host skill-listing budget). Abilities at `skills/core/<name>/abilities/<x>.md` are on-demand markdown fragments — no registration, no listing cost. The parent SKILL.md body references them on demand.
 
 This pattern keeps skill discovery lean while subdividing internal logic naturally.
 
@@ -84,7 +84,7 @@ Aegis adopts high-value host capabilities surfaced in the host-docs scan, Claude
 | Capability | Claude | OpenCode | Codex / Cursor / Zed |
 |---|---|---|---|
 | Generated-tree projection (`x-claude.*` flattened, `${TEMPLATE}` + model alias resolution, provider-tagged prose forked) | Supported | Filesystem-discovers canonical; literal `${TEMPLATE}` still a gap | per `capabilities.json` |
-| `x-claude.paths` skill glob activation | Supported | Gap | gap / n-a (Cursor/Zed deferred ~v0.5.0) |
+| `x-claude.paths` skill glob activation | Gap — projector carries it, no shipped skill declares it ([why](../adapters/claude/projection.md#skill-paths-activation-unused-honest-gap)) | Gap | gap / n-a (Cursor/Zed deferred ~v0.5.0) |
 | `x-claude.agent` skill→subagent auto-dispatch | Supported | Partial | gap / n-a |
 | Agent `tools:` permission allowlist (from `manifest/permissions.json`) | Supported | Supported (`agent.<name>.permission`) | gap / n-a |
 | `userConfig` install prompts | Supported | Gap | gap / n-a |

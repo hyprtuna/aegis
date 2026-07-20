@@ -205,7 +205,7 @@ See `manifest/capabilities.json` for the full matrix and per-host evidence.
 
 `scripts/project.mjs` → `projectCodex()`. Sub-functions:
 
-- `projectCodexSkills()` — walks `skills/core/`, `skills/workflows/`.
+- `projectCodexSkills()` — walks every skill bucket returned by `scripts/lib/skill-scopes.mjs`, which derives the list from the filesystem instead of hardcoding bucket names.
 - `projectCodexAgentsAsSkills()` — walks `agents/*.md`.
 - `projectCodexCommandsAsDispatchers()` — walks `commands/*.md`; applies `__command` suffix on collision.
 - `projectCodexRules()` — concatenates `rules/*.md` into `.codex-plugin/AGENTS.md`.

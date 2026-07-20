@@ -1,7 +1,7 @@
 # Retroactive Validator — sub-task prompt
 
 > **Dispatch pattern:** `Task(general-purpose)` with this prompt body. Read-only
-> sub-task spawned by the `plan-structure-audit` skill when auditing plans that have
+> sub-task spawned by the `implementation-planner` skill's `abilities/plan-audit.md` fragment when auditing plans that have
 > already been executed. Walks the diff history, identifies untested tasks, and
 > produces a structured coverage report. Collapsed from the prior
 > `retroactive-validator` named agent per the superpowers prompt-template pattern.

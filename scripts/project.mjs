@@ -1385,13 +1385,14 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 
   // userConfig. Schema per plugins-reference.md:550 requires
   // type/title/description; default is optional. Keep it minimal.
+  // `preferredLanguageOverlay` was removed here: it was prompted at install and read by
+  // nothing — no skill body, no hook, no projector substitution. Only ever declare an option
+  // some shipped surface actually consumes. Re-adding it means wiring the tie-break into
+  // `develop/SKILL.md` via `${user_config.preferredLanguageOverlay}`, which Claude substitutes
+  // into skill content but OpenCode and Codex do not — so it needs a provider-tagged prose
+  // fork that the Codex and OpenCode projectors do not yet strip (they emit `<claude>` blocks
+  // verbatim). Do that first, or the token and the raw tag ship to those hosts.
   const userConfig = {
-    preferredLanguageOverlay: {
-      type: "string",
-      title: "Preferred language overlay",
-      description: "Default language practice fragment for the develop skill to bias toward (e.g. python). Empty for none.",
-      default: "",
-    },
     telemetryOptIn: {
       type: "boolean",
       title: "Telemetry opt-in",

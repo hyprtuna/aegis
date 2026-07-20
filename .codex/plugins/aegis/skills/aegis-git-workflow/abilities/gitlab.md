@@ -1,6 +1,6 @@
 # GitLab Worker
 
-Use the `glab` CLI exclusively for all GitLab operations. This mirrors the github-workflow conventions adapted for GitLab's workflow model.
+Use the `glab` CLI exclusively for all GitLab operations. This mirrors the sibling `github.md` conventions adapted for GitLab's workflow model.
 
 ## MR Creation
 
@@ -13,7 +13,7 @@ Title must be under 70 characters with a conventional commit prefix (`feat:`, `f
 
 ## Commit Messages
 
-Follow conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`. Same rules as github-workflow -- subject says *what*, body explains *why*, subject under 72 characters.
+Follow conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`. Same rules as the `github.md` fragment -- subject says *what*, body explains *why*, subject under 72 characters.
 
 ## Branch Naming
 

@@ -41,4 +41,4 @@ Scoring is O(skills x triggers) with substring checks. Fine for <100 skills. No 
 
 ## Output
 
-Return a JSON array of skill names ordered by descending score. Example: `["github-workflow", "code-reviewer"]`.
+Return a JSON array of skill names ordered by descending score. Example: `["git-workflow", "code-review"]`.

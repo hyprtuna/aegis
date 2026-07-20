@@ -25,7 +25,20 @@ export function run(ctx) {
   // literal. A hardcoded alternation here silently stops matching when a bucket is
   // renamed or dissolved — and a non-matching path is skipped, not flagged, so the
   // frontmatter allowlist below would pass vacuously over an entire bucket.
+  // …and an EMPTY scope list is the sharpest form of that failure: the alternation
+  // collapses to `(?:)`, which matches nothing, so every generated SKILL.md is skipped
+  // and the whole allowlist passes having checked zero files. `skillScopes` documents
+  // returning [] when skills/ is absent, so guard it explicitly rather than trusting
+  // that it always finds something.
   const scopes = skillScopes(REPO);
+  if (scopes.length === 0) {
+    errors.push(
+      "CLAUDE_DRIFT found no skill buckets under skills/ — the generated-skill frontmatter " +
+        "allowlist would pass vacuously over every projected skill. Check skills/ layout and " +
+        "scripts/lib/skill-scopes.mjs.",
+    );
+    return { errors, warnings };
+  }
   const genSkillRe = new RegExp(
     `^adapters/claude/skills/(?:${scopes.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})/[^/]+/SKILL\\.md$`,
   );
