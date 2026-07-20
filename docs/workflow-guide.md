@@ -36,10 +36,13 @@ chain**. The convention has three rules:
    approved spec, a committed plan file, a `SPEC_PASS`/`QUALITY_PASS` signal — each is the concrete
    evidence the previous phase actually finished.)
 2. **The transition invokes a named `next` skill.** When a phase completes, the workflow hands off
-   to a *specific, named* successor skill — never an implicit "and then we review somehow". On skills
-   that carry composition metadata this is declared in frontmatter as `x-aegis.pipeline.next` (see
-   `skills/AGENTS.md` → *Composition metadata*); in every workflow body the phase order and its
-   hand-off artifacts are documented in prose so the chain is legible without reading frontmatter.
+   to a *specific, named* successor skill — never an implicit "and then we review somehow". **The
+   body prose is what carries the transition** — the phase order, the hand-off artifact, and the
+   named successor are written out in the skill body, because that is the only place a model on any
+   host will read them. Some skills additionally annotate the same transition in frontmatter as
+   `x-aegis.pipeline.next` (see `skills/AGENTS.md` → *Composition metadata*); that annotation is
+   **build-time only — the projector emits no `x-aegis` key to any host**, so it makes the chain
+   checkable, not executable. A `next:` with no matching prose is a chain that never runs.
 3. **A failing gate routes deliberately — forward on pass, back on fail.** A gate that fails does not
    silently advance; it loops back to the phase that can fix the failure (e.g. a code-quality fail
    loops back to implementation, not forward to "respond"). Forward motion is earned, not assumed.
@@ -49,9 +52,11 @@ agentic-workflow corpus: explicit phase order, an artifact handed between phases
 step the transition invokes — rather than a monolithic prompt that hopes the model self-sequences.
 
 **How it is expressed.** The convention is a *documented convention applied to existing workflows*,
-not a new taxonomy tier (taxonomy stays `core / languages / workflows`). It is enforced through the
-Phase-A composition metadata (`x-aegis.pipeline.{requires,handoff,next}`), which the `COMPOSITION`
-validator checks for acyclicity and real-skill / real-template-kind references. A workflow that
+not a new taxonomy tier (taxonomy stays `core / languages / workflows`). It is expressed in workflow
+body prose and *checked* through the Phase-A composition metadata
+(`x-aegis.pipeline.{requires,handoff,next}`), which the `COMPOSITION` validator reads for acyclicity
+and real-skill / real-template-kind references. The metadata never reaches a host, so it constrains
+maintainers rather than models. A workflow that
 genuinely composes other **named** skills carries an `x-aegis.pipeline` block; a workflow that is a
 single self-contained sequence of internal phases (no hand-off to a *separate named skill*) documents
 its phase order in prose alone and carries no block (it is atomic at the composition layer).

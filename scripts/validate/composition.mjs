@@ -1,5 +1,19 @@
 // composition.mjs — v0.0.13: acyclic-composition validator.
 //
+// SCOPE — what this rule can and cannot enforce.
+// ---------------------------------------------
+// x-aegis is a BUILD-TIME annotation. scripts/project.mjs emits no x-aegis key to
+// any host (`grep x-aegis scripts/project.mjs` → nothing), so no model on Claude,
+// Codex, or anywhere else ever sees the block this rule validates. Runtime chaining
+// happens through the skill BODY prose, which docs/workflow-guide.md mandates.
+//
+// The consequence for this rule: a green COMPOSITION run means the declared graph is
+// internally coherent — no cycles, no references to skills that no longer exist. It
+// does NOT mean any chain actually runs. A skill can declare `next: foo`, omit foo
+// from its body entirely, and pass here. That gap is not closable from this file;
+// it is why the authoring guidance (skills/AGENTS.md) puts the prose first and treats
+// the block as an annotation on top of it.
+//
 // Skills may declare a composition block under the x-aegis namespace:
 //
 //   x-aegis:

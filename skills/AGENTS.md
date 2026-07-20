@@ -35,7 +35,21 @@ platforms: [claude, opencode, codex, cursor, zed]
 
 ## Composition metadata (`x-aegis.pipeline`)
 
-A skill that composes other skills (a workflow, a review loop) may declare a **composition block** under the `x-aegis` namespace (Iron Law 3). The orchestrator reads it to validate compositions, detect cycles, and auto-invoke prerequisites. It is **optional** — absence means the skill is **atomic** (the backward-compatible default; atomic single-purpose skills carry no block).
+A skill that composes other skills (a workflow, a review loop) may declare a **composition block** under the `x-aegis` namespace (Iron Law 3). It is **optional** — absence means the skill is **atomic** (the backward-compatible default; atomic single-purpose skills carry no block).
+
+> **`x-aegis` is a build-time annotation. It does not route anything at runtime.**
+> `scripts/project.mjs` emits no `x-aegis` key to any host — `grep x-aegis scripts/project.mjs`
+> returns nothing, and the generated Claude and Codex frontmatter for a skill that declares
+> `pipeline.next` carries `name` and `description` only. No model on any host ever sees this block.
+>
+> What actually makes a chain happen is **the prose in the skill body** — the phase order, the
+> hand-off artifact, and the named successor written out where the model will read them. That is
+> not a fallback; it is the mechanism, and `docs/workflow-guide.md` already mandates it.
+>
+> So the block is worth declaring for exactly one reason: it is machine-checkable. The
+> `COMPOSITION` validator uses it to catch cycles and references to skills that no longer exist —
+> errors prose cannot be checked for. **Declaring `next:` and omitting it from the body produces a
+> chain that passes validation and never runs.** Write the prose first; the block annotates it.
 
 ```yaml
 x-aegis:

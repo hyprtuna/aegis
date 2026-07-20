@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
 import { generateClaudeHooksBlock, hookTreeKeepSet } from "./lib/hook-projection.mjs";
 import { SUBAGENT_PRIMITIVE_KEYS, validateSubagentPrimitive, assertIsolationWritable } from "./lib/subagent-primitives.mjs";
+import { SKILL_SIBLING_DIRS } from "./lib/skill-siblings.mjs";
 
 const PKG_VERSION = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -362,24 +363,40 @@ function prefixAegis(name) {
   return AEGIS_PREFIX + name;
 }
 
-// Shallow-copy every *.md file in src to dst (no recursion, no transformation).
-// Used to project abilities/ and references/ siblings verbatim alongside Codex
-// SKILL.md emissions.
-function copyDirShallow(src, dst, pattern = /\.md$/) {
+// Copy every *.md file under src to dst, WALKING SUBDIRECTORIES, no transformation.
+// Used to project the SKILL_SIBLING_DIRS folders verbatim alongside both the Claude
+// and the Codex SKILL.md emissions.
+//
+// This walks. The previous version did not, and could not: it tested the filename
+// pattern (`/\.md$/`) against every entry name BEFORE stat-ing it, so a directory —
+// which never ends in `.md` — was skipped at the pattern check and never reached the
+// isFile() test below it. Adding recursion after that test would have been dead code.
+// Hence the order here: stat first, recurse into directories, and apply the filename
+// pattern to FILES only.
+//
+// Why it matters: fragments live in subdirectories under a skill
+// (`abilities/<topic>/<x>.md`). Without the walk they are silently absent from every
+// generated tree while the projector still exits 0 and the gate still passes — the
+// content is gone and nothing says so.
+function copyFragmentTree(src, dst, pattern = /\.md$/) {
   if (!existsSync(src)) return 0;
   mkdirSync(dst, { recursive: true });
   let copied = 0;
   for (const entry of readdirSync(src)) {
-    if (!pattern.test(entry)) continue;
-    const srcFile = join(src, entry);
+    const srcPath = join(src, entry);
     let st;
     try {
-      st = statSync(srcFile);
+      st = statSync(srcPath);
     } catch {
       continue;
     }
+    if (st.isDirectory()) {
+      copied += copyFragmentTree(srcPath, join(dst, entry), pattern);
+      continue;
+    }
     if (!st.isFile()) continue;
-    copyFileSync(srcFile, join(dst, entry));
+    if (!pattern.test(entry)) continue;
+    copyFileSync(srcPath, join(dst, entry));
     copied++;
   }
   return copied;
@@ -668,12 +685,18 @@ function projectCodex() {
     const outDir = join(skillsTmpRoot, finalName);
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, "SKILL.md"), out, "utf8");
-    // Project sibling abilities/ and references/ folders verbatim. Per Iron
-    // Law 4, abilities are on-demand fragments — minimal/no frontmatter,
-    // copied as-is so the relative links inside SKILL.md resolve on Codex.
+    // Project the sibling fragment folders verbatim. Per Iron Law 4, abilities are
+    // on-demand fragments — minimal/no frontmatter, copied as-is so the relative
+    // links inside SKILL.md resolve on Codex.
+    //
+    // The folder list comes from SKILL_SIBLING_DIRS, the same constant the Claude
+    // path uses. It was previously spelled out here as `abilities` + `references`
+    // only, against the Claude path's `abilities` + `references` + `rules`, which
+    // is how 28 language rules/*.md files shipped to Claude and to nowhere else.
     if (canonicalDir) {
-      copyDirShallow(join(canonicalDir, "abilities"), join(outDir, "abilities"));
-      copyDirShallow(join(canonicalDir, "references"), join(outDir, "references"));
+      for (const sib of SKILL_SIBLING_DIRS) {
+        copyFragmentTree(join(canonicalDir, sib), join(outDir, sib));
+      }
     }
   }
 
@@ -1159,8 +1182,9 @@ function projectClaude(hookIntents) {
       // resolve in the generated tree. abilities/ + references/ per DH6; rules/
       // is an existing sibling that python-developer's SKILL.md links to
       // relatively, so it rides along under the same "copy siblings verbatim" rule.
-      for (const sib of ["abilities", "references", "rules"]) {
-        copyDirShallow(join(skillDir, sib), join(outDir, sib));
+      // The folder list is shared with the Codex path — see SKILL_SIBLING_DIRS.
+      for (const sib of SKILL_SIBLING_DIRS) {
+        copyFragmentTree(join(skillDir, sib), join(outDir, sib));
       }
 
       emittedSkills.push({ scope, name: fm.name });

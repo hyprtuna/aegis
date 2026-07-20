@@ -33,7 +33,7 @@ exception, not hand-copied canonical.
 
 | Aegis canonical | Claude native path | Notes |
 |---|---|---|
-| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,languages,workflows}/` | An earlier release repointed this to the generated tree. `skills` lists bucket roots, not the 82 per-skill dirs — Claude scans each entry one level deep for `<name>/SKILL.md` and *adds* to the default scan, so per-skill paths landed one level too deep and registered zero. |
+| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,languages,workflows}/` | An earlier release repointed this to the generated tree. Bucket roots are a **choice, not a constraint** — 3 entries instead of 82. See "Why bucket roots, not per-skill paths" below; the earlier claim that per-skill paths "registered zero" is not supported by the evidence and has been corrected. |
 | Marketplace | **Generated** `.claude-plugin/marketplace.json` (string `source: "./"`) | Claude's own marketplace, separate from Codex's `.agents/plugins/marketplace.json` (object source). Claude rejects the object form. Lets `/plugin marketplace add <repo>` + `/plugin install aegis@aegis` work. |
 | `agents/<name>.md` | **Generated** `adapters/claude/agents/<name>.md`, via `plugin.json` `agents: ["./adapters/claude/agents/"]` | The `agents` key replaces the default root scan; carries injected `tools:`. |
 | `commands/<name>.md` | **Generated** `adapters/claude/commands/<name>.md`, via `plugin.json` `commands: ["./adapters/claude/commands/<name>.md", …]` | Projected with flattened Claude-native frontmatter (`description` + `argument-hint`; canonical `name`/`visibility`/`platforms`/`x-*` dropped). Declaring `commands` replaces the default `./commands/` scan. Before this, the raw canonical files were default-scanned and listed but **not invokable** (`/aegis:<cmd>` → "Unknown command"). |
@@ -98,7 +98,7 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 
 ## Plugin Manifest Mapping
 
-`.claude-plugin/plugin.json` declares `name`, `version`, `description`, `author`, `license`, `keywords`, the SessionStart hook, and `skills` (repointed to the generated tree; one entry per **scope bucket root**, not per skill — Claude scans each entry one level deep for `<name>/SKILL.md`), `agents` (pointing at the generated agents dir), `commands` (file-path array, generated tree), `userConfig`, and `dependencies`. Background monitors are **opt-in** and NOT declared in the default `plugin.json` (see Background Monitors). Declaring an `agents` key **replaces** the default root `agents/` scan (per `references/claude-code-docs/docs/plugins-reference.md:600`), so canonical `agents/*.md` is no longer double-registered — the generated tree is the single discovered surface.
+`.claude-plugin/plugin.json` declares `name`, `version`, `description`, `author`, `license`, `keywords`, the SessionStart hook, and `skills` (repointed to the generated tree; one entry per **scope bucket root**, not per skill — a listed directory is scanned for `<name>/SKILL.md` per `references/claude-code-docs/docs/plugins-reference.md:521`. Per-skill paths are equally valid; see "Why bucket roots, not per-skill paths"), `agents` (pointing at the generated agents dir), `commands` (file-path array, generated tree), `userConfig`, and `dependencies`. Background monitors are **opt-in** and NOT declared in the default `plugin.json` (see Background Monitors). Declaring an `agents` key **replaces** the default root `agents/` scan (per `references/claude-code-docs/docs/plugins-reference.md:600`), so canonical `agents/*.md` is no longer double-registered — the generated tree is the single discovered surface.
 
 ```jsonc
 {
@@ -119,6 +119,39 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
   }
 }
 ```
+
+### Why bucket roots, not per-skill paths
+
+`skills` lists the three scope bucket roots. This is an **entry-count preference — 3 lines instead
+of 82 — not a limitation of the host.** Per-skill directory paths work.
+
+A previous version of this document claimed the opposite: that per-skill paths "landed one level too
+deep and registered zero". That claim is retracted. It is contradicted by two independent sources:
+
+- `references/claude-code-docs/docs/plugins-reference.md:633` documents the per-skill-directory case
+  directly — "When a skill path points to a directory that contains a `SKILL.md` directly […] the
+  frontmatter `name` field in `SKILL.md` determines the skill's invocation name."
+- `references/skills/.claude-plugin/plugin.json` (the mattpocock skills plugin) ships **20 per-skill
+  directory paths** — `./skills/engineering/tdd`, `./skills/productivity/handoff`, and so on —
+  against 38 `SKILL.md` files on disk. A shipping plugin does not list 20 paths that register zero.
+
+Both shapes are supported: a listed directory containing `<name>/SKILL.md` subdirectories (bucket
+root, what Aegis uses), and a listed directory containing `SKILL.md` directly (per-skill).
+
+**Two things we do not claim.** Aegis's entries carry a trailing slash
+(`./adapters/claude/skills/core/`) where mattpocock's do not (`./skills/engineering/tdd`). Nothing in
+the reference docs assigns the slash any meaning, and no test here has isolated it — it is an
+observed difference, not an explanation. And we cannot reconstruct what the earlier release actually
+observed; whatever it was, the stated cause does not follow from it.
+
+**Why this correction is worth the words.** The retracted claim did not merely misstate a mechanism —
+it recorded a working option as broken. A projection note is where future work checks what is
+possible, so a false impossibility there rules out an option indefinitely, and silently: nobody
+re-tests something the docs say was already tried and failed. The relevant constraint is real but
+different, and is stated where it applies: Aegis's marketplace entry uses `source: "./"`, which
+resolves to the marketplace root, so per `plugins-reference.md:623` declaring specific subdirectories
+**replaces** the default `skills/` scan rather than adding to it. That is what keeps canonical
+`skills/` from being double-registered alongside the generated tree — and it holds for either shape.
 
 ## userConfig Install Prompts
 
