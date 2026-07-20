@@ -17,7 +17,7 @@
       }
     },
     "decisions": {
-      "description": "Four-part decision record (D-NN) shape consumed by design-exploration, ADR, framework-selection, and implementation-planner.",
+      "description": "Four-part decision record (D-NN) shape consumed by brainstorm-spec (and its exploring-intent / adr fragments), research's framework-comparison fragment, and implementation-planner.",
       "default": "markdown",
       "formats": {
         "markdown": "templates/markdown/decisions/default.md"

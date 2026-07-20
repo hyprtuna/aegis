@@ -93,3 +93,12 @@ Commits should be ordered by logical dependency: parents before children, schema
 
 ## Done
 git-workflow done — git operation complete; status: DONE
+
+## Fragments
+
+The host overlays share this body's commit and branch discipline; load the one matching the remote.
+
+| When to load | Fragment |
+|---|---|
+| GitHub PRs, issues, reviews, releases via the `gh` CLI | [`abilities/github.md`](./abilities/github.md) |
+| GitLab MRs, pipelines, issues via the `glab` CLI | [`abilities/gitlab.md`](./abilities/gitlab.md) |

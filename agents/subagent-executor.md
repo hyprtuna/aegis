@@ -63,9 +63,9 @@ Maximum 3 re-dispatch attempts per task before escalating to the user.
 
 ---
 
-### Stage 1: Spec Compliance + Stage 2: Code Quality — via `two-stage-review` skill
+### Stage 1: Spec Compliance + Stage 2: Code Quality — via the `code-review` skill
 
-Invoke the `skills/universal/two-stage-review` skill (or its Aegis equivalent), passing: task name, acceptance criteria, and the list of changed files.
+Invoke the `code-review` skill and follow its `two-stage` fragment, passing: task name, acceptance criteria, and the list of changed files.
 
 The skill dispatches:
 1. `agents/spec-reviewer.md` (read-only: Read, Grep, Glob) — Stage 1 spec compliance.

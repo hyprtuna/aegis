@@ -139,7 +139,7 @@ that a skill over 100 lines produces **exactly one** size warning, not two.
 exceeded 100 lines when this rule landed; hard-failing immediately would break the
 build. Progressive disclosure restructures them a few at a
 time into a lean `SKILL.md` plus `references/`/`abilities/` overflow — an early
-pass split the four largest (`sdd-workflow`, `two-stage-review`,
+pass split the four largest (the `spec-first` and `two-stage` fragments,
 `verification`, `using-git-worktrees`); the remaining ~25 are the documented
 warn-only backlog. The cap graduates to **hard-fail** once that backlog is
 cleared, following the usual warn→error graduation convention.
@@ -218,7 +218,7 @@ warn → error convention.
 **Graduation precondition (do NOT skip):** the current heuristic keys on the
 `## Output` / `## Deliverables` / `## Structured Output` heading alone, which
 over-flags producers whose "output" is an *ephemeral completion report* (e.g.
-`mcp-builder`, `ultra-worker`, `skill-selection`, `verification`) rather than a
+`mcp-builder`, `ultra-worker`, `verification`) rather than a
 durable written artifact — ~25 warn-only hits today, several of them false
 positives against the rule's own narrow definition. Before this rule graduates
 to hard-fail, the heuristic MUST be narrowed (require a write/handoff verb, a

@@ -152,3 +152,12 @@ Patterns that look like TDD but undermine it. See `abilities/testing-anti-patter
 
 ## Done
 test-driven-development done — red-green-refactor cycle complete; all tests pass at green; status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Reviewing whether existing tests cover the right behaviour | [`abilities/coverage-analysis.md`](./abilities/coverage-analysis.md) |
+| The per-phase rules for red → green → refactor | [`abilities/cycle-phases.md`](./abilities/cycle-phases.md) |
+| The catch-yourself red-flag and rationalization tables | [`abilities/red-flags-and-rationalizations.md`](./abilities/red-flags-and-rationalizations.md) |
+| The catalog of patterns that look like TDD but undermine it | [`abilities/testing-anti-patterns.md`](./abilities/testing-anti-patterns.md) |

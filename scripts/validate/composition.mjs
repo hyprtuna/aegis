@@ -60,7 +60,9 @@ import { join } from "node:path";
 
 export const id = "COMPOSITION";
 
-const SKILL_SCOPES = ["core", "languages", "workflows"];
+// The bucket segment is matched structurally (`[^/]+`) rather than against an enumerated
+// bucket list. An enumerated copy of that list lived in a dozen files; dissolving a bucket
+// left the stale copies matching nothing, and a rule that matches nothing passes silently.
 
 // Parse the `x-aegis.pipeline` block out of a frontmatter string. Returns null
 // when the skill declares no pipeline (atomic). Mirrors stance.mjs's nested-block
@@ -241,7 +243,7 @@ export function run(ctx) {
   const { files, rel, REPO } = ctx;
   const warnings = [];
 
-  const skillRe = new RegExp(`^skills/(${SKILL_SCOPES.join("|")})/[^/]+/SKILL\\.md$`);
+  const skillRe = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const skillFiles = files.filter((p) => skillRe.test(rel(p)));
 
   // Pass 1: collect every canonical skill name (from frontmatter `name`) and the

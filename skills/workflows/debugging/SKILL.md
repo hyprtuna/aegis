@@ -146,3 +146,13 @@ After 3 failed fix attempts, STOP. The problem is bigger than the code you're lo
 
 ## Done
 debugging done — root cause identified and fix verified with failing test turned green; status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| The bug is a slow path rather than a wrong one | [`abilities/profiling.md`](./abilities/profiling.md) |
+| The full investigation protocol and the 3-fixes escalation rule | [`abilities/phase-1-investigation.md`](./abilities/phase-1-investigation.md) |
+| Back-tracing from a crash site to its origin | [`abilities/root-cause-tracing.md`](./abilities/root-cause-tracing.md) |
+| Deciding where validation layers belong | [`abilities/defense-in-depth.md`](./abilities/defense-in-depth.md) |
+| Replacing an arbitrary `sleep()` with condition polling | [`abilities/condition-based-waiting.md`](./abilities/condition-based-waiting.md) |

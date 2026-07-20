@@ -98,3 +98,10 @@ After writing the skill:
 4. Verify the body has a Process section.
 5. Run `node scripts/validate-structure.mjs` — must be clean.
 6. Run `node scripts/project.mjs` — commit canonical + generated adapter copies together.
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Deciding whether a session's workflow is worth a skill at all | [`abilities/extraction.md`](./abilities/extraction.md) |
+| The authoring doctrine — leading words, the disclosure ladder, drift modes | [`abilities/authoring-doctrine.md`](./abilities/authoring-doctrine.md) |

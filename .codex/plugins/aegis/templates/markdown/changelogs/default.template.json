@@ -4,6 +4,6 @@
   "family": "markdown",
   "version": "0.1.0",
   "source": "hand-authored",
-  "description": "Conventional-Commits-to-changelog mapping guide and output skeleton for the changelog-generation skill. Static skeleton — no mustache-lite slots; the rendering agent fills the example sections directly.",
+  "description": "Conventional-Commits-to-changelog mapping guide and output skeleton for the doc-writing skill's changelog fragment. Static skeleton — no mustache-lite slots; the rendering agent fills the example sections directly.",
   "slots": []
 }

@@ -8,6 +8,7 @@
 
 import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { skillScopes } from "./skill-scopes.mjs";
 
 // Names hosts reserve / that would shadow built-ins. Extend as A4 requires.
 export const RESERVED_NAMES = new Set([
@@ -52,7 +53,7 @@ export function collectSkillNames(REPO) {
   const out = [];
   const skillsDir = join(REPO, "skills");
   if (!existsSync(skillsDir)) return out;
-  for (const scope of ["core", "languages", "workflows"]) {
+  for (const scope of skillScopes(REPO)) {
     const scopeDir = join(skillsDir, scope);
     if (!existsSync(scopeDir)) continue;
     for (const entry of readdirSync(scopeDir)) {

@@ -225,7 +225,7 @@
     {
       "id": "native-subagent-memory",
       "title": "Native subagent memory",
-      "description": "x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall skill. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/recall for the 3-layer retrieval workflow.",
+      "description": "x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall fragment of using-aegis. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/using-aegis/abilities/recall.md for the 3-layer retrieval workflow.",
       "category": "frontmatter",
       "hosts": {
         "claude": { "status": "supported", "evidence": "adapters/claude/projection.md#persistent-memory", "since": "v0.3.0" },

@@ -122,3 +122,17 @@ Generate or enhance `CLAUDE.md` based on detected conventions. If one already ex
 - Listing every dependency — highlight only the ones that shape how code is written.
 - Describing self-evident directory names — `src/` needs no explanation.
 - Copying the README verbatim — the guide adds structural insight the README lacks.
+
+## Fragments
+
+Load one when you reach the work it governs. Do not pull the whole tree into context up front, and
+do not force-load with an `@`-style directive.
+
+| When to load | Fragment |
+|---|---|
+| Producing the tech-stack / architecture / conventions map | [`abilities/mapping.md`](./abilities/mapping.md) |
+| First pass over an unfamiliar repo — structure, entry points, subsystems | [`abilities/exploration.md`](./abilities/exploration.md) |
+| Tracing one concept, function, or data flow into a call-chain map | [`abilities/deep-dive.md`](./abilities/deep-dive.md) |
+| Emitting a persona-targeted `.tour` walkthrough anchored to file:line | [`abilities/code-tour.md`](./abilities/code-tour.md) |
+| Explaining unfamiliar code or a concept in this project's terms | [`abilities/explaining.md`](./abilities/explaining.md) |
+| Auditing a stale or inaccurate CLAUDE.md / AGENTS.md | [`abilities/context-file-audit.md`](./abilities/context-file-audit.md) |

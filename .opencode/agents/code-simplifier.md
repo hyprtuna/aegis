@@ -3,7 +3,7 @@ description: 'Simplifies code for clarity and maintainability while preserving a
 mode: subagent
 ---
 
-> **Pairs with the `code-simplification` skill** (`skills/core/code-simplification/SKILL.md`) — same behaviour-preserving structural-reduction capability, subagent form. For AI-generated smell specifically (over-commenting, verbose patterns), see that skill's on-demand slop-removal ability rather than treating it as structural complexity.
+> **Pairs with the `develop` skill's `simplification` fragment** — same behaviour-preserving structural-reduction capability, subagent form. For AI-generated smell specifically (over-commenting, verbose patterns), see that fragment's on-demand slop-removal file rather than treating it as structural complexity.
 
 ## Status: code-simplifier starting — reducing complexity while preserving all functionality
 

@@ -91,7 +91,7 @@ Use the host's task-tracking tool. Per entry: description, status (pending/dispa
 
 ## Plan Audit Gate
 
-When the goal executes a plan (`implementation-planner`, `task-decomposition`, or user-supplied), dispatch `plan-verifier` **before** `subagent-executor` or any implementation wave.
+When the goal executes a plan (`implementation-planner`, its `decomposition` fragment, or user-supplied), dispatch `plan-verifier` **before** `subagent-executor` or any implementation wave.
 
 1. Invoke `plan-verifier` with the plan file path.
 2. Wait for `PlanAuditReport` JSON.

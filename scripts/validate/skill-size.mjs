@@ -17,7 +17,9 @@
 // (on-demand fragments), which stay unregistered per Iron Law 4.
 export const id = "SKILL_SIZE";
 
-const SCOPES = ["core", "languages", "workflows"];
+// The bucket segment is matched structurally (`[^/]+`) rather than against an enumerated
+// bucket list. An enumerated copy of that list lived in a dozen files; dissolving a bucket
+// left the stale copies matching nothing, and a rule that matches nothing passes silently.
 const BODY_LINE_CAP = 100;
 
 export function run(ctx) {
@@ -25,7 +27,7 @@ export function run(ctx) {
   const errors = [];
   const warnings = [];
 
-  const re = new RegExp(`^skills/(${SCOPES.join("|")})/[^/]+/SKILL\\.md$`);
+  const re = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const skillFiles = files.filter((p) => re.test(rel(p)));
 
   for (const sf of skillFiles) {

@@ -12,6 +12,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, statSync, renameSync, copyFileSync } from "node:fs";
 import { join, basename } from "node:path";
+import { skillScopes } from "./lib/skill-scopes.mjs";
 import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
 import { generateClaudeHooksBlock, hookTreeKeepSet } from "./lib/hook-projection.mjs";
@@ -378,7 +379,13 @@ function prefixAegis(name) {
 // (`abilities/<topic>/<x>.md`). Without the walk they are silently absent from every
 // generated tree while the projector still exits 0 and the gate still passes — the
 // content is gone and nothing says so.
-function copyFragmentTree(src, dst, pattern = /\.md$/) {
+// `host` is required: fragments carry `${TEMPLATE:<kind>}` directives just as
+// SKILL.md bodies do, and the resolution differs per host (Codex points at the
+// bundled path, Claude inlines small markdown). Copying them verbatim would ship
+// a raw token to the user; the assertNoTemplateTokens backstop turns that into a
+// hard projection failure rather than letting it through.
+function copyFragmentTree(src, dst, host, pattern = /\.md$/) {
+  if (!host) throw new Error("copyFragmentTree: host is required to resolve ${TEMPLATE} directives");
   if (!existsSync(src)) return 0;
   mkdirSync(dst, { recursive: true });
   let copied = 0;
@@ -391,12 +398,13 @@ function copyFragmentTree(src, dst, pattern = /\.md$/) {
       continue;
     }
     if (st.isDirectory()) {
-      copied += copyFragmentTree(srcPath, join(dst, entry), pattern);
+      copied += copyFragmentTree(srcPath, join(dst, entry), host, pattern);
       continue;
     }
     if (!st.isFile()) continue;
     if (!pattern.test(entry)) continue;
-    copyFileSync(srcPath, join(dst, entry));
+    const body = readFileSync(srcPath, "utf8");
+    writeFileSync(join(dst, entry), resolveTemplateDirectives(body, { host }), "utf8");
     copied++;
   }
   return copied;
@@ -695,13 +703,13 @@ function projectCodex() {
     // is how 28 language rules/*.md files shipped to Claude and to nowhere else.
     if (canonicalDir) {
       for (const sib of SKILL_SIBLING_DIRS) {
-        copyFragmentTree(join(canonicalDir, sib), join(outDir, sib));
+        copyFragmentTree(join(canonicalDir, sib), join(outDir, sib), "codex");
       }
     }
   }
 
   function projectCodexSkills() {
-    const scopes = ["core", "workflows"];
+    const scopes = skillScopes(REPO);
     const emitted = new Map(); // finalName → originating canonical path
     let count = 0;
     for (const scope of scopes) {
@@ -1149,7 +1157,7 @@ function projectClaude(hookIntents) {
   const emittedCommands = []; // name
 
   // ── Skills ────────────────────────────────────────────────────────────────
-  const scopes = ["core", "workflows"];
+  const scopes = skillScopes(REPO);
   for (const scope of scopes) {
     const scopeDir = join(REPO, "skills", scope);
     if (!existsSync(scopeDir)) continue;
@@ -1184,7 +1192,7 @@ function projectClaude(hookIntents) {
       // relatively, so it rides along under the same "copy siblings verbatim" rule.
       // The folder list is shared with the Codex path — see SKILL_SIBLING_DIRS.
       for (const sib of SKILL_SIBLING_DIRS) {
-        copyFragmentTree(join(skillDir, sib), join(outDir, sib));
+        copyFragmentTree(join(skillDir, sib), join(outDir, sib), "claude");
       }
 
       emittedSkills.push({ scope, name: fm.name });

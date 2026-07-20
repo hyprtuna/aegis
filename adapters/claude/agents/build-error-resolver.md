@@ -10,7 +10,7 @@ model: claude-sonnet-4-6
 
 > **Agent-only (no paired skill).** This is a sanctioned agent-only surface — there is intentionally no `build-error-resolver` skill. It is a focused subagent doer, not a reusable inline capability. See the repo-root `AGENTS.md` `agents/` section for the full list of sanctioned agent-only agents.
 
-Consult your agent memory for recurring build-error patterns before diagnosing (native `memory` on Claude; the `.aegis-memory/MEMORY.md` fallback elsewhere — see the `recall` skill); after resolving, record the error→fix pattern there.
+Consult your agent memory for recurring build-error patterns before diagnosing (native `memory` on Claude; the `.aegis-memory/MEMORY.md` fallback elsewhere — see `using-aegis`'s `recall` fragment); after resolving, record the error→fix pattern there.
 
 ## Status: build-error-resolver starting — running build/typecheck, applying minimal-diff fixes, verifying green
 

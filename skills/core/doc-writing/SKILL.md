@@ -126,3 +126,10 @@ Never omit this table after writing documentation. A doc write without a printed
 
 ## Done
 doc-writing done — documentation written or updated; status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Assembling a release changelog from git history between two refs | [`abilities/changelog.md`](./abilities/changelog.md) |
+| Verifying docs against the live codebase — examples, signatures, paths | [`abilities/verifying-docs.md`](./abilities/verifying-docs.md) |

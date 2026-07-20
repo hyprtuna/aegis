@@ -5,7 +5,7 @@ visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-aegis:
   pipeline:
-    next: design-exploration
+    next: brainstorm-spec
 ---
 
 # default-feature workflow
@@ -18,37 +18,36 @@ The user has asked for a new feature, a significant refactor, or a substantive c
 
 ## Status
 
-Starting design-exploration phase…
+Starting brainstorm-spec phase…
 
 ## Phase Sequence
 
 This is a phase-ordered, gated chain. Progress is linear — each phase gates on the prior and may not
 start until the current phase signals terminal completion (its hand-off artifact). The transition
-into the chain is declared via `x-aegis.pipeline.next` (→ `design-exploration`); subsequent
+into the chain is declared via `x-aegis.pipeline.next` (→ `brainstorm-spec`); subsequent
 transitions are documented here in prose. See `docs/workflow-guide.md` → *The phase-ordered
 gated-workflow convention*.
 
-1. **design-exploration** — explore intent, ask clarifying questions, enumerate candidate designs. Terminal marker: user-approved direction.
+1. **brainstorm-spec** — explore intent, ask clarifying questions, enumerate candidate designs (its `exploring-intent` fragment carries the under-specified-request pass). Terminal marker: user-approved direction.
 2. **implementation-planner** — produce a step-by-step implementation plan. Terminal marker: plan committed to the chosen location (or accepted inline).
-3. **feature-developer** — execute the plan incrementally. TDD is the default discipline. Terminal marker: all plan tasks done, tests green.
-4. **two-stage-review** — route the produced changes through the two-stage review loop (spec-compliance → code-quality, see below). Terminal marker: both stages pass.
+3. **develop** — execute the plan incrementally (the end-to-end walkthrough lives in this skill's `abilities/end-to-end.md`). TDD is the default discipline. Terminal marker: all plan tasks done, tests green.
+4. **code-review** — route the produced changes through its two-stage review loop (spec-compliance → code-quality, see below; the loop lives in the `code-review` skill's `two-stage` fragment). Terminal marker: both stages pass.
 5. **review-response** — applies the review's actionable items, marks others as won't-fix with reasoning. Terminal marker: every finding has a disposition.
 
 ### Review phase: the two-stage loop (gated, fail-loops-back)
 
-The review phase does **not** run a single inline review. It invokes the `two-stage-review` skill,
-which orchestrates the `code-review` instrument across two passes:
+The review phase does **not** run a single inline review. It invokes the `code-review` skill and its
+`two-stage` fragment, which orchestrates the review instrument across two passes:
 
 1. **Stage 1 — spec compliance.** Did the implementation deliver exactly what the plan/spec asked
-   (no missing items, no scope creep)? A `SPEC_FAIL` **loops back to feature-developer** with the
+   (no missing items, no scope creep)? A `SPEC_FAIL` **loops back to the implement phase** with the
    specific missing/extra/incorrect list — it does not advance to Stage 2.
 2. **Stage 2 — code quality.** Is the change production-quality (correctness, architecture, security,
-   performance, test quality, conventions)? A `QUALITY_FAIL` **loops back to feature-developer**
-   (the fix/implement phase) with the findings — it does **not** advance forward to review-response.
+   performance, test quality, conventions)? A `QUALITY_FAIL` **loops back to the implement phase** with the findings — it does **not** advance forward to review-response.
 
 Only when **both** stages pass does the workflow advance to review-response. Both stages run over the
-consolidated `code-reviewer` agent (the `code-review` instrument) via `two-stage-review`; the internal
-spec-compliance and code-quality reviewers are dispatch targets inside `two-stage-review`, not public
+consolidated `code-reviewer` agent (the `code-review` instrument) via that fragment; the internal
+spec-compliance and code-quality reviewers are dispatch targets inside that fragment, not public
 agents invoked here. A fail always routes **back** to the phase that can fix it, never forward.
 
 ## Q1 and Q2 — Location and Format (implementation-planner phase)
@@ -121,11 +120,11 @@ After the user picks location and format, pass both choices through to `aegis:im
 
 | From | To | Artifact |
 |---|---|---|
-| design-exploration | implementation-planner | Design memo (markdown) naming chosen approach and scope. |
-| implementation-planner | feature-developer | Plan file at the chosen location with tiered tasks and DAG. |
-| feature-developer | two-stage-review | Commit list, test output snapshot, plan-task check-off, acceptance criteria. |
-| two-stage-review | feature-developer (on fail) | Specific `SPEC_FAIL` / `QUALITY_FAIL` findings — loops back to the fix phase. |
-| two-stage-review | review-response (on pass) | Merged review report (both stages passed) with severity-tagged findings. |
+| brainstorm-spec | implementation-planner | Design memo (markdown) naming chosen approach and scope. |
+| implementation-planner | develop | Plan file at the chosen location with tiered tasks and DAG. |
+| develop | code-review | Commit list, test output snapshot, plan-task check-off, acceptance criteria. |
+| code-review | develop (on fail) | Specific `SPEC_FAIL` / `QUALITY_FAIL` findings — loops back to the fix phase. |
+| code-review | review-response (on pass) | Merged review report (both stages passed) with severity-tagged findings. |
 | review-response | (terminal) | Disposition list: applied / deferred / won't-fix with rationale. |
 
 ## Failure Propagation
@@ -137,3 +136,10 @@ If any phase returns `done_with_concerns` or `blocked`, decide whether to extend
 The phases are each their own atomic skill. This file binds them into a named workflow so the orchestrator can request a consistent feature-delivery pipeline with one call.
 
 ## Done — status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Walking the whole pipeline inline — plan, code, test, PR | [`abilities/end-to-end.md`](./abilities/end-to-end.md) |
+| Running the spec-first variant: spec before any planning or code | [`abilities/spec-first.md`](./abilities/spec-first.md) |

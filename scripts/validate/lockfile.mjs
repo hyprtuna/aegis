@@ -19,7 +19,9 @@ import { join } from "node:path";
 
 export const id = "SKILL_LOCK_MISSING";
 
-const SCOPES = ["core", "languages", "workflows"];
+// The bucket segment is matched structurally (`[^/]+`) rather than against an enumerated
+// bucket list. An enumerated copy of that list lived in a dozen files; dissolving a bucket
+// left the stale copies matching nothing, and a rule that matches nothing passes silently.
 
 export function run(ctx) {
   const { files, rel } = ctx;
@@ -49,7 +51,7 @@ export function run(ctx) {
   }
 
   // Scan canonical skills for an external-source marker without a lock entry.
-  const re = new RegExp(`^skills/(${SCOPES.join("|")})/[^/]+/SKILL\\.md$`);
+  const re = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const skillFiles = files.filter((p) => re.test(rel(p)));
   for (const sf of skillFiles) {
     const split = ctx.fmSplit(ctx.read(sf));

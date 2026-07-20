@@ -2,10 +2,14 @@
 // whose table row happens to be phrased a particular way.
 //
 // The first version of this rule keyed on the literal word "skill" following a backticked name.
-// `sdd-workflow` is advertised in the same table row as `default-feature` but trails with
+// `sdd-workflow` was advertised in the same table row as `default-feature` but trailed with
 // "for spec-first)" instead, so it was never captured — the guard would have passed clean while the
-// spec-first entry point was hidden from the / menu. These tests pin the extractor against the real
-// bootstrap table so that blind spot cannot come back.
+// spec-first entry point was hidden from the / menu.
+//
+// `sdd-workflow` is now a fragment of `default-feature` and no longer appears in the table, so the
+// trailing-prose row is pinned against a SYNTHETIC bootstrap rather than the live one. Pinning that
+// regression to whatever the real table happens to contain is what let it rot in the first place:
+// the row shape is the thing under test, and it must stay under test after the row is gone.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -36,25 +40,44 @@ function ctxFor(overrides = {}) {
 function defaultFiles() {
   return [
     BOOTSTRAP,
-    "skills/workflows/sdd-workflow/SKILL.md",
     "skills/workflows/default-feature/SKILL.md",
     "skills/core/implementation-planner/SKILL.md",
   ];
 }
 
+// A bootstrap whose entry-point table carries the historical trailing-prose row shape.
+const TRAILING_PROSE_BOOTSTRAP = [
+  "# using-aegis",
+  "",
+  "## Top User-Invocable Surfaces (start here)",
+  "",
+  "| Want to… | Invoke |",
+  "|---|---|",
+  "| Build a feature end-to-end | `default-feature` skill (or `spec-first-entry` for spec-first) |",
+  "",
+  "## How to Use",
+  "",
+].join("\n");
+
 function skillDoc(name, visibility) {
   return `---\nname: ${name}\ndescription: Use when testing.\nvisibility: ${visibility}\nplatforms: [claude]\n---\n\nBody.\n`;
 }
 
-test("sdd-workflow is advertised and IS covered by the guard", () => {
+test("a name trailed by prose rather than the word \"skill\" IS covered by the guard", () => {
   // The regression the first implementation missed: same table row as default-feature, but the
   // name is followed by "for spec-first)" rather than "skill".
   const { errors } = rule.run(
-    ctxFor({ reads: { "skills/workflows/sdd-workflow/SKILL.md": skillDoc("sdd-workflow", "internal") } }),
+    ctxFor({
+      files: [BOOTSTRAP, "skills/workflows/spec-first-entry/SKILL.md"],
+      reads: {
+        [BOOTSTRAP]: TRAILING_PROSE_BOOTSTRAP,
+        "skills/workflows/spec-first-entry/SKILL.md": skillDoc("spec-first-entry", "internal"),
+      },
+    }),
   );
   assert.ok(
-    errors.some((e) => e.includes("sdd-workflow")),
-    `hiding an advertised spec-first entry point must fail; got: ${errors.join(" | ") || "(no errors)"}`,
+    errors.some((e) => e.includes("spec-first-entry")),
+    `hiding an advertised entry point named mid-row must fail; got: ${errors.join(" | ") || "(no errors)"}`,
   );
 });
 
@@ -73,8 +96,8 @@ test("the live tree is clean", () => {
 test("a skill NOT in the table may be internal", () => {
   const { errors } = rule.run(
     ctxFor({
-      files: [BOOTSTRAP, "skills/core/color-palette-design/SKILL.md"],
-      reads: { "skills/core/color-palette-design/SKILL.md": skillDoc("color-palette-design", "internal") },
+      files: [BOOTSTRAP, "skills/core/skill-creation/SKILL.md"],
+      reads: { "skills/core/skill-creation/SKILL.md": skillDoc("skill-creation", "internal") },
     }),
   );
   assert.deepEqual(errors, [], `an unadvertised skill may be internal: ${errors.join(" | ")}`);

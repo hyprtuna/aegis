@@ -39,7 +39,7 @@ violation.
 
 ## What's Available
 
-- **Skills** at `skills/`: universal capabilities (`skills/core/`), workflow skills (`skills/workflows/`). Language and framework practice is not a separate skill — it lives as on-demand fragments under the `develop` skill.
+- **Skills** at `skills/`: universal capabilities (`skills/core/`), workflow skills (`skills/workflows/`). Most specialist capabilities are not separate skills — they live as on-demand `abilities/` fragments under a parent skill (language practice under `develop`, fan-out mechanics under `orchestrate`, the UI construction passes under `ui-design`, and so on). Reach for the parent; it names the fragment to load.
 - **Agents** at `agents/`: first-class doers — researcher, plan-verifier, code-reviewer, orchestrator, etc.
 - **Commands** at `commands/`: composed workflow entry-points (capped ~15).
 - **Rules** at `rules/`: iron-law guidance (TDD, evidence-before-assertion, verification-before-completion, etc.). Always-loaded.
@@ -51,7 +51,7 @@ A curated index of the most-reached-for surfaces — not the full catalog. Disco
 
 | Want to… | Invoke |
 |---|---|
-| Build a feature end-to-end | `default-feature` skill (or `sdd-workflow` for spec-first) |
+| Build a feature end-to-end | `default-feature` skill |
 | Turn a vague goal into an approved spec | `brainstorm-spec` skill |
 | Write a phased implementation plan | `implementation-planner` skill |
 | Implement under red→green→refactor | `test-driven-development` skill |
@@ -62,6 +62,7 @@ A curated index of the most-reached-for surfaces — not the full catalog. Disco
 | Verify a plan against its goal | `plan-verifier` agent |
 | Onboard to an unfamiliar codebase | `codebase-onboarding` skill |
 | Write or change application code (any language) | `develop` skill |
+| Split work across parallel subagents | `orchestrate` skill |
 
 ## How to Use
 
@@ -95,3 +96,13 @@ The full text lives in `rules/<rule-name>.md`. Highlights:
 ## Provenance
 
 Aegis is derived from Anvil. The migration discarded the `source:` provenance field; provenance now lives only in `.aegis/audits/` and `.aegis/research/anvil-surface-migration.research.md`.
+
+## Fragments
+
+Load one when you reach the work it governs; do not force-load with an `@`-style directive.
+
+| When to load | Fragment |
+|---|---|
+| Health-checking the install — rules loaded, counts, silent drops | [`abilities/health-check.md`](./abilities/health-check.md) |
+| Retrieving past observations and decisions from `MEMORY.md` | [`abilities/recall.md`](./abilities/recall.md) |
+| Routing a prompt to the right surface when the choice is unclear | [`abilities/routing.md`](./abilities/routing.md) |

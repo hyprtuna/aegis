@@ -105,15 +105,25 @@ Before saving, run the pre-handoff pass: placeholder scan, internal consistency 
 Offer the user a choice:
 
 1. **Execute inline** — for small plans with fewer than 5 tasks, execute sequentially in the current session.
-2. **Execute via subagent-driven development** — for larger plans, hand off to the `feature-developer` skill or dispatch parallel agents for independent tasks.
+2. **Execute via subagent-driven development** — for larger plans, hand off to the `orchestrate` skill or dispatch parallel agents for independent tasks.
 3. **Review first** — the user wants to read and possibly edit the plan before any execution.
 
 Default to option 3 unless the user has explicitly asked for immediate execution.
 
 ---
 
-## REQUIRED SUB-SKILL: subagent-execution
+## REQUIRED SUB-SKILL: orchestrate
 
-When option 2 is selected (or for any plan with ≥5 tasks), the next step in the chain is `aegis:subagent-execution`. It owns the per-task dispatch with two-stage review (spec compliance → code quality) and is the authoritative way to walk a plan from draft to merged. Do not roll your own dispatch loop — the chain is `brainstorm-spec → implementation-planner → subagent-execution → finishing-branch`, and the quality gates live in subagent-execution's review cycles.
+When option 2 is selected (or for any plan with ≥5 tasks), the next step in the chain is `aegis:orchestrate`, whose `subagent-execution` fragment owns the per-task dispatch with two-stage review (spec compliance → code quality) and is the authoritative way to walk a plan from draft to merged. Do not roll your own dispatch loop — the chain is `brainstorm-spec → implementation-planner → orchestrate → finishing-branch`, and the quality gates live in that fragment's review cycles.
 
 ## Done — status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Breaking a goal into sequenced, risk-annotated subtasks | [`abilities/decomposition.md`](./abilities/decomposition.md) |
+| Auditing an existing plan against its stated goal | [`abilities/plan-audit.md`](./abilities/plan-audit.md) |
+| The forbidden-placeholder table and per-field bad/good examples | [`abilities/plan-quality-rules.md`](./abilities/plan-quality-rules.md) |
+| The AskUserQuestion payloads for location + format | [`abilities/question-payloads.md`](./abilities/question-payloads.md) |
+| The structured-slate schema | [`abilities/structured-slate-extras.md`](./abilities/structured-slate-extras.md) |

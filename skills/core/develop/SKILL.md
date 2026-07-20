@@ -74,6 +74,17 @@ its host language's on the same point, and `general.md` is the floor both build 
 fragments genuinely conflict on a point neither is more specific about, follow the project's
 existing code and say which you chose.
 
+## Task-shaped fragments
+
+Language choice is not the only axis. These load on the shape of the work, alongside whichever
+language fragments apply:
+
+| The task at hand | Fragment |
+|---|---|
+| Reducing code without changing behaviour — dead code, nesting, premature abstraction | `abilities/simplification.md` |
+| Auditing, updating, or resolving conflicts in dependencies | `abilities/dependencies.md` |
+| Designing or building an MCP server — tool design, scaffolding, verification | `abilities/mcp-servers.md` |
+
 **No match?** Use `abilities/general.md` alone. A language with no fragment is not a gap to
 paper over — apply the general discipline and the project's own conventions.
 

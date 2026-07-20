@@ -10,6 +10,7 @@
 // in-memory, which is unsafe here because project.mjs executes its CLI on import.
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { skillScopes } from "../lib/skill-scopes.mjs";
 
 export const id = "CLAUDE_DRIFT";
 
@@ -21,7 +22,7 @@ export function run(ctx) {
   const claudeRoot = join(REPO, "adapters/claude");
 
   // D1. Skill count + name parity per scope.
-  for (const scope of ["core", "languages", "workflows"]) {
+  for (const scope of skillScopes(REPO)) {
     const canonScope = join(REPO, "skills", scope);
     const genScope = join(claudeRoot, "skills", scope);
     const canonNames = new Set();

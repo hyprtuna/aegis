@@ -58,9 +58,9 @@ A skill that composes other skills (a workflow, a review loop) may declare a **c
 ```yaml
 x-aegis:
   pipeline:
-    requires: [design-exploration]      # prerequisite skills auto-invoked first
+    requires: [brainstorm-spec]         # prerequisite skills auto-invoked first
     handoff: plans                       # named artifact passed forward (template kind) or // REASON:
-    next: feature-developer              # the transition target skill
+    next: develop                        # the transition target skill
 ```
 
 Three keys, all optional:
@@ -183,7 +183,7 @@ For security guidance, see `abilities/security.md`.
 
 ## Naming
 
-- Kebab-case verb-noun: `code-review`, `implementation-planner`, `dependency-management`.
+- Kebab-case verb-noun: `code-review`, `implementation-planner`, `codebase-onboarding`.
 - Language practice is NOT a skill. It lives as fragments under `skills/core/develop/abilities/languages/<lang>.md`, with the per-language practice files and `rules/` overlay in the sibling `<lang>/` directory.
 - Workflow skills: descriptive of the workflow (e.g. `spec-driven-development`, `default-feature`).
 

@@ -93,7 +93,7 @@ Aegis adopts high-value host capabilities surfaced in the host-docs scan, Claude
 | `.skill` ZIP distribution (`dist/aegis.skill`) | Supported | Partial | partial / n-a |
 | Model intent tiers (`manifest/models.json`) | Supported — `deep`/`balanced`/`fast`/`inherit` resolve to a Claude-native ID | Gap — Aegis emits no `model:`; OpenCode owns model selection | Gap — Aegis emits no `model:` / n-a |
 | Provider-tagged prose (`<claude>`/`<opencode>`) | Supported | Supported | partial |
-| `x-claude.memory` native subagent memory | Supported — `memory: project` emitted into generated Claude agent frontmatter; host auto-injects Read/Write/Edit + first 200 lines of `MEMORY.md`. See `rules/memory-discipline.md` + `skills/core/recall`. | Gap → `.aegis-memory/MEMORY.md` fallback via `recall` skill | gap / n-a |
+| `x-claude.memory` native subagent memory | Supported — `memory: project` emitted into generated Claude agent frontmatter; host auto-injects Read/Write/Edit + first 200 lines of `MEMORY.md`. See `rules/memory-discipline.md` + `skills/core/using-aegis/abilities/recall.md`. | Gap → `.aegis-memory/MEMORY.md` fallback via `using-aegis`'s `recall` fragment | gap / n-a |
 
 Where this table and `manifest/capabilities.json` could diverge, `capabilities.json` wins — it is the lint-enforced source (F1 in `scripts/validate-structure.mjs`).
 
