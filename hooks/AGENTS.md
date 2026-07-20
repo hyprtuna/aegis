@@ -42,6 +42,17 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
 
 `prompt`/`agent` dispatch carry `x-claude.prompt` (+ optional `model`) — **not** an agent-name (D4). `command` dispatch carries `x-claude.command` under `.claude-plugin/hooks/`.
 
+## `.claude-plugin/hooks/` is flat
+
+The implementation tree is **flat** — `x-claude.command` must match `^\.claude-plugin/hooks/[^/]+$` (schema + `HOOK_INTENT`). No subdirectories.
+
+`projectHooks()` prunes this directory on every run: any entry no live intent references via `x-claude.command` is deleted, so a retired hook cannot leave its script shipping inside the plugin. Two consequences follow from that, and both are load-bearing:
+
+- **A directory raises, it is never removed.** The prune refuses to descend, because reaping a subtree could take a correctly-referenced script down with it. A directory here is an authoring error — fix the path, don't nest.
+- **`_`-prefixed entries are exempt.** A shared helper sourced by hook scripts (`_lib.sh`, sourced as `source "$(dirname "$0")/_lib.sh"`) has nothing binding it via `x-claude.command` by design, so the prune and the `HOOK_INTENT` orphan rule both skip the `_` prefix. Name every shared helper that way or the projector will delete it.
+
+Every pruned path is printed to stdout. A deletion is never silent.
+
 ## Intent doc frontmatter (`<name>.md`)
 
 ```yaml

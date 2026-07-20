@@ -134,8 +134,8 @@ command hooks). Every judgment hook and every Claude-only lifecycle event is a
 factory returns exactly `config`, `"experimental.session.compacting"`,
 `"experimental.chat.messages.transform"` with no nested `experimental` member, that
 the bootstrap handler injects the marker-guarded body into the first user message,
-and that a second call does not double-inject (in-process assertions in
-`scripts/test-projection.mjs`). **Not** verified: a live OpenCode run. No
+and that a second call does not double-inject (in-process assertions in the K1 test
+family, `scripts/tests/projection-hooks.test.mjs`). **Not** verified: a live OpenCode run. No
 end-to-end invocation against a running host has been performed for this change.
 
 | Intent / name | Status | OpenCode binding | Notes |
@@ -262,9 +262,9 @@ the system prompt, which is a cleaner channel than the current user-message boot
 with `<!-- aegis:bootstrap -->` idempotency guard) was **just corrected in this release**: the handler
 had been registered under a nested `experimental` object key, which OpenCode never resolves, so it was
 shipped and never invoked. It is now registered under the flat dotted key the `@opencode-ai/plugin`
-type contract declares. That channel is verified by static review and in-process assertions
-(`scripts/test-projection.mjs`) only — it has **not** been live-run verified, and it has no track
-record to lean on.
+type contract declares. That channel is verified by static review and in-process assertions (the K1
+test family, `scripts/tests/projection-hooks.test.mjs`) only — it has **not** been live-run verified,
+and it has no track record to lean on.
 
 So this is not a defer-because-the-incumbent-is-proven. It defers on the two grounds that survive:
 (1) system-prompt injection via this hook may interact differently with multi-turn context,

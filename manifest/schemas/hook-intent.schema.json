@@ -109,8 +109,8 @@
         },
         "command": {
           "type": "string",
-          "pattern": "^\\.claude-plugin/hooks/.+",
-          "description": "Repo-relative path to the hook script (required when dispatch is 'command'). The projector prefixes ${CLAUDE_PLUGIN_ROOT}/."
+          "pattern": "^\\.claude-plugin/hooks/[^/]+$",
+          "description": "Repo-relative path to the hook script (required when dispatch is 'command'). The projector prefixes ${CLAUDE_PLUGIN_ROOT}/. The tree is FLAT — no subdirectories: projectHooks()'s orphan prune walks .claude-plugin/hooks/ one level deep and raises on a directory rather than descending, so a nested path would name a script the prune cannot account for."
         },
         "prompt": {
           "type": "string",
@@ -210,8 +210,8 @@
         },
         "dispatch": {
           "type": "string",
-          "enum": ["command", "prompt", "agent"],
-          "description": "Hook dispatch type. Only 'command' has a projector path today (projectCodexHooks emits type:'command' entries)."
+          "enum": ["command"],
+          "description": "Hook dispatch type. Restricted to 'command': projectCodexHooks() builds a { type: 'command', command } entry unconditionally, so a 'prompt'/'agent' binding would emit { \"type\": \"command\" } with the command key dropped by JSON.stringify(undefined) — a malformed hooks.json. Widen this enum only together with a projector path for the new dispatch."
         },
         "command": {
           "type": "string",
@@ -238,7 +238,10 @@
     },
     {
       "if": { "properties": { "platforms": { "contains": { "const": "codex" } } } },
-      "then": { "required": ["x-codex"] }
+      "then": {
+        "required": ["x-codex", "x-claude"],
+        "description": "x-claude is required alongside x-codex because projectCodexHooks() sources the script it bundles EXCLUSIVELY from x-claude.command — it copies that file to .codex/plugins/aegis/hooks/<basename of x-codex.command>. A codex-only intent would emit a hooks.json entry pointing at a script that was never bundled: a binding that cannot fire (Iron Law 6)."
+      }
     },
     {
       "if": { "properties": { "intent": { "const": "prompt-type" } } },

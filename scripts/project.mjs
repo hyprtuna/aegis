@@ -1714,6 +1714,20 @@ function stampHookContent(content, commentToken, version) {
 // reachable by anything that discovers the directory by convention, while nothing
 // in canonical mentioned it any more. `HOOK_INTENT` hard-fails on the same
 // condition, so an orphan cannot survive a projector that was never re-run.
+//
+// Three properties keep the prune safe, because a delete-by-default loop is only
+// as good as its escape hatches:
+//   - FLAT ONLY. A directory raises instead of being removed. `.claude-plugin/
+//     hooks/` is flat by contract (the x-claude.command regex allows no `/`), so
+//     a directory is an authoring error — and reaping it recursively could take a
+//     correctly-referenced script down with it.
+//   - HELPERS ARE EXEMPT. A `_`-prefixed entry is a shared library sourced by hook
+//     scripts, not an orphan; nothing binds it via x-claude.command by design. The
+//     HOOK_INTENT orphan rule honours the same prefix so the two never disagree.
+//   - DELETIONS ARE PRINTED. Every pruned path goes to stdout. A silent prune is
+//     invisible to the author and to the gate, which is exactly how it would eat
+//     a file nobody notices until a user's hook breaks at runtime.
+const HOOK_HELPER_PREFIX = "_";
 function projectHooks(intents) {
   const HOOK_FILES = hookFilesFromIntents(intents ?? []);
   let stamped = 0;
@@ -1731,9 +1745,25 @@ function projectHooks(intents) {
   const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
   if (existsSync(claudeHooksDir)) {
     const expected = new Set(HOOK_FILES.map((p) => basename(p)));
-    for (const entry of readdirSync(claudeHooksDir)) {
+    for (const entry of readdirSync(claudeHooksDir).sort()) {
       if (expected.has(entry)) continue;
-      rmSync(join(claudeHooksDir, entry), { recursive: true, force: true });
+      if (entry.startsWith(HOOK_HELPER_PREFIX)) continue; // shared helper, not an orphan
+      const target = join(claudeHooksDir, entry);
+      // Never delete a tree. `.claude-plugin/hooks/` is FLAT (the x-claude.command
+      // regex enforces it), so a directory here is an authoring error, not an
+      // orphan to reap — raise it instead of silently destroying whatever is
+      // inside, which could include a correctly-referenced script.
+      if (statSync(target).isDirectory()) {
+        throw new Error(
+          `.claude-plugin/hooks/${entry} is a directory — this tree is flat. ` +
+            "Move the script to .claude-plugin/hooks/<name>.sh and point " +
+            "x-claude.command at it, or delete the directory by hand.",
+        );
+      }
+      rmSync(target, { force: true }); // no `recursive` — a directory must throw, never vanish
+      // A deletion is never silent: an unobservable prune is how a destructive
+      // bug hides from both the author and the gate.
+      console.log(`  pruned orphan hook: .claude-plugin/hooks/${entry}`);
     }
   }
 

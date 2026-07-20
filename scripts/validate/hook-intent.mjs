@@ -156,8 +156,14 @@ export function run(ctx) {
         }
         // dispatch→required-field.
         if (xc.dispatch === "command") {
-          if (typeof xc.command !== "string" || !/^\.claude-plugin\/hooks\/.+/.test(xc.command || "")) {
-            errors.push(`${where}: command dispatch requires command matching ^\\.claude-plugin/hooks/.+`);
+          // Flat only: no `/` after the directory. The projector's orphan prune
+          // walks this directory one level deep and refuses to descend, so a
+          // nested path would name a script the prune cannot account for.
+          if (typeof xc.command !== "string" || !/^\.claude-plugin\/hooks\/[^/]+$/.test(xc.command || "")) {
+            errors.push(
+              `${where}: command dispatch requires command matching ` +
+                "^\\.claude-plugin/hooks/[^/]+$ — the hooks tree is flat, no subdirectories",
+            );
           } else if (!existsSync(join(REPO, xc.command))) {
             errors.push(`${where}: x-claude.command file does not exist: ${xc.command}`);
           }
@@ -204,14 +210,32 @@ export function run(ctx) {
         if (!CODEX_EVENTS.has(xcodex.event)) {
           errors.push(`${where}: x-codex.event "${xcodex.event}" not in allowed Codex event enum`);
         }
-        if (!DISPATCH_ENUM.has(xcodex.dispatch)) {
-          errors.push(`${where}: x-codex.dispatch "${xcodex.dispatch}" not in command|prompt|agent`);
+        // Restricted to "command": projectCodexHooks() builds a
+        // { type: "command", command } entry before any dispatch check, so a
+        // prompt/agent binding emits { "type": "command" } with the command key
+        // dropped by JSON.stringify(undefined) — a malformed hooks.json.
+        if (xcodex.dispatch !== "command") {
+          errors.push(
+            `${where}: x-codex.dispatch "${xcodex.dispatch}" is not supported — only "command" ` +
+              "has a projector path; any other value emits a malformed Codex hooks.json entry",
+          );
         }
         if (xcodex.dispatch === "command") {
           if (typeof xcodex.command !== "string" || !xcodex.command) {
             errors.push(`${where}: x-codex.dispatch "command" requires a non-empty "command"`);
           }
         }
+      }
+      // projectCodexHooks() copies the script it bundles from the CLAUDE binding —
+      // an x-codex intent with no x-claude.command emits a hooks.json entry naming
+      // a script that never gets bundled: a binding that cannot fire (Iron Law 6).
+      const xc = intent["x-claude"];
+      if (!xc || xc.dispatch !== "command" || typeof xc.command !== "string" || !xc.command) {
+        errors.push(
+          `${where}: platforms includes "codex" but there is no x-claude command binding to ` +
+            "bundle from — projectCodexHooks() copies the script it ships from x-claude.command, " +
+            "so a codex binding without one advertises a script that is never bundled",
+        );
       }
     }
 
@@ -275,6 +299,11 @@ export function run(ctx) {
     }
     for (const entry of readdirSync(claudeHooksDir).sort()) {
       if (referenced.has(entry)) continue;
+      // `_`-prefixed entries are shared helpers sourced by hook scripts, not
+      // orphans — nothing binds them via x-claude.command by design. The
+      // projector's prune exempts the same prefix; these two must never disagree,
+      // or the validator would demand a file the projector has already deleted.
+      if (entry.startsWith("_")) continue;
       errors.push(
         `.claude-plugin/hooks/${entry}: orphaned — no hooks/*.json intent references it ` +
           "via x-claude.command. A hook either ships (an intent binds it) or is deleted " +
