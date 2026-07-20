@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.1.6
+# aegis-hook-version: 0.2.0
 # post-compact.sh — Aegis plugin PostCompact hook (Claude Code).
 #
 # WHY THIS EXISTS: after compaction the agent resumes against a
