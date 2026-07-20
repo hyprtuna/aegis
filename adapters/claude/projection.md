@@ -146,7 +146,7 @@ See [`docs/agent-permissions.md`](../../docs/agent-permissions.md) for the full 
 `.claude-plugin/marketplace.json` declares Aegis as a single-plugin marketplace named `aegis`. Users install via:
 
 ```bash
-/marketplace add /path/to/aegis
+/plugin marketplace add hyprtuna/aegis
 /plugin install aegis@aegis
 ```
 
@@ -238,7 +238,7 @@ Three skeptical agents (`code-reviewer`, `code-quality-reviewer`, `doc-verifier`
 
 ```bash
 # In Claude Code:
-/marketplace add /path/to/aegis
+/plugin marketplace add hyprtuna/aegis
 /plugin install aegis@aegis
 /skills           # Should show aegis:* skills
 ```

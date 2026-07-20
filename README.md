@@ -29,7 +29,7 @@ Each block below is the short form. The full install and verification flow for e
 
 ```bash
 # In Claude Code, add the marketplace, then install the plugin
-/plugin marketplace add /path/to/aegis
+/plugin marketplace add hyprtuna/aegis
 /plugin install aegis@aegis
 ```
 

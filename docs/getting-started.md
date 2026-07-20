@@ -11,37 +11,37 @@ cloned this repository.
 
 ## Claude Code
 
-1. Clone Aegis to a local directory:
-   ```bash
-   git clone https://github.com/hyprtuna/aegis.git /path/to/aegis
+1. Add the marketplace, then install the plugin:
    ```
-
-2. Add the local marketplace, then install the plugin:
-   ```
-   /plugin marketplace add /path/to/aegis
+   /plugin marketplace add hyprtuna/aegis
    /plugin install aegis@aegis
    ```
-   The repo root ships a valid Claude marketplace at
-   `.claude-plugin/marketplace.json` (plugin `source: "./"`), so
-   `claude plugin validate .` passes and the two steps above work as written.
+   Claude Code accepts the GitHub `owner/repo` shorthand directly for
+   `/plugin marketplace add`, so no clone step is needed. The repo root ships
+   a valid Claude marketplace at `.claude-plugin/marketplace.json` (plugin
+   `source: "./"`), so `claude plugin validate .` passes; relative plugin
+   sources like `"./"` resolve against the local copy Claude Code makes when
+   it fetches a marketplace, whether that copy came from a git source or a
+   local directory, so the entry works the same way here as it would from a
+   clone.
 
-3. Verify it loaded. In a new session, run:
+2. Verify it loaded. In a new session, run:
    ```
    /skills
    ```
    You should see entries prefixed `aegis:` (for example `aegis:research`). If
    none appear, the plugin did not install.
 
-4. First invocation:
+3. First invocation:
    ```
    Use the aegis:research skill to investigate X.
    ```
 
-5. Troubleshooting: if `/skills` shows no `aegis:` entries, run `/plugin list`
-   and confirm `aegis` is present; if it is missing, repeat step 2.
+4. Troubleshooting: if `/skills` shows no `aegis:` entries, run `/plugin list`
+   and confirm `aegis` is present; if it is missing, repeat step 1.
 
-**Marketplace install only.** Steps 1–2 above (`/plugin marketplace add` +
-`/plugin install`) are the only supported Claude Code install path. Aegis's
+**Marketplace install only.** The step above (`/plugin marketplace add` +
+`/plugin install`) is the only supported Claude Code install path. Aegis's
 `plugin.json` declares `skills`/`agents`/`commands` keys pointing at the
 generated `adapters/claude/…` tree (see [`adapters/claude/projection.md`](../adapters/claude/projection.md)),
 which **replaces** Claude's default root-folder scan under a marketplace
@@ -51,6 +51,26 @@ instead is a **maintainer footgun, not a supported user path**: `--plugin-dir`
 *adds* to the default scan rather than replacing it, so every canonical
 skill/agent/command double-loads alongside its generated counterpart. Always
 install via the marketplace flow above.
+
+**Maintainer note: working against an unreleased checkout.** To load a local
+working copy instead of the published git source — for example to test an
+unmerged branch before it ships — clone the repo and add the clone as a local
+marketplace:
+```bash
+git clone https://github.com/hyprtuna/aegis.git /path/to/aegis
+```
+```
+/plugin marketplace add /path/to/aegis
+/plugin install aegis@aegis
+```
+
+A local-path marketplace copies the maintainer's **working directory**,
+gitignored content included — it is not a lighter install, it is a heavier
+one. Measured on a maintainer machine: 1.1 GB per installed version, of which
+1021 MB came from `references/`, a directory with zero files tracked in git.
+The git-sourced install above carries only what the repository tracks. Use
+the local-clone form for unreleased-checkout development only, never as
+install guidance for users.
 
 ## OpenCode
 
