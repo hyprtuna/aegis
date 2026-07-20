@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: mcp-construction
 description: 'Use when designing or building an MCP (Model Context Protocol) server — tool design, scaffolding, testing, verification.'
 visibility: user

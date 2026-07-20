@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: orchestrator-first
 description: Use when the router emits a high-confidence directive — delegate to the named agent before handling inline.
 visibility: user

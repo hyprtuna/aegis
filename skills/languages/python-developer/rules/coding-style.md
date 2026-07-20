@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: python-coding-style
 description: Use when editing Python code — PEP 8, type hints on functions/classes, no bare except, pathlib over os.path.
 visibility: user

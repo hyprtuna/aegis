@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: go-testing
 description: Use when editing Go test code — table-driven tests, t.Run, -race flag, httptest.
 visibility: user

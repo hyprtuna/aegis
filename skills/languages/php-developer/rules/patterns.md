@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: php-patterns
 description: Use when editing PHP code — value objects over arrays, enums for closed sets, dependency injection via constructor, immutability where possible.
 visibility: user

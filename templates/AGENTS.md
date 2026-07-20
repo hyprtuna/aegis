@@ -42,7 +42,6 @@ Templates use minimal frontmatter:
 
 ```yaml
 ---
-kind: template
 name: stable-kebab-slug
 description: One-line description.
 visibility: internal
@@ -51,6 +50,11 @@ platforms: [claude, opencode, codex, cursor, zed]
 ```
 
 Some templates (notably HTML) may have no frontmatter at all — they are pure output skeletons.
+
+Note the asymmetry: a template *body*'s YAML frontmatter carries no `kind:` (the key is retired
+across markdown surfaces), but the sibling `<name>.template.json` slot manifest still requires
+`"kind": "template"` — there it is a live schema discriminator validated by
+`manifest/schemas/template.schema.json`, not a redundant restatement of the directory.
 
 ## Slot-declaration convention
 

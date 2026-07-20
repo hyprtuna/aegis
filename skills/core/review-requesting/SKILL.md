@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: review-requesting
 description: Use when requesting code review on a change.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: review-response
 description: Use when handling code review feedback — verifies before implementing, pushes back when wrong.
 visibility: user

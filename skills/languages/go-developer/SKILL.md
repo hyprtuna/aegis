@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: go-developer
 description: Use when Go development, testing, review, security, or code-practice guidance is needed.
 visibility: user

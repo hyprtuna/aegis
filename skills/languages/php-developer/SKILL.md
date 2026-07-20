@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: php-developer
 description: Use when PHP development, testing, review, security, or code-practice guidance is needed.
 visibility: user

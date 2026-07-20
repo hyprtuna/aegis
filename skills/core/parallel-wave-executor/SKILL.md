@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: parallel-wave-executor
 description: Use when fanning out parallel sub-agents — collects results and synthesises a unified output.
 visibility: user

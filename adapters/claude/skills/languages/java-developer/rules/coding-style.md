@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: java-coding-style
 description: Use when editing Java code — Java 21 LTS, records over POJOs, sealed types where exhaustive, no checked exceptions in new APIs.
 visibility: user

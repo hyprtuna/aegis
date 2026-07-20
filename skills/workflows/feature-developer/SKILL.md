@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: feature-developer
 description: 'Use when implementing an end-to-end feature — plan, code, test, PR.'
 visibility: user

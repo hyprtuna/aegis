@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: design-exploration
 description: 'Use when the user''s request is under-specified — explores intent, asks clarifying questions, proposes design approaches before implementation.'
 visibility: user

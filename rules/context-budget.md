@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: context-budget
 description: Use when auditing token overhead across loaded components — produces prioritised savings recommendations before heavy subagent chains.
 visibility: user

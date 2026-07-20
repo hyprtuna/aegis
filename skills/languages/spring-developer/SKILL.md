@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: spring-developer
 description: Use when Spring development, testing, review, security, or code-practice guidance is needed.
 visibility: user

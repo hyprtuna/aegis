@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: skill-router-gate
 description: MUST consult before any task — checks if a more specific Aegis skill applies
 visibility: user

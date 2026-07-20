@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: orchestrator-guide
 description: Use when orchestrating parallel agents — guidance on when to fan out, how to compose results, TDD discipline.
 visibility: user

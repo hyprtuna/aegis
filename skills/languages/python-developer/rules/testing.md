@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: python-testing
 description: Use when editing Python test code — pytest, parametrize, fixtures, isolated integration tests.
 visibility: user

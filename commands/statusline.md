@@ -1,5 +1,4 @@
 ---
-kind: command
 name: statusline
 description: Install or switch an Aegis statusline preset — pick, preview, and merge into settings.json.
 visibility: user

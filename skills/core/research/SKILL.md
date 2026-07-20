@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: research
 description: Use when investigating a topic in depth — produces structured findings with options, trade-offs, and recommendations.
 visibility: user

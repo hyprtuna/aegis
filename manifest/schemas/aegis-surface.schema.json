@@ -1,14 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aegis.dev/schemas/aegis-surface.schema.json",
-  "title": "Aegis Surface Frontmatter (Lean 5-field)",
+  "title": "Aegis Surface Frontmatter (Lean 4-field)",
   "type": "object",
-  "required": ["kind", "name", "description", "visibility", "platforms"],
+  "required": ["name", "description", "visibility", "platforms"],
   "properties": {
-    "kind": {
-      "type": "string",
-      "enum": ["skill", "agent", "command", "rule", "hook", "template"]
-    },
     "name": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]*$",
@@ -87,6 +83,7 @@
       }
     }
   },
+  "not": { "required": ["kind"] },
   "additionalProperties": true,
   "patternProperties": {
     "^x-[a-z][a-z0-9-]*$": {

@@ -1,5 +1,4 @@
 ---
-kind: template
 name: specs-default
 description: Spec markdown frontmatter + section shape (default variant).
 visibility: internal

@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: python-security
 description: Use when editing Python code — no eval/exec, parameterized SQL, input validation, safe subprocess.
 visibility: user

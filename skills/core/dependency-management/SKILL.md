@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: dependency-management
 description: 'Use when auditing, updating, or resolving conflicts in project dependencies.'
 visibility: user

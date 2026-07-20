@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: codebase-onboarding
 description: 'Use when onboarding to a new codebase — produces an architecture map, key entry points, conventions, and a starter CLAUDE.md.'
 visibility: user

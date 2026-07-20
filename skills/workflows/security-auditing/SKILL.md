@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: security-auditing
 description: Use when auditing for OWASP Top 10 vulnerabilities, secrets, or insecure patterns.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: rust-developer
 description: Use when Rust development, testing, review, security, or code-practice guidance is needed.
 visibility: user

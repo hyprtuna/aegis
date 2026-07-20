@@ -25,7 +25,7 @@ Aegis is a plugin-first agentic AI dev system descended from Anvil. It carries A
 
 1. **No user CLI.** Aegis is plugin-first. Users do not install a binary. Maintainer-only Node scripts.
 2. **Canonical is the source of truth.** `skills/`, `agents/`, `commands/`, `hooks/`, `rules/`, `templates/`. Host-native files (`.claude-plugin/`, `.cursor/rules/`, `.rules`, etc.) are generated or hand-shimmed; never the canonical source.
-3. **Lean frontmatter.** 5 fields: `kind, name, description, visibility, platforms`. Plus `source: anvil:<path>` on migrated items. Adapter-specific metadata uses `x-<adapter>` namespace.
+3. **Lean frontmatter.** 4 fields: `name, description, visibility, platforms`. (`kind` is retired — no host recognised it, the projector already discarded it, and a surface's kind is stated by its directory. The `FRONTMATTER` validator now rejects it.) Plus `source: anvil:<path>` on migrated items. Adapter-specific metadata uses `x-<adapter>` namespace.
 4. **Abilities are not skills.** Parent `SKILL.md` is the only registered skill. `abilities/<x>.md` are on-demand fragments — no frontmatter or minimal, NOT registered.
 5. **Sparse guidance.** `AGENTS.md` + `CLAUDE.md` only at repo root and at each main surface folder root.
 6. **Honest gaps.** Unsupported host capabilities go in `adapters/<host>/projection.md` as explicit gaps, never silently dropped.
@@ -89,7 +89,7 @@ templates
 
 ### `agents/`
 
-Purpose: first-class doers — subagents invoked via the host's Task tool. Flat layout, one `.md` file per agent. Frontmatter is the lean 5-field schema (`kind: agent`, `name`, `description`, `visibility`, `platforms`). Use `x-claude:` or `x-opencode:` for host-specific overrides. Aegis preserves Anvil's skill/agent pairing (e.g. `code-review` skill + `code-reviewer` agent) — both can coexist; they serve different invocation contexts. **Never** add `AGENTS.md`, `CLAUDE.md`, or any per-host subfolder here.
+Purpose: first-class doers — subagents invoked via the host's Task tool. Flat layout, one `.md` file per agent. Frontmatter is the lean 4-field schema (`name`, `description`, `visibility`, `platforms`). Use `x-claude:` or `x-opencode:` for host-specific overrides. Aegis preserves Anvil's skill/agent pairing (e.g. `code-review` skill + `code-reviewer` agent) — both can coexist; they serve different invocation contexts. **Never** add `AGENTS.md`, `CLAUDE.md`, or any per-host subfolder here.
 
 **Sanctioned agent-only agents (no paired skill).** Agent-only is acceptable per this section — not every agent needs a matching skill. `build-error-resolver`, `code-architect`, and `code-explorer` are intentionally agent-only focused doers; their lack of a paired skill is by design, not a broken pairing. (Paired examples for contrast: `researcher` agent ↔ `research` skill; `code-simplifier` agent ↔ `code-simplification` skill.)
 
@@ -97,11 +97,15 @@ Purpose: first-class doers — subagents invoked via the host's Task tool. Flat 
 
 **`x-claude.primitiveHint` (Claude-only authoring hint).** An agent that should open with the primitive-disambiguation blockquote on Claude carries `primitiveHint: agent` under its `x-claude:` block. The projector reads it to RE-INJECT `> **Invoke via \`Agent({subagent_type: "aegis:<name>"})\`.** This is an agent, not a skill.` at the top of the generated Claude body (`adapters/claude/agents/<name>.md`). Canonical bodies stay host-neutral — they do NOT carry the blockquote (any *other* blockquote, e.g. the Agent-only note, is unaffected). `primitiveHint` is **consumed-not-emitted**: it never appears in generated Claude frontmatter, and OpenCode/Codex bodies get no Invoke-via blockquote. (Same field/semantics as skills — see `skills/AGENTS.md`.)
 
-**`/agents` wizard removal is UX-only (v2.1.198).** Claude Code dropped the interactive `/agents` wizard, but the subagent contract Aegis depends on — `agents/<name>.md` → generated `adapters/claude/agents/<name>.md`, lean 5-field + `x-claude:` frontmatter, plugin `agents/` tree scanning — is unchanged, and Aegis never authored through the wizard. Nothing here breaks.
+**Model is a capability-intent tier, and it is a default rather than a ceiling.** Never put `model:` in agent frontmatter — per-agent model lives solely in `manifest/permissions.json` (the projector hard-fails on `x-claude.model`). Declare an *intent tier*: `deep` (heavy reasoning — planning, strict review, architecture), `balanced` (default implementation work), or `fast` (cheap, mechanical work). `manifest/models.json` resolves the tier to a host-native ID; on Claude that is `claude-opus-4-8` / `claude-sonnet-4-6` / `claude-haiku-4-5`. The tier says what kind of thinking the work needs, so the declaration still means something on a host that has never heard of Opus.
+
+A **dispatch-time `model` override wins over the projected frontmatter**, so "I need Opus for this one" is not a reason to skip an Aegis agent — pass the model at dispatch: `Agent({subagent_type: "aegis:code-explorer", model: "opus", prompt: "…"})`. Claude Code's precedence is `CLAUDE_CODE_SUBAGENT_MODEL` env var > per-invocation `model` parameter > frontmatter `model:` > the main conversation's model (`references/claude-code-docs/docs/sub-agents.md:301-306`). This is Claude-specific: Codex has no per-agent model-override surface, and Cursor/Zed read rules rather than agent frontmatter. See `docs/agent-permissions.md` for the full table and caveats.
+
+**`/agents` wizard removal is UX-only (v2.1.198).** Claude Code dropped the interactive `/agents` wizard, but the subagent contract Aegis depends on — `agents/<name>.md` → generated `adapters/claude/agents/<name>.md`, lean 4-field + `x-claude:` frontmatter, plugin `agents/` tree scanning — is unchanged, and Aegis never authored through the wizard. Nothing here breaks.
 
 ### `commands/`
 
-Purpose: slash-command workflow entry-points that don't map to a single skill. Hard cap **~15 commands**. Skills already auto-expose as `/<skill-name>` on supporting hosts; only add a command when composing multiple skills. Frontmatter is `kind: command`, lean 5 fields. Use `x-claude.argument-hint` for Claude argument hints. **Never** add `AGENTS.md` or `CLAUDE.md` here. CLI-coupled commands depending on `bunx anvil` belong on the deferred list, not in this folder.
+Purpose: slash-command workflow entry-points that don't map to a single skill. Hard cap **~15 commands**. Skills already auto-expose as `/<skill-name>` on supporting hosts; only add a command when composing multiple skills. Frontmatter is the lean 4 fields (`name`, `description`, `visibility`, `platforms`). Use `x-claude.argument-hint` for Claude argument hints. **Never** add `AGENTS.md` or `CLAUDE.md` here. CLI-coupled commands depending on `bunx anvil` belong on the deferred list, not in this folder.
 
 ### `rules/`
 

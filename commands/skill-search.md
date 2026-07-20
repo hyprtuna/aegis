@@ -1,5 +1,4 @@
 ---
-kind: command
 name: skill-search
 description: Search for skills by keyword
 visibility: user

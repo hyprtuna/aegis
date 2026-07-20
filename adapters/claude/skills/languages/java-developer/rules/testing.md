@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: java-testing
 description: Use when editing Java test code — JUnit 5, AssertJ for fluent assertions, Mockito for collaborators, Testcontainers for real services.
 visibility: user

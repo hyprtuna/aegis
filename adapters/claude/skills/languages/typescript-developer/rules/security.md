@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: typescript-security
 description: Use when implementing TypeScript security controls — validation, secrets, no eval, parameterized queries.
 visibility: user

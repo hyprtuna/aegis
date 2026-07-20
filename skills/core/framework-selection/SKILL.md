@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: framework-selection
 description: 'Use when evaluating competing frameworks or libraries — produces a structured comparison matrix and scoring.'
 visibility: user

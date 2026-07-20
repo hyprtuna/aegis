@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: aegis-doctor
 description: Use to run an Aegis health check — confirm rules loaded, count them, and spot rules that declared a paths condition but never matched.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: kotlin-testing
 description: Use when editing Kotlin test code — Kotest or JUnit 5 + Kotlin assertions, MockK over Mockito, runTest for coroutines, Testcontainers for services.
 visibility: user

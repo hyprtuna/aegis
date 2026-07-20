@@ -36,7 +36,7 @@ exception, not hand-copied canonical.
 | `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,languages,workflows}/` | An earlier release repointed this to the generated tree. `skills` lists bucket roots, not the 82 per-skill dirs — Claude scans each entry one level deep for `<name>/SKILL.md` and *adds* to the default scan, so per-skill paths landed one level too deep and registered zero. |
 | Marketplace | **Generated** `.claude-plugin/marketplace.json` (string `source: "./"`) | Claude's own marketplace, separate from Codex's `.agents/plugins/marketplace.json` (object source). Claude rejects the object form. Lets `/plugin marketplace add <repo>` + `/plugin install aegis@aegis` work. |
 | `agents/<name>.md` | **Generated** `adapters/claude/agents/<name>.md`, via `plugin.json` `agents: ["./adapters/claude/agents/"]` | The `agents` key replaces the default root scan; carries injected `tools:`. |
-| `commands/<name>.md` | **Generated** `adapters/claude/commands/<name>.md`, via `plugin.json` `commands: ["./adapters/claude/commands/<name>.md", …]` | Projected with flattened Claude-native frontmatter (`description` + `argument-hint`; canonical `kind`/`name`/`platforms`/`x-*` dropped). Declaring `commands` replaces the default `./commands/` scan. Before this, the raw canonical files were default-scanned and listed but **not invokable** (`/aegis:<cmd>` → "Unknown command"). |
+| `commands/<name>.md` | **Generated** `adapters/claude/commands/<name>.md`, via `plugin.json` `commands: ["./adapters/claude/commands/<name>.md", …]` | Projected with flattened Claude-native frontmatter (`description` + `argument-hint`; canonical `name`/`visibility`/`platforms`/`x-*` dropped). Declaring `commands` replaces the default `./commands/` scan. Before this, the raw canonical files were default-scanned and listed but **not invokable** (`/aegis:<cmd>` → "Unknown command"). |
 | `rules/<name>.md` | Bundled into a bootstrap skill (delivered via SessionStart) | Plugin-root `CLAUDE.md` is NOT loaded by Claude — see Constraints. |
 | `.claude-plugin/hooks/session-start.sh` | Plugin hook | Declared in `plugin.json` `hooks` field. |
 | `adapters/claude/monitors/monitors.json` | Plugin monitors via `experimental.monitors` | **Opt-in:** not declared in the default `plugin.json`; ships the `aegis-cost` watcher for users who opt in. The context-window monitor was retired — see Background Monitors. |
@@ -61,11 +61,38 @@ adapters/claude/
 1. Resolve `${TEMPLATE:<family>}` directives — Claude now runs the inline/Read branch it previously skipped.
 2. Provider-tagged prose: keep `<claude>…</claude>` blocks, strip `<opencode>…</opencode>` and any other host's blocks.
 3. **Re-inject the Invoke-via blockquote (Claude-only).** Canonical bodies are host-neutral — they no longer carry the `> **Invoke via …**` blockquote. The projector rebuilds it from `x-claude.primitiveHint` (`skill` → `Skill({skill: "aegis:<name>"})`, `agent` → `Agent({subagent_type: "aegis:<name>"})`) and PREPENDS it to the Claude body. Surfaces without `primitiveHint` get nothing; OpenCode/Codex/Cursor/Zed get nothing. `primitiveHint` is consumed here, never emitted into generated frontmatter.
-4. Frontmatter: start from the canonical 5 fields → drop `kind`/`visibility`/`platforms`/`source` (not Claude-native) → flatten `x-claude.*` into native keys (`x-claude.paths` → `paths:`, `x-claude.agent` → `agent:`, `x-claude.disallowed-tools` → `disallowedTools:`) and strip the whole `x-claude`/`x-opencode` block → resolve the `model` alias via `manifest/models.json` → for agents, inject `tools:`/`disallowedTools:` from `manifest/permissions.json` (never from frontmatter).
+4. Frontmatter: start from the canonical 4 fields → map `visibility: internal` → native `user-invocable: false` (**skills only**, see below), drop `visibility`/`platforms`/`source` (not Claude-native) → flatten `x-claude.*` into native keys (`x-claude.paths` → `paths:`, `x-claude.agent` → `agent:`, `x-claude.disallowed-tools` → `disallowedTools:`) and strip the whole `x-claude`/`x-opencode` block → resolve the `model` alias via `manifest/models.json` → for agents, inject `tools:`/`disallowedTools:` from `manifest/permissions.json` (never from frontmatter).
 5. Copy `abilities/`, `references/`, **and `rules/`** siblings verbatim so a SKILL.md's relative links (e.g. `python-developer`'s `rules/` sibling) resolve in the generated tree.
 6. Atomic emit (`*.tmp` → `atomicReplace`).
 
-The generated frontmatter may carry Claude-native keys the canonical files must never carry (`tools`, `disallowedTools`, `paths`, `agent`, resolved `model`); the validator allows those keys **only** on the generated side (DH3). Keys Claude does not support for plugin agents — `hooks`, `mcpServers`, `permissionMode` — are never emitted.
+### `visibility: internal` → `user-invocable: false` (and why not `disable-model-invocation`)
+
+Canonical `visibility: internal` marks a surface that other surfaces load but users should not
+reach for directly. On Claude that projects to native `user-invocable: false`, which hides the
+skill from the `/` menu while leaving both its description-in-context and model invocation intact
+(`references/claude-code-docs/docs/skills.md:250`, invocation table at `:368`). `visibility: user`
+projects nothing — Claude's default is already `user-invocable: true`.
+
+**`disable-model-invocation: true` is the wrong mapping and must never be emitted.** It is the
+tempting one: it *does* remove the skill from the `/` menu, and it *also* saves listing budget.
+But the docs are explicit that it "prevent[s] Claude from automatically loading this skill"
+(`skills.md:249`) and "removes the skill from Claude's context entirely" (`skills.md:584`); the
+invocation table lists **Claude can invoke: No**. A parent skill could then no longer dispatch to
+an internal child — `default-feature` → `implementation-planner` would break silently. The two
+fields trade off exactly: one saves budget and severs dispatch, the other preserves dispatch and
+saves nothing. Aegis needs dispatch, so it takes the field that buys **no listing-budget relief**.
+Budget reduction comes from collapsing the surface, not from hiding it. `claude-drift`'s generated
+skill-key allowlist admits `user-invocable` and deliberately omits `disable-model-invocation`.
+
+**Gap — agent-level `visibility` has no Claude counterpart.** Subagent frontmatter has no
+`user-invocable` field (`references/claude-code-docs/docs/sub-agents.md:275-290`), so the two
+canonical agents marked `visibility: internal` (`code-quality-reviewer`, `spec-reviewer`) project
+no visibility signal at all. Practically the field is near-vacuous for agents — subagents are
+dispatched through the Agent tool and are never listed in the `/` menu — but the declaration is
+honestly inert on this host rather than enforced, and is recorded here rather than silently
+dropped.
+
+The generated frontmatter may carry Claude-native keys the canonical files must never carry (`tools`, `disallowedTools`, `paths`, `agent`, `user-invocable`, resolved `model`); the validator allows those keys **only** on the generated side (DH3). Keys Claude does not support for plugin agents — `hooks`, `mcpServers`, `permissionMode` — are never emitted.
 
 **Regression guard (DH5):** if the `claude` CLI is available at release, `claude plugin validate --strict` runs against the projected plugin. If not, that is an honest gap in Validation Evidence and the projector/validator fall back to mechanical guarantees: valid `plugin.json` JSON, every `skills`/`agents` path resolves, zero unresolved `${TEMPLATE:*}` tokens, every generated frontmatter parses with only allowed keys, and generated `tools:` matches `manifest/permissions.json` for every agent.
 

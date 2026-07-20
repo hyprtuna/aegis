@@ -1,6 +1,7 @@
 ---
 name: style-selection
 description: 'Use when picking a named UI style family (Brutalist, Soft UI, Glassmorphism, Skeuomorphic, Neumorphism, Material, Flat, Memphis, Editorial, Minimalist) — guides toward fit; names which to avoid.'
+user-invocable: false
 ---
 
 > **Invoke via `Skill({skill: "aegis:style-selection"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

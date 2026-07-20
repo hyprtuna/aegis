@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: user-choice-discipline
 description: When a skill body has a workflow fork, present location options to the user with AskUserQuestion; do not detect-and-assume.
 visibility: user

@@ -19,11 +19,10 @@ skills/<scope>/<name>/
 
 ## Frontmatter
 
-Lean 5-field:
+Lean 4-field:
 
 ```yaml
 ---
-kind: skill
 name: stable-kebab-slug
 description: Trigger sentence — "Use when X, Y, or Z."
 visibility: user        # or 'internal' for skills only loaded by other skills/agents
@@ -70,7 +69,6 @@ Example: `code-review` is a skill. `code-review/abilities/comment-analyzer.md` i
 
 ```markdown
 ---
-kind: skill
 name: example
 description: Use when …
 visibility: user

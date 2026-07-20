@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: fastapi-developer
 description: Use when FastAPI development, testing, review, security, or code-practice guidance is needed.
 visibility: user

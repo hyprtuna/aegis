@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: silent-failure-discipline
 description: Use when hunting silent failures, inadequate error handling, and inappropriate fallback behaviour that hide bugs from operators.
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: rust-testing
 description: Use when editing Rust test code —
 visibility: user

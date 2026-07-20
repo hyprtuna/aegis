@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: go-security
 description: Use when editing Go code — parameterized SQL, crypto/rand, constant-time compare, no shell exec.
 visibility: user

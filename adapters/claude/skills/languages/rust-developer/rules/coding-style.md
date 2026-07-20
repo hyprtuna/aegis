@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: rust-coding-style
 description: Use when editing Rust code — rustfmt-clean, snake_case, doc comments on public items, no unwrap in non-test code.
 visibility: user

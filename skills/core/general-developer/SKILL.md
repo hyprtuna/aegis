@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: general-developer
 description: 'Use when implementing a general feature scoped to project conventions — default coding assistant when no specialist applies.'
 visibility: user

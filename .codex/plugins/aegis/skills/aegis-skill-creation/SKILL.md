@@ -13,17 +13,16 @@ You scaffold a new skill folder following Aegis conventions; read existing skill
 2. **Classify the baseline failure first** (see "Match the Form to the Failure" below) — the failure type drives the body's form.
 3. Pick the closest existing skill in the same family as a structural template; read its `SKILL.md`.
 4. Create the folder `skills/<family>/<name>/` and write `SKILL.md` inside it. Every skill is a folder; abilities go in `abilities/<x>.md` (no frontmatter, not registered).
-5. Write lean frontmatter (the 5 fields + optional extras, see Frontmatter below); write the body.
+5. Write lean frontmatter (the 4 fields + optional extras, see Frontmatter below); write the body.
 6. Run the static gate: `node scripts/validate-structure.mjs` then `node scripts/project.mjs` to project to all hosts.
 7. Run post-creation verification (see below).
 
 ## Frontmatter
 
-Aegis uses lean 5-field frontmatter. Only these fields and namespaced extras are valid:
+Aegis uses lean 4-field frontmatter. Only these fields and namespaced extras are valid:
 
 | Field | Notes |
 |---|---|
-| `kind: skill` | Always `skill`. |
 | `name:` | Kebab-case, unique, matches the folder name. |
 | `description:` | One line, trigger-style ("Use when …"), present tense, specific — this is the discovery surface hosts use for skill selection. |
 | `visibility: user \| internal` | `user` appears in host skill lists; `internal` is hidden. |
@@ -83,7 +82,7 @@ Micro-tests verify wording; they do not replace pressure scenarios for disciplin
 Before staging the file:
 
 - [ ] `name` is kebab-case and unique — Grep `skills/` for duplicate `name:` values.
-- [ ] Frontmatter contains only the lean 5 fields + namespaced extras (no Anvil-era fields: no `group`, `trigger`, `preferred_model`, `preferred_effort`, `tools`, `chains`, `isHidden`, `language`, `inputs`, `outputs`).
+- [ ] Frontmatter contains only the lean 4 fields + namespaced extras (no `kind:`, retired; no Anvil-era fields: no `group`, `trigger`, `preferred_model`, `preferred_effort`, `tools`, `chains`, `isHidden`, `language`, `inputs`, `outputs`).
 - [ ] Folder layout is correct: `skills/<family>/<name>/SKILL.md`.
 - [ ] For heavy reference material, push detail into `abilities/<x>.md`.
 - [ ] `node scripts/validate-structure.mjs` passes cleanly.

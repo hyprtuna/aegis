@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: laravel-developer
 description: Use when Laravel development, testing, review, security, or code-practice guidance is needed.
 visibility: user

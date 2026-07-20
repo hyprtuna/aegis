@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: doc-verification
 description: 'Use when verifying documentation accuracy against the live codebase — checks code examples, API signatures, file paths, command outputs.'
 visibility: user

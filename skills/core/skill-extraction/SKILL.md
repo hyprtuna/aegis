@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: skill-extraction
 description: Use when a session became a repeatable workflow — decide whether it is worth a skill, then hand off to skill-creation.
 visibility: user

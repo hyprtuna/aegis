@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: ui-design
 description: Use when designing UI/UX surfaces — visual hierarchy, spacing, colour, typography, accessibility.
 visibility: user

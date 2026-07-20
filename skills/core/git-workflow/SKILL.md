@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: git-workflow
 description: 'Use when working with git — branch, commit (Conventional Commits), stash, rebase, conflict resolution.'
 visibility: user

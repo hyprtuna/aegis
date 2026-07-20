@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: doc-verifier
 description: 'Verifies documentation accuracy against the live codebase — code examples, API signatures, file paths'
 visibility: user

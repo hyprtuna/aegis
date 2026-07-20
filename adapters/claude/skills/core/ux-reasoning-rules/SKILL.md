@@ -1,6 +1,7 @@
 ---
 name: ux-reasoning-rules
 description: 'Use when applying UX reasoning rules — 25 rules from perception laws, state design, accessibility, copy-as-UI; includes a screen-audit checklist.'
+user-invocable: false
 ---
 
 # ux-reasoning-rules

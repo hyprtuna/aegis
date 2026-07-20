@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: github-coordination
 description: Use when multiple agents must coordinate on shared work via GitHub issues — claim/decompose/unblock a unit of work as a durable issue-backed lock over the gh CLI.
 visibility: user

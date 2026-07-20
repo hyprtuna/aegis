@@ -4,7 +4,7 @@
 
 1. **No user CLI.** Aegis is plugin-first. Users do not install a binary. Maintainer-only Node scripts.
 2. **Canonical is the source of truth.** `skills/`, `agents/`, `commands/`, `hooks/`, `rules/`, `templates/`. Host-native files (`.claude-plugin/`, `.cursor/rules/`, `.rules`, etc.) are generated or hand-shimmed; never the canonical source.
-3. **Lean frontmatter.** 5 fields: `kind, name, description, visibility, platforms`. Plus `source: anvil:<path>` on migrated items. Adapter-specific metadata uses `x-<adapter>` namespace.
+3. **Lean frontmatter.** 4 fields: `name, description, visibility, platforms`. (`kind` is retired — no host recognised it, the projector already discarded it, and a surface's kind is stated by its directory. The `FRONTMATTER` validator now rejects it.) Plus `source: anvil:<path>` on migrated items. Adapter-specific metadata uses `x-<adapter>` namespace.
 4. **Abilities are not skills.** Parent `SKILL.md` is the only registered skill. `abilities/<x>.md` are on-demand fragments — no frontmatter or minimal, NOT registered.
 5. **Sparse guidance.** `AGENTS.md` + `CLAUDE.md` only at repo root and at each main surface folder root.
 6. **Honest gaps.** Unsupported host capabilities go in `adapters/<host>/projection.md` as explicit gaps, never silently dropped.

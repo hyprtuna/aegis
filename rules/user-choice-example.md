@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: user-choice-example
 description: Use when verifying the two-question user-choice pattern in E2E tests — demonstrates conformant Q1 (location) and Q2 (format) AskUserQuestion payload shapes. NOT a shipping skill.
 visibility: user

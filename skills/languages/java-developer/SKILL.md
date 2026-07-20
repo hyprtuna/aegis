@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: java-developer
 description: Use when Java development, testing, review, security, or code-practice guidance is needed.
 visibility: user

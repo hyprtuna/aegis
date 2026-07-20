@@ -146,13 +146,13 @@
     },
     {
       "id": "model-aliases",
-      "title": "Model aliases",
-      "description": "A skill/agent setting model: opus|sonnet|haiku|inherit resolves to per-host model IDs at projection time via manifest/models.json. Unknown alias is a hard fail.",
+      "title": "Model intent tiers",
+      "description": "An agent declares a provider-neutral capability-intent tier (deep|balanced|fast|inherit) in manifest/permissions.json; manifest/models.json resolves it to a Claude-native model ID at projection time. Retired Anthropic-family names (opus/sonnet/haiku) still resolve through aliasOf. Unknown alias is a hard fail. Claude is the ONLY host where a tier resolves to anything: Aegis emits no model: field on OpenCode or Codex, so those hosts own model selection entirely.",
       "category": "models",
       "hosts": {
         "claude": { "status": "supported", "evidence": "manifest/models.json", "since": "v0.0.5" },
-        "opencode": { "status": "supported", "evidence": "references/opencode-docs/docs/35-models.md:19", "since": "v0.0.5" },
-        "codex": { "status": "partial", "evidence": "manifest/models.json", "since": "v0.0.5" },
+        "opencode": { "status": "gap" },
+        "codex": { "status": "gap" },
         "cursor": { "status": "n/a" },
         "zed": { "status": "n/a" }
       }

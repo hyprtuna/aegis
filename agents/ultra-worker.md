@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: ultra-worker
 description: 'Tier 3 autonomous execution — plan, execute, verify, self-correct in a loop'
 visibility: user

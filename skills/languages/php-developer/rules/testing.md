@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: php-testing
 description: Use when editing PHP test code — PHPUnit or Pest, AAA structure, data providers for parametric tests, real test database, no static method mocking.
 visibility: user

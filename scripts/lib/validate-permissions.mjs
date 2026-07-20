@@ -31,10 +31,16 @@ const KNOWN_BUCKETS = new Set([
 // Every other (mutating/doer) bucket must NOT carry that disallow.
 const RO_BUCKETS = new Set(["RO", "RO-web", "RO-bash"]);
 
-// Known model tiers (canonical aliases) every agent must declare.
-// `fable` (Claude Fable 5) was added in v0.1.0. `best` is an aliasOf synonym, not a
-// declarable tier (agents declare canonical tiers; synonyms resolve through models.json).
-const KNOWN_MODEL_TIERS = new Set(["opus", "sonnet", "haiku", "fable"]);
+// Declarable capability-intent tiers. An agent states what KIND of work it
+// needs, not a vendor model family; models.json resolves the tier to a host-native ID.
+//   deep     — heavy reasoning: planning, strict review, architecture
+//   balanced — default implementation work
+//   fast     — cheap, low-latency mechanical work
+// `inherit` defers entirely to the host and is expressed by OMITTING the key, so it is
+// not declarable here either. The retired Anthropic-family names (opus/sonnet/haiku) and
+// `best`/`fable` remain RESOLVABLE through models.json for back-compat but are not
+// declarable tiers — same status `best` has always had.
+const KNOWN_MODEL_TIERS = new Set(["deep", "balanced", "fast"]);
 
 // Tools every RO bucket must deny.
 const REQUIRED_RO_DISALLOW = ["Edit", "Write"];

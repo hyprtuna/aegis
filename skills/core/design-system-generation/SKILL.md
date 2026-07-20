@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: design-system-generation
 description: 'Use when generating an opinionated design system with industry-specific presets — colours, typography, spacing, components.'
 visibility: user

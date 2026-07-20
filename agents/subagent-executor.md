@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: subagent-executor
 description: Executes implementation plans via subagent dispatch with two-stage review — spec compliance then code quality
 visibility: user

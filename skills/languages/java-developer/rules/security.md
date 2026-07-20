@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: java-security
 description: Use when editing Java code — PreparedStatement, BCrypt/Argon2 for passwords, MessageDigest.isEqual for tokens, validate at boundary, no Runtime.exec.
 visibility: user

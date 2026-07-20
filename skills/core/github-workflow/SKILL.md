@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: github-workflow
 description: 'Use when working with GitHub PRs, issues, reviews, or Actions via the gh CLI.'
 visibility: user

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: nextjs-developer
 description: Use when Next.js development, testing, review, security, or code-practice guidance is needed.
 visibility: user

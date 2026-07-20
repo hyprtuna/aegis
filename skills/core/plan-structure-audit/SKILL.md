@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: plan-structure-audit
 description: Use when verifying an implementation plan against its stated goal — goal-backward analysis catches gaps, incorrect assumptions, missing steps.
 visibility: internal

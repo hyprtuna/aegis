@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: changelog-generation
 description: 'Use when assembling a release changelog from git history between two refs.'
 visibility: user

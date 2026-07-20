@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: read-background-results
 description: Use when merging parallel agent outputs from a background-results file — deduplicates and summarises.
 visibility: user

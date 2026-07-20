@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: typescript-patterns
 description: Use when implementing TypeScript patterns — pure functions, immutability, async, discriminated unions.
 visibility: user

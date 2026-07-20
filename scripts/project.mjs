@@ -1002,12 +1002,31 @@ function claudeBody(body, surfaceLabel, hint, name) {
 }
 
 // Build Claude-native skill frontmatter from canonical fm. Emits only
-// name/description/model(resolved)/flattened x-claude.* . Drops kind/visibility/
-// platforms/source and the whole x-claude/x-opencode blocks (DH3).
-function claudeSkillFrontmatter(fm) {
+// name/description/user-invocable/model(resolved)/flattened x-claude.* . Drops
+// visibility/platforms/source and the whole x-claude/x-opencode blocks (DH3).
+//
+// `visibility: internal` → native `user-invocable: false` (SKILLS ONLY).
+// Claude Code's `user-invocable` hides a skill from the `/` menu while leaving BOTH
+// model invocation and the description-in-context intact
+// (references/claude-code-docs/docs/skills.md:250, :368).
+//
+// It is deliberately NOT `disable-model-invocation: true`. That field "prevent[s]
+// Claude from automatically loading this skill" and removes it from Claude's context
+// entirely (skills.md:249, :584) — the invocation table at skills.md:368 lists
+// "Claude can invoke: No". A parent skill could then no longer dispatch to an internal
+// child (`default-feature` → `implementation-planner` would break silently), so it must
+// never be emitted here. The two fields trade off exactly: one saves listing budget and
+// severs dispatch; the other preserves dispatch and saves no budget. Dispatch wins.
+//
+// `visibility: user` projects nothing (Claude's default is `user-invocable: true`).
+// AGENTS get no equivalent: subagent frontmatter has no `user-invocable` field
+// (sub-agents.md:275-290) and subagents are dispatched via the Agent tool, never listed
+// in the `/` menu — so `isSkill` gates the emission. See adapters/claude/projection.md.
+function claudeSkillFrontmatter(fm, { isSkill = false } = {}) {
   const out = {};
   if (fm.name) out.name = fm.name;
   if (fm.description) out.description = fm.description;
+  if (isSkill && fm.visibility === "internal") out["user-invocable"] = false;
   const model = resolveClaudeModel(fm.model);
   if (model) out.model = model;
   flattenXClaude(fm, out);
@@ -1129,7 +1148,7 @@ function projectClaude(hookIntents) {
       if (!fm.name) throw new Error("canonical skill missing `name` frontmatter: " + skillFile);
 
       const outBody = claudeBody(body, `skill ${scope}/${entry}`, fm["x-claude"]?.primitiveHint, fm.name);
-      const outFm = claudeSkillFrontmatter(fm);
+      const outFm = claudeSkillFrontmatter(fm, { isSkill: true });
       const out = emitFrontmatter(outFm) + "\n\n" + outBody;
 
       const outDir = join(skillsTmp, scope, fm.name);

@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: skill-selection
 description: Use when routing a user prompt to the right skill(s) based on intent, project context, and trigger keywords.
 visibility: user

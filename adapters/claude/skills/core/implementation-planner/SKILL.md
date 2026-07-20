@@ -1,6 +1,7 @@
 ---
 name: implementation-planner
 description: 'Use when an approved spec exists and an implementation plan with phases, MustHaves frontmatter, and verification gates is needed'
+user-invocable: false
 ---
 
 > **Invoke via `Skill({skill: "aegis:implementation-planner"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.

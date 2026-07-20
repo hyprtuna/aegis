@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: react-developer
 description: Use when React development, testing, review, security, or code-practice guidance is needed.
 visibility: user

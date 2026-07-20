@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: django-developer
 description: Use when Django development, testing, review, security, or code-practice guidance is needed.
 visibility: user

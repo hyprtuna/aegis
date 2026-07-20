@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: spec-reviewer
 description: 'Read-only Stage 1 spec-compliance reviewer — checks completeness, no-extras, and interface correctness against plan criteria'
 visibility: internal

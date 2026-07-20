@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: silent-failure-hunter
 description: 'Identifies silent failures, inadequate error handling, and inappropriate fallback behavior'
 visibility: user

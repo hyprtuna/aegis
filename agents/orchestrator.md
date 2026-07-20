@@ -1,5 +1,4 @@
 ---
-kind: agent
 name: orchestrator
 description: 'Use when a task should be decomposed and fanned out to parallel subagents.'
 visibility: user

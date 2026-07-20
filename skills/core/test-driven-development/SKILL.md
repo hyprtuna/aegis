@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: test-driven-development
 description: Use when implementing under red-green-refactor discipline.
 visibility: user

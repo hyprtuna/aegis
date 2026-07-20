@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: php-coding-style
 description: Use when editing PHP code — PSR-12 formatting, declare(strict_types=1), typed properties and returns, namespaces over global scope.
 visibility: user

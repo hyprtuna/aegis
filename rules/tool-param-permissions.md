@@ -1,5 +1,4 @@
 ---
-kind: rule
 name: tool-param-permissions
 description: When to gate per-agent model/isolation/background via static Tool(param:value) deny/ask rules, and the canonicalized-field boundary.
 visibility: user

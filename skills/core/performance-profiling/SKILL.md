@@ -1,5 +1,4 @@
 ---
-kind: skill
 name: performance-profiling
 description: Use when identifying performance bottlenecks.
 visibility: user

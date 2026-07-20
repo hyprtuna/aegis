@@ -30,11 +30,22 @@ export function run(ctx) {
       continue;
     }
     const fm = body.slice(4, fmEnd);
-    const required = ["kind:", "name:", "description:", "visibility:", "platforms:"];
+    const required = ["name:", "description:", "visibility:", "platforms:"];
     for (const k of required) {
       if (!fm.includes(k)) {
         errors.push(`frontmatter missing '${k}': ${relative(REPO, s)}`);
       }
+    }
+    // `kind:` is RETIRED. It had no upstream counterpart on any host (Claude Code's
+    // documented skill frontmatter has no such field; OpenCode ignores unknown keys),
+    // it was already discarded at projection, and it carried no information a canonical
+    // surface's own directory does not already state — a file under skills/ is a skill,
+    // under agents/ an agent. Reject it so it cannot drift back in.
+    if (/^kind:/m.test(fm)) {
+      errors.push(
+        `frontmatter carries retired key 'kind:': ${relative(REPO, s)} — ` +
+          `the surface kind is derived from the directory; remove the line.`,
+      );
     }
   }
 
