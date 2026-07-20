@@ -354,7 +354,19 @@ export function validatePermissions(REPO) {
     if (KNOWN_MODEL_TIERS.has(declaredModel)) {
       const projectedModel = parseModelLine(frontmatter);
       const expectedModel = resolveClaudeModelId(models, declaredModel);
-      if (expectedModel) {
+      // `inherit` resolves to null by design — the projector emits NO `model:` line, letting the
+      // subagent run on the main conversation's model. That makes it the one declarable tier the
+      // `if (expectedModel)` drift check below cannot cover, since null is falsy: a stale `model:`
+      // line on an inherit-declared agent would pass silently, where the same staleness on any
+      // other tier hard-fails. Check it explicitly rather than letting it fall through.
+      if (declaredModel === "inherit") {
+        if (projectedModel !== null) {
+          errors.push(
+            `permissions: model drift for '${name}' — manifest declares model 'inherit' (no 'model:' should be emitted) ` +
+              `but adapters/claude/agents/${name}.md has model '${projectedModel}'`,
+          );
+        }
+      } else if (expectedModel) {
         if (projectedModel === null) {
           errors.push(`permissions: model drift for '${name}' — adapters/claude/agents/${name}.md has no 'model:' but manifest declares model '${declaredModel}' (expected '${expectedModel}')`);
         } else if (projectedModel !== expectedModel) {

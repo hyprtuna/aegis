@@ -166,30 +166,29 @@ export function run(ctx) {
     {
       const xc = intent["x-claude"];
       if (xc && typeof xc === "object" && xc.helpers !== undefined) {
-
-          if (!Array.isArray(xc.helpers)) {
-            errors.push(`${where}: x-claude.helpers must be an array of helper filenames`);
-          } else {
-            for (const helper of xc.helpers) {
-              if (typeof helper !== "string" || !helper) {
-                errors.push(`${where}: x-claude.helpers entries must be non-empty strings`);
-                continue;
-              }
-              if (helper.includes("/")) {
-                errors.push(
-                  `${where}: x-claude.helpers entry "${helper}" must be a bare filename — ` +
-                    ".claude-plugin/hooks/ is flat, no subdirectories",
-                );
-                continue;
-              }
-              if (!existsSync(join(REPO, ".claude-plugin", "hooks", helper))) {
-                errors.push(
-                  `${where}: x-claude.helpers declares "${helper}" but ` +
-                    `.claude-plugin/hooks/${helper} does not exist`,
-                );
-              }
+        if (!Array.isArray(xc.helpers)) {
+          errors.push(`${where}: x-claude.helpers must be an array of helper filenames`);
+        } else {
+          for (const helper of xc.helpers) {
+            if (typeof helper !== "string" || !helper) {
+              errors.push(`${where}: x-claude.helpers entries must be non-empty strings`);
+              continue;
+            }
+            if (helper.includes("/")) {
+              errors.push(
+                `${where}: x-claude.helpers entry "${helper}" must be a bare filename — ` +
+                  ".claude-plugin/hooks/ is flat, no subdirectories",
+              );
+              continue;
+            }
+            if (!existsSync(join(REPO, ".claude-plugin", "hooks", helper))) {
+              errors.push(
+                `${where}: x-claude.helpers declares "${helper}" but ` +
+                  `.claude-plugin/hooks/${helper} does not exist`,
+              );
             }
           }
+        }
       }
     }
 

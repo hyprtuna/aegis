@@ -22,9 +22,9 @@ An agent declares **what kind of work it needs**, not a vendor model family. `ma
 | `deep` | heavy reasoning — planning, strict review, architecture | `claude-opus-4-8` |
 | `balanced` | default implementation work | `claude-sonnet-4-6` |
 | `fast` | cheap, low-latency mechanical work | `claude-haiku-4-5` |
-| `inherit` | defer entirely to the host/user | (omits `model:`) |
+| `inherit` | defer entirely to the host/user: run on the main conversation's model | (emits `model: inherit`) |
 
-The retired Anthropic-family names (`opus`/`sonnet`/`haiku`, plus `best`/`default` and the full model IDs) still **resolve** through `aliasOf` for back-compat, but they are not **declarable** tiers — `scripts/lib/validate-permissions.mjs` accepts only `deep`/`balanced`/`fast` in `permissions.json`. Same status `best` has always had. `unknownAliasPolicy: hard-fail` is preserved, so a typo stays loud.
+The retired Anthropic-family names (`opus`/`sonnet`/`haiku`, plus `best`/`default` and the full model IDs) still **resolve** through `aliasOf` for back-compat, but they are not **declarable** tiers — `scripts/lib/validate-permissions.mjs` accepts only the four declarable tiers — `deep`/`balanced`/`fast`/`inherit` — in `permissions.json`. Same status `best` has always had. `unknownAliasPolicy: hard-fail` is preserved, so a typo stays loud.
 
 **Per-host model IDs have been removed.** `models.json` previously declared `opencode` and `codex` IDs (`anthropic/claude-*`) alongside `claude`. Nothing read them: `resolveClaudeModel()` (`scripts/project.mjs`) and `resolveClaudeModelId()` (`scripts/lib/validate-permissions.mjs`) are the only consumers that dereference the alias map, and both read `.claude` exclusively; `scripts/validate/capabilities.mjs` only parses the file for validity. Meanwhile the Codex skill projector emits `name` + `description` only and the OpenCode plugin emits no `model:` at all — so no `anthropic/*` string ever reached a generated artifact. The declaration nonetheless *read* as behaviour, implying Aegis pins OpenCode and Codex users to Anthropic models. It did not, and now it does not say so either. A regression test in `scripts/test-projection.mjs` pins the claim so it is not re-derived. OpenCode and Codex model selection is a documented gap in `manifest/capabilities.json`, not a silent drop.
 
