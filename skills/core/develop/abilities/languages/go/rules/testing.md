@@ -1,13 +1,11 @@
 ---
 name: go-testing
 description: Use when editing Go test code — table-driven tests, t.Run, -race flag, httptest.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Go Testing
 
-**Announce:** I'm using the go-testing-rules skill to inject Go testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/go/rules/testing.md` overlay to inject Go testing guidance for this edit.
 
 ## Status
 

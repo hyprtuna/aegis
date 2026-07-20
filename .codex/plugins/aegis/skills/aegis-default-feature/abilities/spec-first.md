@@ -1,5 +1,5 @@
 ## Status
-sdd-workflow starting — spec-driven development cycle; drafting spec before any planning or implementation begins
+spec-first starting — spec-driven development cycle; drafting spec before any planning or implementation begins
 
 # SDD Worker
 
@@ -65,9 +65,10 @@ Each phase's required outputs and gate mechanics live in `spec-first/cycle-detai
 ```
 
 The chain is gated: `brainstorm-spec` (handoff: the approved spec) → `implementation-planner`
-(handoff: the verified plan) → IMPLEMENT → `two-stage-review` (forward on a both-pass, **back to
-IMPLEMENT** on any fail) → COMMIT. The entry transition is declared via `x-aegis.pipeline.next`
-(→ `brainstorm-spec`); see `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
+(handoff: the verified plan) → IMPLEMENT → `code-review` run as two gated passes via its
+`two-stage` fragment (forward on a both-pass, **back to IMPLEMENT** on any fail) → COMMIT. Invoke
+each by name as you reach it; see `docs/workflow-guide.md` → *The phase-ordered gated-workflow
+convention*.
 
 ---
 

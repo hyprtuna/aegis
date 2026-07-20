@@ -1,13 +1,11 @@
 ---
 name: typescript-patterns
 description: Use when implementing TypeScript patterns — pure functions, immutability, async, discriminated unions.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # TypeScript Idiomatic Patterns
 
-**Announce:** I'm using the ts-patterns-rules skill to inject TypeScript pattern guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/typescript/rules/patterns.md` overlay to inject TypeScript pattern guidance for this edit.
 
 ## Status
 

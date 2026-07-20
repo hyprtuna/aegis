@@ -10,7 +10,7 @@ Aegis has **one canonical source tree** and **many host-native projections**. Ca
 
 | Surface | Path | Purpose |
 |---|---|---|
-| Skills | `skills/<scope>/<name>/SKILL.md` | Reusable capabilities. Scope: `core`, `languages`, `workflows`. |
+| Skills | `skills/core/<name>/SKILL.md` | Reusable capabilities. `core` is the sole bucket; buckets are discovered from the filesystem, not hardcoded. |
 | Abilities | `skills/<name>/abilities/<ability>.md` | On-demand fragments owned by a parent skill. NOT registered. |
 | Agents | `agents/<name>.md` | First-class doers — subagents that complete bounded tasks. |
 | Commands | `commands/<name>.md` | Slash-command workflow entry-points (capped ~15). |

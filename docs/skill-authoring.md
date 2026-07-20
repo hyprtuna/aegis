@@ -130,7 +130,7 @@ Do **not** give it frontmatter — Iron Law 4: fragments are not registered skil
 Workflow skills live at `skills/workflows/<workflow>/`:
 
 ```
-skills/workflows/spec-driven-development/
+skills/core/default-feature/
 ├── SKILL.md
 └── abilities/
     ├── brainstorm-spec.md

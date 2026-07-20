@@ -1,13 +1,11 @@
 ---
 name: go-security
 description: Use when editing Go code — parameterized SQL, crypto/rand, constant-time compare, no shell exec.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Go Security
 
-**Announce:** I'm using the go-security-rules skill to inject Go security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/go/rules/security.md` overlay to inject Go security guidance for this edit.
 
 ## Status
 

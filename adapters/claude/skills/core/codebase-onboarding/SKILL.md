@@ -1,8 +1,6 @@
 ---
 name: codebase-onboarding
 description: 'Use when onboarding to a new codebase — produces an architecture map, key entry points, conventions, and a starter CLAUDE.md.'
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Codebase Onboarding
@@ -26,9 +24,8 @@ not start until it exists:
 3. **Convention Detection** → naming/error-handling/async/git patterns.
 4. **Generate Artifacts** → the onboarding guide + starter `CLAUDE.md` (built from Phases 2–3).
 
-The phases are internal to this workflow (no hand-off to a separate named skill), so it carries no
-`x-aegis.pipeline` block. See `docs/workflow-guide.md` → *The phase-ordered gated-workflow
-convention*.
+The phases are internal to this workflow — it hands off to no separate named skill. See
+`docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
 
 ## Phase 1 — Reconnaissance
 

@@ -1,5 +1,5 @@
 ## Status
-two-stage-review starting — dispatching spec-compliance reviewer then code-quality reviewer
+two-stage starting — dispatching spec-compliance reviewer then code-quality reviewer
 
 # Two-Stage Review
 

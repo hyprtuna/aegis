@@ -2,7 +2,7 @@
   "kind": "hook",
   "intent": "instructions-loaded",
   "name": "instructions-loaded",
-  "description": "Observe each CLAUDE.md / .claude/rules file as it loads into context and report a running count plus any rules that loaded without a path-glob match, for the aegis-doctor health check.",
+  "description": "Observe each CLAUDE.md / .claude/rules file as it loads into context and report a running count plus any rules that loaded without a path-glob match, for the using-aegis health check.",
   "visibility": "internal",
   "platforms": ["claude"],
   "x-claude": {

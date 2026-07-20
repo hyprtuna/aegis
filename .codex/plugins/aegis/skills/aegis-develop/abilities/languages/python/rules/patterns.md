@@ -1,13 +1,11 @@
 ---
 name: python-patterns
 description: Use when editing Python code — context managers, f-strings, generators, enumerate/zip, immutable types.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Python Patterns
 
-**Announce:** I'm using the python-patterns-rules skill to inject Python patterns guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/python/rules/patterns.md` overlay to inject Python patterns guidance for this edit.
 
 ## Status
 

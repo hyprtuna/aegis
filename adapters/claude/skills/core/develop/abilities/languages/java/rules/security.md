@@ -1,13 +1,11 @@
 ---
 name: java-security
 description: Use when editing Java code — PreparedStatement, BCrypt/Argon2 for passwords, MessageDigest.isEqual for tokens, validate at boundary, no Runtime.exec.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Java Security
 
-**Announce:** I'm using the java-security-rules skill to inject Java security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/java/rules/security.md` overlay to inject Java security guidance for this edit.
 
 ## Status
 

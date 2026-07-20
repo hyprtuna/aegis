@@ -1,13 +1,11 @@
 ---
 name: rust-coding-style
 description: Use when editing Rust code — rustfmt-clean, snake_case, doc comments on public items, no unwrap in non-test code.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Rust Coding Style
 
-**Announce:** I'm using the rust-coding-style-rules skill to inject Rust coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/rust/rules/coding-style.md` overlay to inject Rust coding style guidance for this edit.
 
 ## Status
 

@@ -1,5 +1,5 @@
 ## Status
-deep-diving starting — tracing concept from entry to exit with call sites and data transformations
+deep-dive starting — tracing concept from entry to exit with call sites and data transformations
 
 # Deep Diver
 

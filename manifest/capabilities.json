@@ -199,7 +199,7 @@
     {
       "id": "instructions-loaded-hook",
       "title": "InstructionsLoaded hook",
- "description": "Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.",
+ "description": "Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the using-aegis skill's health-check fragment. No counterpart on other hosts.",
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/instructions-loaded.json", "since": "v0.0.7" },

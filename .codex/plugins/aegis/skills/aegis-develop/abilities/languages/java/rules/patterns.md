@@ -1,13 +1,11 @@
 ---
 name: java-patterns
 description: Use when editing Java code — Optional over null, streams over loops where natural, immutability by default, dependency injection via constructor.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Java Patterns
 
-**Announce:** I'm using the java-patterns-rules skill to inject Java pattern guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/java/rules/patterns.md` overlay to inject Java pattern guidance for this edit.
 
 ## Status
 

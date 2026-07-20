@@ -14,9 +14,8 @@ Skipping phases leads to guess-fixing, which leads to worse bugs.
 **Phase order (gated).** Each phase gates on the prior's hand-off artifact: (1) Root Cause
 Investigation → a root-cause statement with evidence; (2) Pattern Analysis → a working-vs-broken
 comparison; (3) Hypothesis and Testing → one confirmed hypothesis; (4) Implementation → a failing
-test turned green, all tests passing. Phases are internal (no hand-off to a separate named skill),
-so there is no `x-aegis.pipeline` block; see `docs/workflow-guide.md` → *The phase-ordered
-gated-workflow convention*. The Iron-Law gate below hard-gates Phase 1 → Phase 4.
+test turned green, all tests passing. Phases are internal — this skill hands off to no separate
+named skill; see `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*. The Iron-Law gate below hard-gates Phase 1 → Phase 4.
 
 ---
 
@@ -113,6 +112,10 @@ Validate the hypothesis against the codebase.
 ## Phase 4: Implementation
 
 - **4.1 Write a failing test.** Before the fix, write a test that reproduces the bug — it FAILS on current code, PASSES after the fix. This is your proof the fix addresses the problem, and it stays in the suite permanently to prevent regression.
+
+  **REQUIRED SUB-SKILL:** use `aegis:test-driven-development` to write that test. Phase 4 is a
+  red-green cycle with the bug as the red, and that skill owns the discipline — a test written
+  after the fix, or one that was never seen to fail, proves nothing about the root cause.
 - **4.2 Fix the ROOT CAUSE, not the symptom.** Bad: a null check at the crash site. Good: fix the upstream code that produces the null. Make the smallest change that fixes the cause; don't "improve" nearby code while fixing — separate concerns.
 - **4.3 Verify completely.** New test passes; ALL existing tests still pass (no regressions); manually confirm the original reproduction is fixed; check any related symptoms are resolved too.
 - **4.4 Document.** Commit message explains the root cause and the fix, not just "fix bug." If the bug revealed a systemic issue, note it.

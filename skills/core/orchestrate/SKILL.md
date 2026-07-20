@@ -61,6 +61,16 @@ context budget before you know which fragments the task needs.
 
 ## Related skills
 
-Orchestration composes other phases rather than replacing them. Invoke the skill by name:
-`implementation-planner` to produce the plan a fan-out executes, `code-review` for the review
-stage each task passes through, and `verification` before reporting the whole batch done.
+Orchestration composes other phases rather than replacing them. It executes a plan produced upstream
+by `aegis:implementation-planner` — if you have no plan yet, go back there rather than improvising
+one here.
+
+## REQUIRED SUB-SKILL: code-review
+
+Every task a fan-out completes passes through `aegis:code-review` before it counts as done. A
+subagent reporting success is a claim, not evidence; the review stage is what tests that claim.
+
+## REQUIRED SUB-SKILL: verification
+
+Before reporting the whole batch done, run `aegis:verification` over the combined result. Per-task
+reviews do not cover the integration — the batch needs its own fresh evidence.

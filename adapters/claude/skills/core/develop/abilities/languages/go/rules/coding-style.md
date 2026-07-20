@@ -1,13 +1,11 @@
 ---
 name: go-coding-style
 description: Use when editing Go code — gofmt on save, errors as values, small interfaces, document exports.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Go Coding Style
 
-**Announce:** I'm using the go-coding-style-rules skill to inject Go coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/go/rules/coding-style.md` overlay to inject Go coding style guidance for this edit.
 
 ## Status
 

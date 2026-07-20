@@ -1,13 +1,11 @@
 ---
 name: kotlin-patterns
 description: Use when editing Kotlin code — null safety with ?., scope functions appropriately, sealed classes for exhaustive when, coroutines for async.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Kotlin Patterns
 
-**Announce:** I'm using the kotlin-patterns-rules skill to inject Kotlin pattern guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/kotlin/rules/patterns.md` overlay to inject Kotlin pattern guidance for this edit.
 
 ## Status
 

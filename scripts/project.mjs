@@ -1214,7 +1214,7 @@ function projectClaude(hookIntents) {
     const name = fm.name || basename(file, ".md");
 
     // A4: validate x-claude.skills — every listed skill name must resolve to a real
-    // canonical skill (skills/{core,workflows}/<name>/SKILL.md). Fail-fast
+    // canonical skill (skills/<bucket>/<name>/SKILL.md). Fail-fast
     // on an unknown name so typos are caught at projection, not silently dropped.
     const xcSkills = fm["x-claude"]?.skills;
     if (Array.isArray(xcSkills)) {
@@ -1222,7 +1222,7 @@ function projectClaude(hookIntents) {
         if (!canonicalSkillNames.has(skillName)) {
           throw new Error(
             `agents/${file}: x-claude.skills references '${skillName}', which is not a ` +
-              `canonical skill (no skills/{core,workflows}/${skillName}/SKILL.md). ` +
+              `canonical skill (no skills/<bucket>/${skillName}/SKILL.md). ` +
               `Fix the skill name or create the missing skill.`,
           );
         }
@@ -1347,7 +1347,7 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
   const existing = JSON.parse(readFileSync(pluginPath, "utf8"));
 
   // skills: the distinct BUCKET ROOTS (./adapters/claude/skills/<scope>/), in
-  // emission order (core, workflows). Claude scans each `skills` array
+  // emission order (bucket names, discovered). Claude scans each `skills` array
   // entry ONE LEVEL DEEP for <name>/SKILL.md and ADDS them to the default `skills/`
   // scan (plugins-reference #path-behavior-rules). Listing the individual per-skill
   // dirs made Claude look for `<skill>/<name>/SKILL.md` (one level too deep) so

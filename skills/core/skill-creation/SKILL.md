@@ -35,9 +35,9 @@ Aegis uses lean 4-field frontmatter. Only these fields and namespaced extras are
 
 When needed, append:
 - `source: anvil:<path>` — on migrated items only.
-- `x-claude:`, `x-opencode:`, `x-aegis:` — namespaced extras (`argument-hint`, `primitiveHint`, `pipeline`, `intensity`).
+- `x-claude:`, `x-opencode:`, `x-aegis:` — namespaced extras (`argument-hint`, `primitiveHint`, `intensity`).
 
-See `skills/AGENTS.md` for the full composition block (`x-aegis.pipeline`) and intensity level (`x-aegis.intensity`) conventions. Do not re-invent them here.
+See `skills/AGENTS.md` for the intensity-level (`x-aegis.intensity`) convention and for how to chain a skill to its successor in prose. Do not re-invent them here.
 
 ## Body Structure
 

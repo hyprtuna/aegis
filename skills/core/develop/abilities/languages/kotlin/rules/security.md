@@ -1,13 +1,11 @@
 ---
 name: kotlin-security
 description: Use when editing Kotlin code — parameterized SQL, BCrypt for passwords, SecureRandom, validate at boundary, no shell exec via Runtime.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Kotlin Security
 
-**Announce:** I'm using the kotlin-security-rules skill to inject Kotlin security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/kotlin/rules/security.md` overlay to inject Kotlin security guidance for this edit.
 
 ## Status
 

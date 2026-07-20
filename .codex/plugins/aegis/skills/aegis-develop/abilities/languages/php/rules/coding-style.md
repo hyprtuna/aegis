@@ -1,13 +1,11 @@
 ---
 name: php-coding-style
 description: Use when editing PHP code — PSR-12 formatting, declare(strict_types=1), typed properties and returns, namespaces over global scope.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # PHP Coding Style
 
-**Announce:** I'm using the php-coding-style-rules skill to inject PHP coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/php/rules/coding-style.md` overlay to inject PHP coding style guidance for this edit.
 
 ## Status
 

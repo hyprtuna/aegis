@@ -1,13 +1,11 @@
 ---
 name: python-security
 description: Use when editing Python code — no eval/exec, parameterized SQL, input validation, safe subprocess.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Python Security
 
-**Announce:** I'm using the python-security-rules skill to inject Python security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/python/rules/security.md` overlay to inject Python security guidance for this edit.
 
 ## Status
 

@@ -1,5 +1,5 @@
 ## Status
-feature-developer starting — end-to-end feature implementation from requirements to working, reviewed code
+end-to-end starting — end-to-end feature implementation from requirements to working, reviewed code
 
 # Feature Developer
 
@@ -10,7 +10,7 @@ gate** (the hand-off artifact the next phase consumes): Discovery → Codebase E
 Clarifying Questions → Architecture Design → Implementation → Quality Review → Summary (the per-phase
 exit gates are stated in each section below). Phases are internal — this workflow composes
 `test-driven-development`, `code-review`, and `verification` inline rather than handing off to a
-separate named successor skill, so it carries no `x-aegis.pipeline` block. See
+separate named successor skill. See
 `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
 
 ## Phase 1: Discovery

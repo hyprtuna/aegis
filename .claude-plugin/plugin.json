@@ -15,8 +15,7 @@
     "anvil"
   ],
   "skills": [
-    "./adapters/claude/skills/core/",
-    "./adapters/claude/skills/workflows/"
+    "./adapters/claude/skills/core/"
   ],
   "hooks": {
     "SessionStart": [

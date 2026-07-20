@@ -40,7 +40,7 @@ scripts/eval/
 {
   "id": "react-todo-brainstorm",
   "prompt": "Let's build a react todo list",
-  "expectRoutesTo": ["skills/core/brainstorm-spec", "skills/workflows/default-feature"],
+  "expectRoutesTo": ["skills/core/brainstorm-spec", "skills/core/default-feature"],
   "criterion": "a workflow/process skill fires before any implementation code is written",
   "guardsFor": "bootstrap-forcefulness (the forceful SessionStart gate)"
 }

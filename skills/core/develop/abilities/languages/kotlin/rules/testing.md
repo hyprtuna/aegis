@@ -1,13 +1,11 @@
 ---
 name: kotlin-testing
 description: Use when editing Kotlin test code — Kotest or JUnit 5 + Kotlin assertions, MockK over Mockito, runTest for coroutines, Testcontainers for services.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Kotlin Testing
 
-**Announce:** I'm using the kotlin-testing-rules skill to inject Kotlin testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/kotlin/rules/testing.md` overlay to inject Kotlin testing guidance for this edit.
 
 ## Status
 

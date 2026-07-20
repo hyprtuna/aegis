@@ -1,13 +1,11 @@
 ---
 name: php-patterns
 description: Use when editing PHP code — value objects over arrays, enums for closed sets, dependency injection via constructor, immutability where possible.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # PHP Patterns
 
-**Announce:** I'm using the php-patterns-rules skill to inject PHP pattern guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/php/rules/patterns.md` overlay to inject PHP pattern guidance for this edit.
 
 ## Status
 

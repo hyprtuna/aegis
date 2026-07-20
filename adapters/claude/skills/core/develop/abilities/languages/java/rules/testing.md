@@ -1,13 +1,11 @@
 ---
 name: java-testing
 description: Use when editing Java test code — JUnit 5, AssertJ for fluent assertions, Mockito for collaborators, Testcontainers for real services.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Java Testing
 
-**Announce:** I'm using the java-testing-rules skill to inject Java testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/java/rules/testing.md` overlay to inject Java testing guidance for this edit.
 
 ## Status
 

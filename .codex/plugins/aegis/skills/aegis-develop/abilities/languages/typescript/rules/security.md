@@ -1,13 +1,11 @@
 ---
 name: typescript-security
 description: Use when implementing TypeScript security controls — validation, secrets, no eval, parameterized queries.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # TypeScript Security Practices
 
-**Announce:** I'm using the ts-security-rules skill to inject TypeScript security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/typescript/rules/security.md` overlay to inject TypeScript security guidance for this edit.
 
 ## Status
 

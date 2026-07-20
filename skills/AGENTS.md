@@ -8,16 +8,19 @@
 
 ```
 skills/
-├── core/<name>/
-│   ├── SKILL.md            # required, lean (<100 lines) — the ONLY registered surface
-│   ├── REFERENCE.md        # optional — dense facts / data tables
-│   ├── EXAMPLES.md         # optional — worked transcripts
-│   └── abilities/<x>.md    # optional — on-demand fragments loaded by a pointer
-│       └── <group>/…       # optional — fragments may nest; the projector walks the tree
-└── workflows/<workflow>/
-    ├── SKILL.md
-    └── abilities/<step>.md
+└── core/<name>/            # the sole bucket — every registered skill lives here
+    ├── SKILL.md            # required, lean (<100 lines) — the ONLY registered surface
+    ├── REFERENCE.md        # optional — dense facts / data tables
+    ├── EXAMPLES.md         # optional — worked transcripts
+    └── abilities/<x>.md    # optional — on-demand fragments loaded by a pointer
+        └── <group>/…       # optional — fragments may nest; the projector walks the tree
 ```
+
+**One bucket.** `core/` is the only bucket. The former `workflows/` and `languages/` buckets were
+dissolved into it; workflow-shaped skills sit alongside every other skill, and language practice
+became fragments of `develop`. Buckets are discovered from the filesystem
+(`scripts/lib/skill-scopes.mjs`), so nothing hardcodes the list — but adding a second bucket is a
+structural decision, not a filing convenience.
 
 **Fragments may nest.** `abilities/` is copied verbatim into every host tree *walking
 subdirectories*, so a parent with many fragments may group them. `develop` is the worked
@@ -37,45 +40,49 @@ platforms: [claude, opencode, codex, cursor, zed]
 ---
 ```
 
-## Composition metadata (`x-aegis.pipeline`)
+## Chaining (prose, and only prose)
 
-A skill that composes other skills (a workflow, a review loop) may declare a **composition block** under the `x-aegis` namespace (Iron Law 3). It is **optional** — absence means the skill is **atomic** (the backward-compatible default; atomic single-purpose skills carry no block).
+A skill that hands off to another says so **in its body**. There is no frontmatter field that routes
+anything: `scripts/project.mjs` emits no `x-aegis` key to any host, and Aegis has no runtime. The
+model reads the body, sees the successor named, and invokes it — or does not.
 
-> **`x-aegis` is a build-time annotation. It does not route anything at runtime.**
-> `scripts/project.mjs` emits no `x-aegis` key to any host — `grep x-aegis scripts/project.mjs`
-> returns nothing, and the generated Claude and Codex frontmatter for a skill that declares
-> `pipeline.next` carries `name` and `description` only. No model on any host ever sees this block.
->
-> What actually makes a chain happen is **the prose in the skill body** — the phase order, the
-> hand-off artifact, and the named successor written out where the model will read them. That is
-> not a fallback; it is the mechanism, and `docs/workflow-guide.md` already mandates it.
->
-> So the block is worth declaring for exactly one reason: it is machine-checkable. The
-> `COMPOSITION` validator uses it to catch cycles and references to skills that no longer exist —
-> errors prose cannot be checked for. **Declaring `next:` and omitting it from the body produces a
-> chain that passes validation and never runs.** Write the prose first; the block annotates it.
+The `x-aegis.pipeline` block that used to declare chains has been **removed**. It validated the
+wrong artifact: the projector stripped it, so a skill could declare `next: foo`, never mention foo in
+its body, and pass validation while chaining nothing. Do not reintroduce it.
 
-```yaml
-x-aegis:
-  pipeline:
-    requires: [brainstorm-spec]         # prerequisite skills auto-invoked first
-    handoff: plans                       # named artifact passed forward (template kind) or // REASON:
-    next: develop                        # the transition target skill
+Write transitions with one of two markers:
+
+```markdown
+## REQUIRED SUB-SKILL: implementation-planner
+
+After the user approves the spec, the next step is `aegis:implementation-planner`. …
 ```
 
-Three keys, all optional:
+```markdown
+**REQUIRED SUB-SKILL:** use `aegis:test-driven-development` to write that test. …
 
-- **`requires: [skill]`** — prerequisite skills auto-invoked before this skill runs.
-- **`handoff: <template-kind|artifact-name>`** — the artifact this skill passes forward.
-- **`next: skill`** — the skill the transition invokes when this one completes.
+**REQUIRED BACKGROUND:** this skill consumes review findings, so it presupposes a
+completed review — normally `aegis:code-review`. …
+```
 
-Rules (enforced by the `COMPOSITION` validator, `scripts/validate/composition.mjs`):
+- **REQUIRED SUB-SKILL** — a *transition*: finish here, go there next. These form the chain graph.
+- **REQUIRED BACKGROUND** — a *prerequisite*: understand that skill first. Not a forward step, so
+  naming an upstream skill this way is correct and is not a cycle.
 
-- **Acyclic.** The graph built from every skill's `requires` + `next` edges must have no cycle (the validator reports the cycle path).
-- **Real skills.** Every value in `requires` and `next` MUST name a skill that **exists in canonical** under its **current** name (no phase-label aliases, no renamed-away names).
-- **Real handoff.** Each `handoff` MUST name a real template kind from `manifest/template-index.json`, OR carry a `// REASON:` note (inline in the body) justifying a non-template artifact.
+Never force-load a successor with an `@`-style directive — that spends context on a skill the task
+may never reach. Name it and let the model invoke it.
 
-Landed warn-only this release (graduates to hard-fail next, per the usual convention for warn-only rules).
+Rules (enforced by the `COMPOSITION` validator, `scripts/validate/composition.mjs`, which parses
+these markers out of skill **bodies**):
+
+- **Real skills.** Every name in a marker MUST name a skill that **exists in canonical** under its
+  **current** name (no phase-label aliases, no renamed-away names). A stale name sends the model
+  after a skill that no longer registers.
+- **Acyclic.** The graph built from REQUIRED SUB-SKILL edges must have no cycle (the validator
+  reports the cycle path).
+
+Warn-only, so a stale edge does not fail the build — read the warnings. See
+`docs/workflow-guide.md` → *Chaining is prose, and only prose* for the shipped spine.
 
 ## Intensity levels (`x-aegis.intensity`)
 
@@ -127,12 +134,12 @@ false positives for skills that declare none):
 
 ## Workflow skills are phase-ordered and gated
 
-A skill under `skills/workflows/` is a **phase-ordered, gated chain**: each phase gates on the prior
-(it may not start until the predecessor's hand-off artifact exists), and the transition invokes a
-*named* `next` skill. Document the phase order and its hand-off artifacts in the workflow body's prose;
-where a workflow composes other **named** skills, also declare the gate (`requires`/`handoff`) and the
-transition (`next`) in the `x-aegis.pipeline` block above. A workflow whose phases are all internal
-(no hand-off to a separate named skill) documents its order in prose and carries no pipeline block.
+A workflow is not a separate bucket or surface — it is a *shape* a skill in `skills/core/` can take:
+a **phase-ordered, gated chain** where each phase gates on the prior (it may not start until the
+predecessor's hand-off artifact exists) and the transition names its successor. Document the phase
+order and its hand-off artifacts in the body's prose, and mark each transition with a REQUIRED
+SUB-SKILL marker per the section above. A workflow whose phases are all internal (no hand-off to a
+separate named skill) documents its order in prose and simply carries no marker.
 
 See `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention* for the full convention,
 its forward-on-pass / back-on-fail gate rule, and the superpowers / get-shit-done source pattern.
@@ -185,7 +192,7 @@ For security guidance, see `abilities/security.md`.
 
 - Kebab-case verb-noun: `code-review`, `implementation-planner`, `codebase-onboarding`.
 - Language practice is NOT a skill. It lives as fragments under `skills/core/develop/abilities/languages/<lang>.md`, with the per-language practice files and `rules/` overlay in the sibling `<lang>/` directory.
-- Workflow skills: descriptive of the workflow (e.g. `spec-driven-development`, `default-feature`).
+- Workflow-shaped skills: descriptive of the workflow (e.g. `default-feature`, `codebase-onboarding`).
 
 ## What NOT to put here
 

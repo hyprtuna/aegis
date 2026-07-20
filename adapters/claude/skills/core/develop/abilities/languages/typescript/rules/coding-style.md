@@ -1,13 +1,11 @@
 ---
 name: typescript-coding-style
 description: Use when editing TypeScript code — strict mode, no any, named exports, ESM extensions.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # TypeScript Coding Style
 
-**Announce:** I'm using the ts-coding-style-rules skill to inject TypeScript coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/typescript/rules/coding-style.md` overlay to inject TypeScript coding style guidance for this edit.
 
 ## Status
 

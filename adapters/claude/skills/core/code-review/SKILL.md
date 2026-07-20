@@ -92,6 +92,13 @@ Two semantic review passes are available as sibling prompt files, dispatched via
 
 Both prompts are read-only — they emit findings and never edit code.
 
+## REQUIRED SUB-SKILL: review-response
+
+Reviewing produces findings; it does not act on them. Once the findings are reported, hand off to
+`aegis:review-response`, which verifies each one before implementing and pushes back on the ones
+that are wrong. Do not start editing code from inside this skill — the review instrument stays
+read-only, and answering your own findings here loses the verify-before-implement discipline.
+
 ## Done
 code-reviewer done — all findings reported with severity tags and file:line references; status: DONE
 

@@ -1,6 +1,6 @@
 // bucket-readme.mjs — A6: bucket / template-family README coverage.
 //
-// Every skill bucket (skills/core, skills/workflows) and every
+// Every skill bucket (skills/core — buckets are discovered, not hardcoded) and every
 // template family (templates/html, templates/markdown, templates/json) that
 // EXISTS must contain a README.md that mentions every shipping child surface.
 //

@@ -49,7 +49,7 @@ Codex has no native subagent `memory` primitive equivalent to Claude's `memory:`
 `x-claude.memory` is NOT emitted by the Codex projector.
 
 **Fallback:** use a plain `.aegis-memory/MEMORY.md` file at the project root as the cross-host
-memory store. The `recall` skill's Layer 1 (Grep) and Layer 3 (Read) work on Codex — only
+memory store. The `recall` fragment's Layer 1 (Grep) and Layer 3 (Read) work on Codex — only
 Layer 2 (Claude's 200-line auto-injection) is absent. Start with Layer 1 on this host.
 
 **Decay:** real decay / last-referenced scoring needs a store — deferred. Honest gap.
@@ -57,7 +57,7 @@ Layer 2 (Claude's 200-line auto-injection) is absent. Start with Layer 1 on this
 ## Honest Gaps
 
 - **Real MCP servers** — only an empty `mcp.json` stub ships today. First Aegis-supplied servers land in a later release.
-- **Persistent memory** — no native `memory:` primitive; fallback is `.aegis-memory/MEMORY.md` read by the `recall` skill. See Persistent Memory section above.
+- **Persistent memory** — no native `memory:` primitive; fallback is `.aegis-memory/MEMORY.md` read by the `recall` fragment. See Persistent Memory section above.
 - **Hook lifecycle (feature-removed gap)** — no canonical hook binds `codex` today. Codex's `[features] plugin_hooks` is **removed** (not merely disabled) — verified live against `codex features list` on codex-cli 0.144.6, which reports `plugin_hooks   removed   false`. A plugin cannot ship a hook that fires on this host, in any context: `hooks: stable` in that same feature list is Codex's *user*-configured `config.toml` hooks, a channel plugins have no access to. Aegis previously projected `session-start`/`pre-compact`/`post-compact` to Codex `hooks/hooks.json`; `codex` was dropped from all three intents' `platforms` and their `x-codex` bindings, because a binding that cannot fire is worse than a declared gap (Iron Law 6). As of v0.2.1 the projector path itself is deleted and `codex` is **rejected** outright in a hook intent's `platforms` — see the Hook capability matrix below. `instructions-loaded` was already a gap for the unrelated reason that Codex has no `InstructionsLoaded` event counterpart. Aegis's Codex bootstrap is unaffected — it continues through native Skill discovery (`.codex/plugins/aegis/skills/`) and the `.codex-plugin/AGENTS.md` project-root read, neither of which depends on plugin hooks. Revisit if a future Codex release un-removes `plugin_hooks`.
 - **Surface visibility (`visibility: internal`)** — Codex has no per-skill visibility field. The Codex skill projector emits `name` + `description` only, so a canonical `visibility: internal` produces nothing on this host and the 8 internal skills are discoverable exactly like user-facing ones. Claude closes this with native `user-invocable: false` (see `adapters/claude/projection.md`); OpenCode has the same gap for the same reason. No workaround is projected on purpose — the one Codex-side lever that would hide a skill is removing it from the plugin's skills tree, which also removes it from model dispatch and would break parent→child composition. Declared and inert here, recorded rather than silently dropped.
 - **Statusline** — no native Codex statusline slot. Aegis ships statusline presets (Claude Code first-class); Codex stays gap-documented.
@@ -152,7 +152,7 @@ No documented Codex statusline. The bottom row of the Codex TUI is reserved for 
 
 ## Dynamic workflows (gap)
 
-Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): the model writes a JS orchestration script and a background runtime fans it out across dozens-to-hundreds of subagents, saving reusable scripts to `.claude/workflows/`. This is not a plugin extension point — Aegis cannot ship, declare, or project it, and no equivalent exists on this host. The portable substitute is the `orchestration` skill (≤5-wave `Task()` fan-out with in-session synthesis), which runs identically everywhere but does not reach the hundreds-of-agents, context-isolated, resumable regime. For very large audits/migrations on this host, the ≤5-wave skill is the ceiling.
+Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): the model writes a JS orchestration script and a background runtime fans it out across dozens-to-hundreds of subagents, saving reusable scripts to `.claude/workflows/`. This is not a plugin extension point — Aegis cannot ship, declare, or project it, and no equivalent exists on this host. The portable substitute is the `orchestrate` skill (≤5-wave `Task()` fan-out with in-session synthesis), which runs identically everywhere but does not reach the hundreds-of-agents, context-isolated, resumable regime. For very large audits/migrations on this host, the ≤5-wave skill is the ceiling.
 
 ## Permissions
 

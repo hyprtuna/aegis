@@ -1,13 +1,11 @@
 ---
 name: python-testing
 description: Use when editing Python test code — pytest, parametrize, fixtures, isolated integration tests.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Python Testing
 
-**Announce:** I'm using the python-testing-rules skill to inject Python testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/python/rules/testing.md` overlay to inject Python testing guidance for this edit.
 
 ## Status
 

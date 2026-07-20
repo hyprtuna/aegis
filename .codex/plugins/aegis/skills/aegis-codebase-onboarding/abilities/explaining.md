@@ -10,7 +10,7 @@ Explain in the context of the project's patterns. Use file:line references. Give
 **Locate** (find the concept in code) → **Connect** (anchor it to known patterns) → **Explain**
 (build the mental model) → **Apply** (show usage). You cannot explain what you have not located, nor
 apply what you have not explained. The phases are internal to this workflow (no hand-off to a
-separate named skill), so it carries no `x-aegis.pipeline` block. See `docs/workflow-guide.md` →
+separate named skill). See `docs/workflow-guide.md` →
 *The phase-ordered gated-workflow convention*.
 
 ### Phase 1: Locate

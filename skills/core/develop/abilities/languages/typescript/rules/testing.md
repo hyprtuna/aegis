@@ -1,13 +1,11 @@
 ---
 name: typescript-testing
 description: Use when writing TypeScript tests — Vitest, AAA pattern, no internal mocks, real databases.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # TypeScript Testing Practices
 
-**Announce:** I'm using the ts-testing-rules skill to inject TypeScript testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/typescript/rules/testing.md` overlay to inject TypeScript testing guidance for this edit.
 
 ## Status
 

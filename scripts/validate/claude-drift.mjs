@@ -21,6 +21,15 @@ export function run(ctx) {
 
   const claudeRoot = join(REPO, "adapters/claude");
 
+  // Which generated paths count as a skill is derived from the live buckets, never a
+  // literal. A hardcoded alternation here silently stops matching when a bucket is
+  // renamed or dissolved — and a non-matching path is skipped, not flagged, so the
+  // frontmatter allowlist below would pass vacuously over an entire bucket.
+  const scopes = skillScopes(REPO);
+  const genSkillRe = new RegExp(
+    `^adapters/claude/skills/(?:${scopes.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})/[^/]+/SKILL\\.md$`,
+  );
+
   // D1. Skill count + name parity per scope.
   for (const scope of skillScopes(REPO)) {
     const canonScope = join(REPO, "skills", scope);
@@ -206,7 +215,7 @@ export function run(ctx) {
       }
 
       // Frontmatter key allowlist applies to generated SKILL.md, agents/*.md, commands/*.md.
-      const isGenSkill = /^adapters\/claude\/skills\/(?:core|languages|workflows)\/[^/]+\/SKILL\.md$/.test(rel);
+      const isGenSkill = genSkillRe.test(rel);
       const isGenAgent = /^adapters\/claude\/agents\/[^/]+\.md$/.test(rel) && base !== "AGENTS.md" && base !== "CLAUDE.md";
       const isGenCommand = /^adapters\/claude\/commands\/[^/]+\.md$/.test(rel) && base !== "AGENTS.md" && base !== "CLAUDE.md";
       if (!isGenSkill && !isGenAgent && !isGenCommand) continue;

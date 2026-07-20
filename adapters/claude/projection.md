@@ -182,7 +182,7 @@ A Claude plugin monitor runs a command as a persistent background process; every
 
 So Aegis's cost watcher **tails the active session transcript JSONL** best-effort: they locate `~/.claude/projects/<slug>/` from `${CLAUDE_PROJECT_DIR}`, pick the most-recently-modified `*.jsonl`, `tail -F` it, parse `usage`/cost fields from assistant lines, and print one warning line per crossed threshold band. This couples to an **undocumented, unstable transcript location and shape** that may change across Claude Code versions.
 
-**The failure mode is benign and advisory:** if the transcript can't be found or the format shifts, the watcher stays **silent — it never emits false data.** This is not a silent-failure-discipline violation (no hidden incorrect behaviour in a correctness path); it is an advisory aid that degrades to no-op, and the coupling is documented here. Note also that the cost figure is a **token-derived ESTIMATE, not the actual bill.** The `background-monitors` capability stays `claude: supported` for the *mechanism*; the transcript coupling is the documented caveat. Other hosts have no monitor primitive (`gap`).
+**The failure mode is benign and advisory:** if the transcript can't be found or the format shifts, the watcher stays **silent — it never emits false data.** This is not a silent-failure violation (no hidden incorrect behaviour in a correctness path); it is an advisory aid that degrades to no-op, and the coupling is documented here. Note also that the cost figure is a **token-derived ESTIMATE, not the actual bill.** The `background-monitors` capability stays `claude: supported` for the *mechanism*; the transcript coupling is the documented caveat. Other hosts have no monitor primitive (`gap`).
 
 ## Plugin Dependencies Skeleton
 
@@ -287,7 +287,7 @@ or Edit. Memory does NOT go on read-only reviewers (`code-reviewer`, `code-quali
 Its generated Claude frontmatter carries `memory: project`; OpenCode/Codex copies do not.
 
 **Discipline:** `rules/memory-discipline.md` — observation taxonomy + curation + secret-scan gate.
-**Retrieval:** `skills/core/recall` — 3-layer Read+Grep workflow over `MEMORY.md`, no MCP.
+**Retrieval:** `skills/core/using-aegis/abilities/recall.md` — 3-layer Read+Grep workflow over `MEMORY.md`, no MCP.
 
 ## Unsupported (Documented Gaps)
 

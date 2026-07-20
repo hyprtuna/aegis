@@ -1,13 +1,11 @@
 ---
 name: php-security
 description: Use when editing PHP code — PDO prepared statements, password_hash with default algorithm, hash_equals for tokens, htmlspecialchars on output, no shell_exec on user input.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # PHP Security
 
-**Announce:** I'm using the php-security-rules skill to inject PHP security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/php/rules/security.md` overlay to inject PHP security guidance for this edit.
 
 ## Status
 

@@ -1,62 +1,48 @@
-// composition.mjs — v0.0.13: acyclic-composition validator.
+// composition.mjs — chain-coherence validator (prose-sourced).
 //
-// SCOPE — what this rule can and cannot enforce.
-// ---------------------------------------------
-// x-aegis is a BUILD-TIME annotation. scripts/project.mjs emits no x-aegis key to
-// any host (`grep x-aegis scripts/project.mjs` → nothing), so no model on Claude,
-// Codex, or anywhere else ever sees the block this rule validates. Runtime chaining
-// happens through the skill BODY prose, which docs/workflow-guide.md mandates.
+// WHAT THIS RULE CHECKS
+// ---------------------
+// Skills chain by naming their successor IN THEIR BODY. That prose is the only chaining
+// mechanism Aegis has: the projector emits no `x-aegis` key to any host, so frontmatter
+// cannot route anything, and there is no runtime that reads a declared pipeline. The model
+// reads the body, sees "REQUIRED SUB-SKILL: <name>", and invokes it — or does not.
 //
-// The consequence for this rule: a green COMPOSITION run means the declared graph is
-// internally coherent — no cycles, no references to skills that no longer exist. It
-// does NOT mean any chain actually runs. A skill can declare `next: foo`, omit foo
-// from its body entirely, and pass here. That gap is not closable from this file;
-// it is why the authoring guidance (skills/AGENTS.md) puts the prose first and treats
-// the block as an annotation on top of it.
+// This rule therefore builds its graph from the body prose and asserts:
 //
-// Skills may declare a composition block under the x-aegis namespace:
+//   (a) ACYCLIC — no cycle in the REQUIRED SUB-SKILL graph (cycle path reported);
+//   (b) EXISTENCE — every skill named by a REQUIRED SUB-SKILL / REQUIRED BACKGROUND edge
+//       resolves to a real canonical skill under its current name.
 //
-//   x-aegis:
-//     pipeline:
-//       requires: [skill-a, skill-b]   # prerequisites auto-invoked first
-//       handoff: <template-kind|name>  # artifact passed forward
-//       next: skill-c                  # transition target
+// (b) is the load-bearing half. A stale name in the body actively misdirects the model
+// toward a skill that no longer registers, which is a dead end for the user.
 //
-// All keys are optional; absence means an atomic skill (the backward-compatible
-// default). This rule builds the composition graph from every skill's
-// pipeline.{requires,next} edges and asserts:
+// HISTORY — why the source changed. Until v0.2.2 the graph came from an `x-aegis.pipeline`
+// frontmatter block. That validated the wrong artifact: the block reached no host, so a
+// skill could declare `next: foo`, never mention foo in its body, and pass green while
+// chaining nothing. Worse, shipped bodies cited the block as the chaining mechanism, telling
+// the model about a field that had been stripped from the file it was reading. The block and
+// its `handoff` sub-key were removed; the graph now comes from the prose that actually runs.
 //
-//   (a) ACYCLIC — no cycle in the requires/next graph (cycle path reported);
-//   (b) EXISTENCE — every skill named in requires/next exists in canonical
-//       under its current name;
-//   (c) HANDOFF — each `handoff` resolves to a real template kind
-//       (manifest/template-index.json) OR the skill body carries a `// REASON:`
-//       note justifying a non-template artifact.
-//
-// v0.0.14 EXTENDS this rule with skill-INTENSITY validation, an
-// optional extension of the same x-aegis namespace (NOT a parallel field):
+// STILL VALIDATED HERE — skill INTENSITY, the surviving `x-aegis` sub-key (a genuine
+// build-time authoring annotation, not a routing claim):
 //
 //   x-aegis:
 //     intensity:
 //       default: full           # one of {lite, full, ultra}; implicit 'full' if absent
 //       levels: [lite, full, ultra]
 //
-// When present, the rule asserts `default` + every `levels` entry are drawn from
-// the known set {lite, full, ultra}, that `default` is one of the declared
-// `levels`, and that each declared level has a matching `### Intensity: <level>`
-// branch in the body. A skill declaring no intensity block is the implicit-'full'
-// default and is skipped (no false positives).
+// When present, the rule asserts `default` + every `levels` entry are drawn from the known
+// set {lite, full, ultra}, that `default` is one of the declared `levels`, and that each
+// declared level has a matching `### Intensity: <level>` branch in the body. A skill
+// declaring no intensity block is the implicit-'full' default and is skipped.
 //
-// WARN-ONLY in v0.0.13 (exit 0 preserved — pushes only `warnings`), consistent
-// with the v0.0.6 warn→error graduation convention (AGENTS.md). Graduates to
-// hard-fail next release. If A2 seeding is correct, this rule emits NO warnings.
+// WARN-ONLY (exit 0 preserved — pushes only `warnings`), per the warn→error graduation
+// convention in AGENTS.md. Note the consequence honestly: nothing this rule finds blocks a
+// build, so a stale prose edge ships unless someone reads the warning.
 //
-// Reuses the shared ctx (ctx.files / ctx.rel / ctx.read / ctx.fmSplit) — no
-// second filesystem walk. Parses the pipeline block with a tiny YAML-ish reader
-// mirroring the stance.mjs nested-block pattern; no YAML dependency.
-
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+// Reuses the shared ctx (ctx.files / ctx.rel / ctx.read / ctx.fmSplit) — no second
+// filesystem walk. Parses the intensity block with a tiny YAML-ish reader mirroring the
+// stance.mjs nested-block pattern; no YAML dependency.
 
 export const id = "COMPOSITION";
 
@@ -64,66 +50,48 @@ export const id = "COMPOSITION";
 // bucket list. An enumerated copy of that list lived in a dozen files; dissolving a bucket
 // left the stale copies matching nothing, and a rule that matches nothing passes silently.
 
-// Parse the `x-aegis.pipeline` block out of a frontmatter string. Returns null
-// when the skill declares no pipeline (atomic). Mirrors stance.mjs's nested-block
-// walk: find `x-aegis:`, then `pipeline:` before the next top-level key, then read
-// the pipeline's child keys (requires / handoff / next) until the block ends.
-function parsePipeline(fm) {
-  const lines = fm.split("\n");
-  const result = { requires: [], handoff: null, next: null };
-  let found = false;
+// Extract the chaining edges a skill declares IN ITS BODY.
+//
+// This rule used to build its graph from an `x-aegis.pipeline` frontmatter block. That block
+// was removed: the projector emitted it to no host, so the graph being validated was not the
+// graph any model could act on. A skill could declare `next: foo`, never mention foo in its
+// body, and pass — the check was green about a mechanism that did nothing.
+//
+// The graph now comes from the prose, which is what actually reaches the model. Two forms,
+// borrowed from the reference corpus (see docs/workflow-guide.md):
+//
+//   ## REQUIRED SUB-SKILL: <name>          (heading form)
+//   **REQUIRED SUB-SKILL:** use `aegis:<name>`   (inline form)
+//   **REQUIRED BACKGROUND:** ... `aegis:<name>`  (prerequisite knowledge, not a transition)
+//
+// SUB-SKILL edges are transitions and form the cycle graph. BACKGROUND edges are
+// prerequisite-knowledge pointers ("you must understand X first"), NOT transitions — a skill
+// naming its own upstream as BACKGROUND is correct, not a loop, so they are existence-checked
+// but deliberately excluded from the cycle graph.
+function parseProseEdges(body) {
+  const subskills = new Set();
+  const background = new Set();
 
-  for (let i = 0; i < lines.length; i++) {
-    if (!/^x-aegis:\s*$/.test(lines[i])) continue;
-
-    // Inside the x-aegis block (indented lines until next zero-indent key).
-    for (let j = i + 1; j < lines.length; j++) {
-      if (/^\S/.test(lines[j])) break; // next top-level key — x-aegis block ended
-      if (!/^\s+pipeline:\s*$/.test(lines[j])) continue;
-
-      found = true;
-      const pipelineIndent = lines[j].match(/^(\s+)/)[1].length;
-
-      // Read pipeline children: lines indented deeper than `pipeline:`.
-      for (let k = j + 1; k < lines.length; k++) {
-        if (/^\S/.test(lines[k])) break; // back to top-level — done
-        const childIndent = (lines[k].match(/^(\s*)/)[1] || "").length;
-        if (lines[k].trim() === "") continue;
-        if (childIndent <= pipelineIndent) break; // sibling/parent key — pipeline ended
-
-        const mNext = lines[k].match(/^\s+next:\s*(.+?)\s*$/);
-        if (mNext) { result.next = stripScalar(mNext[1]); continue; }
-
-        const mHandoff = lines[k].match(/^\s+handoff:\s*(.+?)\s*$/);
-        if (mHandoff) { result.handoff = stripScalar(mHandoff[1]); continue; }
-
-        // requires: inline array [a, b] OR block list of `- item` lines.
-        const mReqInline = lines[k].match(/^\s+requires:\s*\[(.*)\]\s*$/);
-        if (mReqInline) {
-          result.requires = mReqInline[1]
-            .split(",")
-            .map((s) => stripScalar(s.trim()))
-            .filter(Boolean);
-          continue;
-        }
-        const mReqEmpty = lines[k].match(/^\s+requires:\s*$/);
-        if (mReqEmpty) {
-          // Block-list form: subsequent `- item` lines deeper-indented.
-          for (let m = k + 1; m < lines.length; m++) {
-            const item = lines[m].match(/^\s+-\s*(.+?)\s*$/);
-            if (!item) break;
-            result.requires.push(stripScalar(item[1]));
-            k = m;
-          }
-          continue;
-        }
-      }
-      break; // handled the pipeline block
-    }
-    if (found) break;
+  // Heading form: `## REQUIRED SUB-SKILL: <name>` (any heading depth).
+  for (const m of body.matchAll(/^#{2,4}\s+REQUIRED SUB-SKILL:\s*`?(?:aegis:)?([a-z0-9-]+)`?\s*$/gim)) {
+    subskills.add(m[1]);
   }
 
-  return found ? result : null;
+  // Inline form: `**REQUIRED SUB-SKILL:**` / `**REQUIRED BACKGROUND:**` followed by the skill
+  // names cited in that PARAGRAPH (to the next blank line), not merely on the marker's own
+  // line — prose wraps, and a line-scoped match silently drops an edge whose name landed on
+  // the following line. A paragraph may cite alternatives ("X or Y"), so all names count.
+  for (const para of body.split(/\n\s*\n/)) {
+    const isSub = /\*\*REQUIRED SUB-SKILL:?\*\*/i.test(para);
+    const isBg = /\*\*REQUIRED BACKGROUND:?\*\*/i.test(para);
+    if (!isSub && !isBg) continue;
+    for (const m of para.matchAll(/`aegis:([a-z0-9-]+)`/g)) {
+      (isSub ? subskills : background).add(m[1]);
+    }
+  }
+
+  if (subskills.size === 0 && background.size === 0) return null;
+  return { subskills: [...subskills], background: [...background] };
 }
 
 // Strip surrounding quotes from a YAML scalar.
@@ -190,17 +158,6 @@ function parseIntensity(fm) {
   return found ? result : null;
 }
 
-// Load the set of template kinds from manifest/template-index.json (read once).
-function loadTemplateKinds(REPO) {
-  try {
-    const text = readFileSync(join(REPO, "manifest", "template-index.json"), "utf8");
-    const json = JSON.parse(text);
-    return new Set(Object.keys(json.kinds || {}));
-  } catch {
-    return new Set();
-  }
-}
-
 // Detect a cycle in a directed graph (adjacency map name -> string[]).
 // Returns the cycle path (array of node names) or null if acyclic.
 function findCycle(adj) {
@@ -240,16 +197,16 @@ function findCycle(adj) {
 }
 
 export function run(ctx) {
-  const { files, rel, REPO } = ctx;
+  const { files, rel } = ctx;
   const warnings = [];
 
   const skillRe = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const skillFiles = files.filter((p) => skillRe.test(rel(p)));
 
   // Pass 1: collect every canonical skill name (from frontmatter `name`) and the
-  // pipeline block per skill that declares one.
+  // prose chaining edges each skill declares in its body.
   const skillNames = new Set();
-  const pipelines = []; // { name, rel, pipeline, body }
+  const chains = []; // { name, rel, edges }
 
   for (const p of skillFiles) {
     const text = ctx.read(p);
@@ -259,9 +216,9 @@ export function run(ctx) {
     const name = nameMatch ? stripScalar(nameMatch[1]) : null;
     if (name) skillNames.add(name);
 
-    const pipeline = parsePipeline(split.fm);
-    if (pipeline && name) {
-      pipelines.push({ name, rel: rel(p), pipeline, body: split.body });
+    const edges = parseProseEdges(split.body);
+    if (edges && name) {
+      chains.push({ name, rel: rel(p), edges });
     }
 
     // INTENSITY — validate the optional x-aegis.intensity block when
@@ -309,50 +266,49 @@ export function run(ctx) {
     }
   }
 
-  const templateKinds = loadTemplateKinds(REPO);
-
-  // Pass 2: build graph edges + run existence + handoff checks.
+  // Pass 2: build graph edges + run the existence check over the prose edges.
   const adj = new Map();
   const ensureNode = (n) => { if (!adj.has(n)) adj.set(n, []); };
 
-  for (const { name, rel: r, pipeline, body } of pipelines) {
+  for (const { name, rel: r, edges } of chains) {
     ensureNode(name);
 
-    // (b) EXISTENCE — requires + next must name a real canonical skill.
-    for (const req of pipeline.requires) {
-      if (!skillNames.has(req)) {
+    // EXISTENCE — a prose edge must name a real canonical skill. This is the check that
+    // matters most now: the body TELLS the model to invoke this name, so a stale one sends
+    // the model after a skill that no longer registers.
+    for (const target of edges.subskills) {
+      if (!skillNames.has(target)) {
         warnings.push(
-          `${r}: x-aegis.pipeline.requires names \`${req}\`, which is not a canonical skill ` +
-            `(no skills/{core,languages,workflows}/${req}/SKILL.md with that name). [COMPOSITION, warn-only]`,
+          `${r}: body declares \`REQUIRED SUB-SKILL: ${target}\`, which is not a canonical skill ` +
+            `(no skills/<bucket>/${target}/SKILL.md with that name). [COMPOSITION, warn-only]`,
         );
       }
-      // Edge: prerequisite -> this skill (the prereq runs first).
-      ensureNode(req);
-      adj.get(req).push(name);
+      ensureNode(target);
+      adj.get(name).push(target);
     }
 
-    if (pipeline.next) {
-      if (!skillNames.has(pipeline.next)) {
+    for (const target of edges.background) {
+      if (!skillNames.has(target)) {
         warnings.push(
-          `${r}: x-aegis.pipeline.next names \`${pipeline.next}\`, which is not a canonical skill ` +
-            `(no skills/{core,languages,workflows}/${pipeline.next}/SKILL.md with that name). [COMPOSITION, warn-only]`,
+          `${r}: body declares \`REQUIRED BACKGROUND\` on \`${target}\`, which is not a canonical ` +
+            `skill (no skills/<bucket>/${target}/SKILL.md with that name). [COMPOSITION, warn-only]`,
         );
       }
-      // Edge: this skill -> next.
-      ensureNode(pipeline.next);
-      adj.get(name).push(pipeline.next);
+      // Deliberately NOT a graph edge — see parseProseEdges.
     }
+  }
 
-    // (c) HANDOFF — must be a real template kind or carry a `// REASON:` note.
-    if (pipeline.handoff && !templateKinds.has(pipeline.handoff)) {
-      if (!body.includes("// REASON:")) {
-        warnings.push(
-          `${r}: x-aegis.pipeline.handoff names \`${pipeline.handoff}\`, which is not a template kind ` +
-            `in manifest/template-index.json and the body carries no \`// REASON:\` note. ` +
-            `Name a real template kind or justify with a \`// REASON:\`. [COMPOSITION, warn-only]`,
-        );
-      }
-    }
+  // VACUITY GUARD — this rule's value depends entirely on there being prose edges to check.
+  // If the corpus ever stops matching (a marker gets reworded, the extractor regexes rot),
+  // every check below passes over an empty graph and the rule goes green while verifying
+  // nothing. Say so rather than passing quietly. Precedent: ADVERTISED_VISIBILITY.
+  if (skillFiles.length > 0 && adj.size === 0) {
+    warnings.push(
+      `COMPOSITION parsed ${skillFiles.length} skills but found no prose chaining edges at all. ` +
+        `Either no skill declares a REQUIRED SUB-SKILL / REQUIRED BACKGROUND, or the marker ` +
+        `wording drifted from what this rule matches — in which case chain coherence is ` +
+        `UNCHECKED, not clean. [COMPOSITION, warn-only]`,
+    );
   }
 
   // (a) ACYCLIC — report the cycle path if any.
@@ -360,7 +316,7 @@ export function run(ctx) {
   if (cycle) {
     warnings.push(
       `composition graph has a cycle: ${cycle.join(" → ")}. ` +
-        `Break the requires/next edge that closes the loop. [COMPOSITION, warn-only]`,
+        `Break the REQUIRED SUB-SKILL edge that closes the loop. [COMPOSITION, warn-only]`,
     );
   }
 

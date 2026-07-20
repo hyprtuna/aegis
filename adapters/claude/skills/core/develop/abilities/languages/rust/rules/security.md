@@ -1,13 +1,11 @@
 ---
 name: rust-security
 description: Use when editing Rust code — sqlx parameterized queries, ring/rustls for crypto, no shell injection via Command, secrets via env not literals.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Rust Security
 
-**Announce:** I'm using the rust-security-rules skill to inject Rust security guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/rust/rules/security.md` overlay to inject Rust security guidance for this edit.
 
 ## Status
 

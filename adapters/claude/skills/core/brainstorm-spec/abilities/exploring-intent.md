@@ -27,10 +27,9 @@ with approach N", or equivalent. A vague "sounds good" is not approval.
 start until its predecessor's output exists: **Understand Context** → **Clarify Intent** → **Propose
 Approaches** → **Refine** → **Document**. The Iron-Rule gate above blocks all implementation until an
 approach is approved. The terminal hand-off artifact is the design spec written in Phase 5 (the
-`specs` template kind); the transition then invokes `next: task-decomposition` to decompose the
-approved design, which in turn hands off to `feature-developer` (see *Chains* below). This is declared
-in the `x-aegis.pipeline` block above and checked by the `COMPOSITION` validator. See
-`docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
+`specs` template kind); the approved design then hands off to `aegis:implementation-planner`, which
+decomposes it into a phased plan. See `docs/workflow-guide.md` → *The phase-ordered gated-workflow
+convention*.
 
 ### Phase 1: Understand Context
 

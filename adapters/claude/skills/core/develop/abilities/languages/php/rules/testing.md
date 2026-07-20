@@ -1,13 +1,11 @@
 ---
 name: php-testing
 description: Use when editing PHP test code — PHPUnit or Pest, AAA structure, data providers for parametric tests, real test database, no static method mocking.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # PHP Testing
 
-**Announce:** I'm using the php-testing-rules skill to inject PHP testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/php/rules/testing.md` overlay to inject PHP testing guidance for this edit.
 
 ## Status
 

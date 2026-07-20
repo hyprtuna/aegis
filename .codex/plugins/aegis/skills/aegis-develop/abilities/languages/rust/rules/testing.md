@@ -1,13 +1,11 @@
 ---
 name: rust-testing
 description: Use when editing Rust test code —
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Rust Testing
 
-**Announce:** I'm using the rust-testing-rules skill to inject Rust testing guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/rust/rules/testing.md` overlay to inject Rust testing guidance for this edit.
 
 ## Status
 

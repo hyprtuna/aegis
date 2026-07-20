@@ -1,13 +1,11 @@
 ---
 name: kotlin-coding-style
 description: Use when editing Kotlin code — ktlint-clean, val over var, expression bodies, data classes for value types, no Java idioms in Kotlin files.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Kotlin Coding Style
 
-**Announce:** I'm using the kotlin-coding-style-rules skill to inject Kotlin coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/kotlin/rules/coding-style.md` overlay to inject Kotlin coding style guidance for this edit.
 
 ## Status
 

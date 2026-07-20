@@ -1,13 +1,11 @@
 ---
 name: rust-patterns
 description: Use when editing Rust code — Result<T,E> over panics, ownership before clones, iterators over indexed loops, ? for propagation.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Rust Patterns
 
-**Announce:** I'm using the rust-patterns-rules skill to inject Rust pattern guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/rust/rules/patterns.md` overlay to inject Rust pattern guidance for this edit.
 
 ## Status
 

@@ -1,13 +1,11 @@
 ---
 name: go-patterns
 description: Use when editing Go code — context.Context first arg, errors.Is/As, defer cleanup, slog.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Go Patterns
 
-**Announce:** I'm using the go-patterns-rules skill to inject Go patterns guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/go/rules/patterns.md` overlay to inject Go patterns guidance for this edit.
 
 ## Status
 

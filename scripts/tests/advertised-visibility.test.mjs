@@ -40,7 +40,7 @@ function ctxFor(overrides = {}) {
 function defaultFiles() {
   return [
     BOOTSTRAP,
-    "skills/workflows/default-feature/SKILL.md",
+    "skills/core/default-feature/SKILL.md",
     "skills/core/implementation-planner/SKILL.md",
   ];
 }
@@ -68,10 +68,10 @@ test("a name trailed by prose rather than the word \"skill\" IS covered by the g
   // name is followed by "for spec-first)" rather than "skill".
   const { errors } = rule.run(
     ctxFor({
-      files: [BOOTSTRAP, "skills/workflows/spec-first-entry/SKILL.md"],
+      files: [BOOTSTRAP, "skills/core/spec-first-entry/SKILL.md"],
       reads: {
         [BOOTSTRAP]: TRAILING_PROSE_BOOTSTRAP,
-        "skills/workflows/spec-first-entry/SKILL.md": skillDoc("spec-first-entry", "internal"),
+        "skills/core/spec-first-entry/SKILL.md": skillDoc("spec-first-entry", "internal"),
       },
     }),
   );
@@ -83,7 +83,7 @@ test("a name trailed by prose rather than the word \"skill\" IS covered by the g
 
 test("default-feature hidden is rejected", () => {
   const { errors } = rule.run(
-    ctxFor({ reads: { "skills/workflows/default-feature/SKILL.md": skillDoc("default-feature", "internal") } }),
+    ctxFor({ reads: { "skills/core/default-feature/SKILL.md": skillDoc("default-feature", "internal") } }),
   );
   assert.ok(errors.some((e) => e.includes("default-feature")), `got: ${errors.join(" | ")}`);
 });

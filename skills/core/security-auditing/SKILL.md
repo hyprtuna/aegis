@@ -17,9 +17,8 @@ Follow a 3-phase approach for every audit. This workflow is a phase-ordered, gat
 gates on the prior and consumes its output: **Scan** (raw findings + grep hits) → **Analyze**
 (reachability / exploitability / blast radius for each finding) → **Report** (severity-sorted,
 remediated findings). You cannot analyze findings you have not scanned for, nor report findings you
-have not analyzed. The phases are internal to this workflow (no hand-off to a separate named skill),
-so it carries no `x-aegis.pipeline` block. See `docs/workflow-guide.md` → *The phase-ordered
-gated-workflow convention*.
+have not analyzed. The phases are internal to this workflow — it hands off to no separate named
+skill. See `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
 
 ### Phase 1: Scan
 - Run automated tools: `npm audit`, `semgrep`, `trivy`, `gitleaks`, or language-appropriate equivalents.

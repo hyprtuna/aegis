@@ -18,10 +18,15 @@ Starting brainstorm-spec phase…
 ## Phase Sequence
 
 This is a phase-ordered, gated chain. Progress is linear — each phase gates on the prior and may not
-start until the current phase signals terminal completion (its hand-off artifact). The transition
-into the chain is declared via `x-aegis.pipeline.next` (→ `brainstorm-spec`); subsequent
-transitions are documented here in prose. See `docs/workflow-guide.md` → *The phase-ordered
-gated-workflow convention*.
+start until the current phase signals terminal completion (its hand-off artifact). Every transition
+is prose in this body; nothing routes automatically, so you invoke the next skill by name yourself.
+See `docs/workflow-guide.md` → *The phase-ordered gated-workflow convention*.
+
+## REQUIRED SUB-SKILL: brainstorm-spec
+
+Enter the chain with `aegis:brainstorm-spec`. Do not start writing code from this skill — it
+sequences the phases below, it does not implement any of them. Each numbered phase names the skill
+that owns it; invoke that skill when the prior phase reaches its terminal marker.
 
 1. **brainstorm-spec** — explore intent, ask clarifying questions, enumerate candidate designs (its `exploring-intent` fragment carries the under-specified-request pass). Terminal marker: user-approved direction.
 2. **implementation-planner** — produce a step-by-step implementation plan. Terminal marker: plan committed to the chosen location (or accepted inline).

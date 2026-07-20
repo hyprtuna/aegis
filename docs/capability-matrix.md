@@ -122,7 +122,7 @@ Portable hook intent pair: captures decision/test anchors before compaction and 
 
 *Category: hooks*
 
-Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.
+Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the using-aegis skill's health-check fragment. No counterpart on other hosts.
 
 ### MCP servers (`mcp-servers`)
 

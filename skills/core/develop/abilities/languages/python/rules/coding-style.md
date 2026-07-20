@@ -1,13 +1,11 @@
 ---
 name: python-coding-style
 description: Use when editing Python code — PEP 8, type hints on functions/classes, no bare except, pathlib over os.path.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Python Coding Style
 
-**Announce:** I'm using the python-coding-style-rules skill to inject Python coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/python/rules/coding-style.md` overlay to inject Python coding style guidance for this edit.
 
 ## Status
 

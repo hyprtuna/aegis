@@ -1,13 +1,11 @@
 ---
 name: java-coding-style
 description: Use when editing Java code — Java 21 LTS, records over POJOs, sealed types where exhaustive, no checked exceptions in new APIs.
-visibility: user
-platforms: [claude, opencode, codex, cursor, zed]
 ---
 
 # Java Coding Style
 
-**Announce:** I'm using the java-coding-style-rules skill to inject Java coding style guidance for this edit.
+**Announce:** I'm using the `develop` skill's `languages/java/rules/coding-style.md` overlay to inject Java coding style guidance for this edit.
 
 ## Status
 
