@@ -216,7 +216,8 @@
         "command": {
           "type": "string",
           "minLength": 1,
-          "description": "Path to the hook script as it ships inside the Codex plugin (required when dispatch is 'command'). The projector bundles the sibling x-claude.command script under .codex/plugins/aegis/hooks/ using this path's basename."
+          "pattern": "^\\./hooks/[^/]+$",
+          "description": "Path to the hook script as it ships inside the Codex plugin (required when dispatch is 'command'). FLAT — no subdirectories: projectCodexHooks() emits this value VERBATIM into hooks.json but writes the bundled file to basename(x-claude.command), so a nested path would ship a manifest instructing Codex to run a script that was never placed there. Mirrors the flat constraint on x-claude.command."
         }
       },
       "allOf": [

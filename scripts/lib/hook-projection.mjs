@@ -79,3 +79,20 @@ export function generateClaudeHooksBlock(intents) {
   }
   return out;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared-helper naming convention for the Claude hook implementation tree.
+//
+// A `_`-prefixed entry under .claude-plugin/hooks/ is a library sourced by hook
+// scripts (`source "$(dirname "$0")/_lib.sh"`), not a hook: nothing binds it via
+// x-claude.command by design. Both the projector's orphan prune and the
+// HOOK_INTENT orphan rule must skip exactly the same set — if they disagreed, one
+// would delete a file the other demands, or demand a file the other deleted.
+//
+// Same no-mirror rule as generateClaudeHooksBlock above: one predicate, two
+// callers. A comment in each file asserting the other agrees is not a mechanism.
+export const HOOK_HELPER_PREFIX = "_";
+
+export function isHookHelper(entry) {
+  return typeof entry === "string" && entry.startsWith(HOOK_HELPER_PREFIX);
+}

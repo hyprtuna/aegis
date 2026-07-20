@@ -19,7 +19,7 @@
 // tripwire that keeps the contract honest.
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { generateClaudeHooksBlock } from "../lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, isHookHelper } from "../lib/hook-projection.mjs";
 
 export const id = "HOOK_INTENT";
 
@@ -220,9 +220,17 @@ export function run(ctx) {
               "has a projector path; any other value emits a malformed Codex hooks.json entry",
           );
         }
+        // Flat only, same constraint as x-claude.command and for a sharper reason:
+        // projectCodexHooks() emits this value VERBATIM into hooks.json but writes
+        // the bundled file to basename(x-claude.command). A nested path therefore
+        // ships a manifest naming a script that was never placed there.
         if (xcodex.dispatch === "command") {
-          if (typeof xcodex.command !== "string" || !xcodex.command) {
-            errors.push(`${where}: x-codex.dispatch "command" requires a non-empty "command"`);
+          if (typeof xcodex.command !== "string" || !/^\.\/hooks\/[^/]+$/.test(xcodex.command || "")) {
+            errors.push(
+              `${where}: x-codex.dispatch "command" requires command matching ` +
+                "^\\./hooks/[^/]+$ — the bundled Codex hooks tree is flat, and the path is " +
+                "emitted verbatim into hooks.json while the script is written to its basename",
+            );
           }
         }
       }
@@ -300,10 +308,10 @@ export function run(ctx) {
     for (const entry of readdirSync(claudeHooksDir).sort()) {
       if (referenced.has(entry)) continue;
       // `_`-prefixed entries are shared helpers sourced by hook scripts, not
-      // orphans — nothing binds them via x-claude.command by design. The
-      // projector's prune exempts the same prefix; these two must never disagree,
-      // or the validator would demand a file the projector has already deleted.
-      if (entry.startsWith("_")) continue;
+      // orphans — nothing binds them via x-claude.command by design. The predicate
+      // is shared with the projector's prune (no mirror), so the two cannot drift
+      // into the validator demanding a file the projector has already deleted.
+      if (isHookHelper(entry)) continue;
       errors.push(
         `.claude-plugin/hooks/${entry}: orphaned — no hooks/*.json intent references it ` +
           "via x-claude.command. A hook either ships (an intent binds it) or is deleted " +

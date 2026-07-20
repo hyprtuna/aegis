@@ -53,6 +53,8 @@ The implementation tree is **flat** — `x-claude.command` must match `^\.claude
 
 Every pruned path is printed to stdout. A deletion is never silent.
 
+The **bundled Codex tree** (`.codex/plugins/aegis/hooks/`) is flat for the same reason: `x-codex.command` must match `^\./hooks/[^/]+$`. `projectCodexHooks()` emits that value verbatim into `hooks.json` but writes the bundled script to its **basename**, so a nested path would ship a manifest telling Codex to run something that was never placed there. That tree is entirely projector-owned — it holds `hooks.json` plus the bundled scripts and nothing else, so anything unexpected there is pruned (printed, and raising rather than descending into a directory). Bundled scripts are **not** restricted by extension: whatever `x-codex.command`'s basename names is kept, matching `hookCommentSyntax()`'s support for `.sh`/`.mjs`/`.js`/`.cjs`/`.ts`.
+
 ## Intent doc frontmatter (`<name>.md`)
 
 ```yaml

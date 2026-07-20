@@ -14,7 +14,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync
 import { join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
-import { generateClaudeHooksBlock } from "./lib/hook-projection.mjs";
+import { generateClaudeHooksBlock, isHookHelper } from "./lib/hook-projection.mjs";
 import { SUBAGENT_PRIMITIVE_KEYS, validateSubagentPrimitive, assertIsolationWritable } from "./lib/subagent-primitives.mjs";
 
 const PKG_VERSION = JSON.parse(
@@ -710,13 +710,31 @@ function projectCodexHooks(intents) {
   }
 
   // Clean up any bundled file left over from a hook intent that no longer
-  // exists (or no longer bundles a config file) — e.g. a removed hook's .sh
-  // script, or the permissions.json config a since-removed hook once needed.
+  // exists (or no longer bundles a config file) — e.g. a removed hook's script,
+  // or the permissions.json config a since-removed hook once needed.
   // A hook either ships (its script is in expectedScripts) or is gone entirely.
-  for (const entry of readdirSync(pluginHooksDir)) {
+  //
+  // The keep test is membership in expectedScripts and NOTHING else. An extension
+  // filter here would delete a file this same function bundled seconds earlier:
+  // the bundler writes basename(x-codex.command) whatever its extension, and
+  // hookCommentSyntax() deliberately supports .mjs/.js/.cjs/.ts, so a `.sh`-only
+  // keep silently reaped every non-shell hook in the run that created it.
+  // expectedScripts already encodes exactly what belongs here.
+  for (const entry of readdirSync(pluginHooksDir).sort()) {
     if (entry === "hooks.json") continue;
-    if (entry.endsWith(".sh") && expectedScripts.has(entry)) continue;
-    rmSync(join(pluginHooksDir, entry), { force: true });
+    if (expectedScripts.has(entry)) continue;
+    const target = join(pluginHooksDir, entry);
+    // Never delete a tree — same rule as the Claude prune. The bundled tree is
+    // flat (x-codex.command allows no `/`), so a directory is an authoring error.
+    if (statSync(target).isDirectory()) {
+      throw new Error(
+        `.codex/plugins/aegis/hooks/${entry} is a directory — this tree is flat. ` +
+          "Bundled Codex hooks are written to the basename of x-codex.command; " +
+          "delete the directory by hand.",
+      );
+    }
+    rmSync(target, { force: true }); // no `recursive` — a directory must throw, never vanish
+    console.log(`  pruned orphan Codex hook file: .codex/plugins/aegis/hooks/${entry}`);
   }
 
   return codexIntents.length;
@@ -1723,11 +1741,11 @@ function stampHookContent(content, commentToken, version) {
 //     correctly-referenced script down with it.
 //   - HELPERS ARE EXEMPT. A `_`-prefixed entry is a shared library sourced by hook
 //     scripts, not an orphan; nothing binds it via x-claude.command by design. The
-//     HOOK_INTENT orphan rule honours the same prefix so the two never disagree.
+//     test is the shared isHookHelper() — the HOOK_INTENT orphan rule calls the
+//     same predicate, so the two cannot drift apart.
 //   - DELETIONS ARE PRINTED. Every pruned path goes to stdout. A silent prune is
 //     invisible to the author and to the gate, which is exactly how it would eat
 //     a file nobody notices until a user's hook breaks at runtime.
-const HOOK_HELPER_PREFIX = "_";
 function projectHooks(intents) {
   const HOOK_FILES = hookFilesFromIntents(intents ?? []);
   let stamped = 0;
@@ -1747,7 +1765,7 @@ function projectHooks(intents) {
     const expected = new Set(HOOK_FILES.map((p) => basename(p)));
     for (const entry of readdirSync(claudeHooksDir).sort()) {
       if (expected.has(entry)) continue;
-      if (entry.startsWith(HOOK_HELPER_PREFIX)) continue; // shared helper, not an orphan
+      if (isHookHelper(entry)) continue; // shared helper, not an orphan
       const target = join(claudeHooksDir, entry);
       // Never delete a tree. `.claude-plugin/hooks/` is FLAT (the x-claude.command
       // regex enforces it), so a directory here is an authoring error, not an
