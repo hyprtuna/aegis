@@ -9,7 +9,7 @@
       "name": "aegis",
       "source": "./",
       "description": "Plugin-first agentic AI development system.",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "category": "development",
       "keywords": [
         "agentic",

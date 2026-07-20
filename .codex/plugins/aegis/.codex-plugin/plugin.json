@@ -1,6 +1,6 @@
 {
   "name": "aegis",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Plugin-first agentic AI development system. Skills, agents, commands, rules, and templates for software development tasks.",
   "homepage": "https://github.com/hyprtuna/aegis",
   "license": "MIT",
