@@ -330,7 +330,7 @@ gaps to close rather than intentional design references:
 
 - **`flowchart`** — no natural producer skill exists yet; keep the template on
   disk, route it through the `${TEMPLATE}` mechanism once one is authored.
-- **`feature-explainer`** — `learning` already emits `concept-explainer`; a
+- **`feature-explainer`** — `codebase-onboarding`'s `explaining` fragment already emits `concept-explainer`; a
   second, feature-specific producer is a follow-up, not v0.1.1 scope.
 - **`releases`** — the release checklist template; the actual release workflow
   is maintainer prose (see the root `AGENTS.md` release-workflow section), not

@@ -4,6 +4,6 @@
   "family": "markdown",
   "version": "0.1.0",
   "source": "hand-authored",
-  "description": "ADR ticket skeleton (ADR-NNNN: context, decision, alternatives, consequences) consumed by the architecture-decision-record skill. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
+  "description": "ADR ticket skeleton (ADR-NNNN: context, decision, alternatives, consequences) consumed by the brainstorm-spec skill's adr fragment. Static skeleton — placeholders use angle-bracket prose, not mustache-lite slots.",
   "slots": []
 }

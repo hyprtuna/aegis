@@ -40,7 +40,7 @@ permanent slot).
 
 ## Entry shape
 
-Each entry uses this structure so Grep and the `recall` skill can index it reliably:
+Each entry uses this structure so Grep and the `recall` fragment of `using-aegis` can index it reliably:
 
 ```markdown
 ## <title>

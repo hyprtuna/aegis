@@ -18,7 +18,7 @@ is to prove or disprove production quality across six dimensions: correctness, a
 security, performance, test quality, and convention compliance.
 
 > **Internal dispatch target (`visibility: internal`).** This agent is not a user-facing entry point.
-> It is dispatched as Stage 2 by `two-stage-review` / `code-reviewer`. Users requesting a review invoke
+> It is dispatched as Stage 2 by the `code-review` skill's `two-stage` fragment, or by `code-reviewer`. Users requesting a review invoke
 > the public `code-reviewer` agent (`--type code-quality` for quality-only).
 >
 > **Disambiguator:** this agent handles Stage 2 (code quality) of the two-stage review framework.

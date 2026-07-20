@@ -5,7 +5,7 @@ description: 'Use when investigating a topic in depth — produces structured fi
 
 > **Invoke via `Skill({skill: "aegis:research"})`.** This is a skill, not an agent. If you reached for the Agent tool, you're using the wrong primitive.
 
-> **Pairs with the `researcher` agent** (`agents/researcher.md`). This skill is the inline form — investigate within the current conversation; the `researcher` agent is the subagent form — dispatch it to run the same investigation in an isolated context. Both produce structured findings → options → trade-offs → recommendation. **Not the same as `deep-diving`:** this skill weighs options and recommends a choice; `deep-diving` (`skills/core/deep-diving/SKILL.md`) traces a single concept, function, or data flow across the codebase and produces a call-chain map — no options, no recommendation. Reach for `research` for "which should I pick?"; reach for `deep-diving` for "how does X actually flow through the code?".
+> **Pairs with the `researcher` agent** (`agents/researcher.md`). This skill is the inline form — investigate within the current conversation; the `researcher` agent is the subagent form — dispatch it to run the same investigation in an isolated context. Both produce structured findings → options → trade-offs → recommendation. **Not the same as `deep-diving`:** this skill weighs options and recommends a choice; `deep-diving` (the `deep-dive` fragment of the `codebase-onboarding` skill) traces a single concept, function, or data flow across the codebase and produces a call-chain map — no options, no recommendation. Reach for `research` for "which should I pick?"; reach for `codebase-onboarding`'s `deep-dive` fragment for "how does X actually flow through the code?".
 
 ## Status
 researcher starting — investigating topic thoroughly and producing structured findings with evidence
@@ -119,3 +119,9 @@ hard-to-reverse decisions.
 
 ## Done
 researcher done — structured findings produced with options, trade-offs, and recommendation; status: DONE
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Comparing competing frameworks or libraries on a scored matrix | [`abilities/framework-comparison.md`](./abilities/framework-comparison.md) |

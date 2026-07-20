@@ -4,10 +4,10 @@
     {
       "id": "skill-paths-activation",
       "title": "Skill paths glob activation",
-      "description": "A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter; replaces manual language-overlay routing.",
+      "description": "A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter. Claude Code supports it; Aegis currently ships no skill that declares it.",
       "category": "frontmatter",
       "hosts": {
-        "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/skills.md#paths", "since": "v0.0.5" },
+        "claude": { "status": "gap", "evidence": "adapters/claude/projection.md#skill-paths-activation-unused-honest-gap" },
         "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "gap" },
@@ -56,7 +56,7 @@
     {
       "id": "plugin-user-config",
       "title": "Plugin userConfig install prompts",
-      "description": "Plugin manifest declares user-configurable values prompted at enable time (e.g. preferredLanguageOverlay, telemetryOptIn). Values flow into ${USER_CONFIG_*} substitutions exposed to skills.",
+      "description": "Plugin manifest declares user-configurable values prompted at enable time (e.g. telemetryOptIn). Values are substitutable as ${user_config.KEY} in skill and agent content on Claude.",
       "category": "manifest",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/plugins-reference.md:528", "since": "v0.0.5" },
@@ -199,7 +199,7 @@
     {
       "id": "instructions-loaded-hook",
       "title": "InstructionsLoaded hook",
- "description": "Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.",
+ "description": "Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the using-aegis skill's health-check fragment. No counterpart on other hosts.",
       "category": "hooks",
       "hosts": {
         "claude": { "status": "supported", "evidence": "hooks/instructions-loaded.json", "since": "v0.0.7" },
@@ -225,7 +225,7 @@
     {
       "id": "native-subagent-memory",
       "title": "Native subagent memory",
-      "description": "x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall skill. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/recall for the 3-layer retrieval workflow.",
+      "description": "x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall fragment of using-aegis. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/using-aegis/abilities/recall.md for the 3-layer retrieval workflow.",
       "category": "frontmatter",
       "hosts": {
         "claude": { "status": "supported", "evidence": "adapters/claude/projection.md#persistent-memory", "since": "v0.3.0" },

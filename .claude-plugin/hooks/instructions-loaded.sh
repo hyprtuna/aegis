@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# aegis-hook-version: 0.2.1
+# aegis-hook-version: 0.2.2
 # instructions-loaded.sh — Aegis InstructionsLoaded hook (Claude Code).
 #
 # WHY THIS EXISTS: InstructionsLoaded fires once per CLAUDE.md or
 # .claude/rules/*.md file as it enters context — at session start (load_reason
 # session_start) and again on lazy loads (nested_traversal, path_glob_match,
-# include, compact). The aegis-doctor skill consumes this to report how many rule
+# include, compact). The using-aegis health-check fragment consumes this to report how many rule
 # files actually loaded and to flag silent drops: a path_glob_match load whose
 # `globs` are present but where no glob matched the trigger file is a rule that
 # declared activation conditions yet contributed nothing.
@@ -78,7 +78,7 @@ if [ "$LOAD_REASON" = "path_glob_match" ] && [ -z "$GLOBS_PRESENT" ]; then
   fi
 fi
 
-# Best-effort session-scoped tally for aegis-doctor. mkdir/write failures degrade
+# Best-effort session-scoped tally for the health check. mkdir/write failures degrade
 # to no-op — the hook still exits 0.
 KEY="${SESSION_ID:-default}"
 STORE_DIR="${TMPDIR:-/tmp}/aegis-doctor"
@@ -119,7 +119,7 @@ fi
 
 MSG="Aegis instructions tally: ${LOADED_COUNT} rule file(s) loaded this session, ${DROP_COUNT} with a paths: condition but no recorded glob match."
 if [ -n "$DROP" ]; then
-  MSG="${MSG} This load (${FILE_PATH:-unknown}) declared paths: but matched no glob — run aegis-doctor if a rule seems missing."
+  MSG="${MSG} This load (${FILE_PATH:-unknown}) declared paths: but matched no glob — run the using-aegis health check if a rule seems missing."
 fi
 
 if command -v python3 >/dev/null 2>&1; then

@@ -154,7 +154,7 @@ aegis finish --mode discard  # skip menu → discard
 ## CHAIN END — return to user
 
 This is the final link in the Aegis SDD chain
-(`brainstorm-spec → implementation-planner → subagent-execution → finishing-branch`).
+(`brainstorm-spec → implementation-planner → orchestrate → finishing-branch`).
 After the branch action completes, return control to the user with a one-line
 summary of what was merged / kept / discarded. Do not chain forward to another
 skill; the workflow has terminated successfully.

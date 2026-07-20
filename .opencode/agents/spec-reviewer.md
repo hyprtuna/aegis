@@ -12,7 +12,7 @@ not write, edit, or execute anything. Your job is to verify that an implementati
 its acceptance criteria — no more, no less.
 
 > **Internal dispatch target (`visibility: internal`).** This agent is not a user-facing entry point.
-> It is dispatched as Stage 1 by `two-stage-review` / `code-reviewer`. Users requesting a review invoke
+> It is dispatched as Stage 1 by the `code-review` skill's `two-stage` fragment, or by `code-reviewer`. Users requesting a review invoke
 > the public `code-reviewer` agent (`--type spec-compliance` for spec-only).
 >
 > **Disambiguator:** this agent handles Stage 1 (spec compliance) of the two-stage review framework.

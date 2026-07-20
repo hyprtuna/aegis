@@ -25,7 +25,7 @@ That's it. The plugin handles all three surface registrations at session start:
 
 | Surface | Mechanism |
 |---|---|
-| 82 skills | `config.skills.paths` populated with absolute paths to `skills/{core,languages,workflows}` |
+| 63 skills | `config.skills.paths` populated with absolute paths to `skills/{core,workflows}` |
 | 17 agents | `config.agent.aegis-<name>` populated inline (frontmatter from `.opencode/agents/<name>.md` + body as prompt) |
 | 6 commands | `config.command.aegis-<name>` populated inline (frontmatter + body as template) |
 | Bootstrap | `experimental.chat.messages.transform` injects `using-aegis` SKILL body into first user message, marker-guarded |
@@ -42,7 +42,7 @@ In an OpenCode session:
 use skill tool to list skills
 ```
 
-Should show ~82 entries.
+Should show ~63 entries.
 
 Then:
 

@@ -10,7 +10,7 @@
 rules/<rule-name>.md
 ```
 
-Flat. Per-language rules live with the language skill (`skills/languages/<lang>-developer/rules/`).
+Flat. Per-language rules live with the language fragment (`skills/core/develop/abilities/languages/<lang>/rules/`).
 
 ## Frontmatter
 
@@ -36,6 +36,6 @@ runtime primitive answers a question, the answer belongs in `rules/`.
 
 ## What Does NOT Belong Here
 
-- Per-language rules (those live in `skills/languages/<lang>/rules/`).
+- Per-language rules (those live in `skills/core/develop/abilities/languages/<lang>/rules/`).
 - Long explanations or full skill bodies.
 - Adapter-specific guidance (use `x-<adapter>:` if absolutely necessary).

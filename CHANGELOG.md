@@ -6,6 +6,70 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org)
 
 ## [Unreleased]
 
+## [v0.2.2] — 2026-07-21
+
+**Breaking: 62 skills no longer appear in your slash menu.** Their content is not gone — every one is preserved as an on-demand fragment under a parent skill. The mapping is below; nothing was lost except one skill deleted on purpose.
+
+- **82 registered skills became 20.** A skill you invoke is now a phase you are in, not a topic you look up. Specialist material rides along as 126 abilities plus 28 language-rule overlays, loaded by the parent when the work calls for it rather than sitting in every session's menu competing for the model's attention. This follows the pattern Aegis's structure came from.
+- **One bucket.** `skills/languages/` and `skills/workflows/` are dissolved; all 20 live in `skills/core/`. Bucket discovery now derives from the filesystem, so a future layout change cannot leave a validator silently checking a directory that no longer exists — which had already happened twice.
+- **Chaining is prose, and it is now verified.** The `x-aegis.pipeline` frontmatter was removed: it reached no host, and generated skill bodies were shipping sentences explaining frontmatter the projector had already stripped. Phases hand off with `REQUIRED SUB-SKILL` / `REQUIRED BACKGROUND` markers in the body, and the composition validator checks that graph — 9 live edges where it previously checked 2 dead ones.
+- **Fixed: Codex was missing 28 files.** Two sibling-copy allowlists disagreed, so every language `rules/*.md` reached Claude and none reached Codex. Both now derive from one source.
+- **Fixed: fragments could not carry template directives.** Nested fragments were copied verbatim while only `SKILL.md` bodies had `${TEMPLATE:*}` resolved, so the first fold carrying a token would have thrown at projection.
+- **Regression, recorded honestly:** editing a `*.go` file used to auto-activate the Go skill through a `paths` glob. No skill declares one now, so nothing auto-activates — you reach for `develop`, which selects fragments by the files a task touches. `paths` gates activation, so putting a union of language globs on `develop` would have hidden it for general work; the capability is marked a gap rather than quietly left claiming support.
+
+### Where your skills went
+
+Language skills (`aegis:go-developer`, `aegis:python-developer`, and 17 more) → `develop`, as `abilities/languages/<lang>.md` with practice and rules beneath it. Invoke `aegis:develop`; it selects by the files you are touching, and layers framework onto language.
+
+| Was | Now — a fragment of… |
+|---|---|
+| `aegis:aegis-doctor` | `using-aegis/abilities/health-check.md` |
+| `aegis:architecture-decision-record` | `brainstorm-spec/abilities/adr.md` |
+| `aegis:autonomous-execution` | `orchestrate/abilities/autonomous-loop.md` |
+| `aegis:changelog-generation` | `doc-writing/abilities/changelog.md` |
+| `aegis:claude-md-improvement` | `codebase-onboarding/abilities/context-file-audit.md` |
+| `aegis:code-simplification` | `develop/abilities/simplification.md` |
+| `aegis:code-tour` | `codebase-onboarding/abilities/code-tour.md` |
+| `aegis:codebase-mapping` | `codebase-onboarding/abilities/mapping.md` |
+| `aegis:color-palette-design` | `ui-design/abilities/color.md` |
+| `aegis:deep-diving` | `codebase-onboarding/abilities/deep-dive.md` |
+| `aegis:dependency-management` | `develop/abilities/dependencies.md` |
+| `aegis:design-exploration` | `brainstorm-spec/abilities/exploring-intent.md` |
+| `aegis:design-system-generation` | `ui-design/abilities/design-systems.md` |
+| `aegis:dispatching-parallel-agents` | `orchestrate/abilities/dispatching.md` |
+| `aegis:doc-verification` | `doc-writing/abilities/verifying-docs.md` |
+| `aegis:feature-developer` | `default-feature/abilities/end-to-end.md` |
+| `aegis:framework-selection` | `research/abilities/framework-comparison.md` |
+| `aegis:general-developer` | `develop/abilities/general.md` |
+| `aegis:github-coordination` | `orchestrate/abilities/github-coordination.md` |
+| `aegis:github-workflow` | `git-workflow/abilities/github.md` |
+| `aegis:gitlab-workflow` | `git-workflow/abilities/gitlab.md` |
+| `aegis:learning` | `codebase-onboarding/abilities/explaining.md` |
+| `aegis:mcp-construction` | `develop/abilities/mcp-servers.md` |
+| `aegis:orchestrator-guide` | `orchestrate/abilities/when-to-fan-out.md` |
+| `aegis:parallel-wave-executor` | `orchestrate/abilities/wave-execution.md` |
+| `aegis:performance-profiling` | `debugging/abilities/profiling.md` |
+| `aegis:plan-structure-audit` | `implementation-planner/abilities/plan-audit.md` |
+| `aegis:project-exploration` | `codebase-onboarding/abilities/exploration.md` |
+| `aegis:read-background-results` | `orchestrate/abilities/background-results.md` |
+| `aegis:recall` | `using-aegis/abilities/recall.md` |
+| `aegis:review-requesting` | `code-review/abilities/requesting.md` |
+| `aegis:sdd-workflow` | `default-feature/abilities/spec-first.md` |
+| `aegis:silent-failure-discipline` | `code-review/abilities/silent-failures.md` |
+| `aegis:skill-extraction` | `skill-creation/abilities/extraction.md` |
+| `aegis:skill-selection` | `using-aegis/abilities/routing.md` |
+| `aegis:style-selection` | `ui-design/abilities/style-families.md` |
+| `aegis:subagent-execution` | `orchestrate/abilities/subagent-execution.md` |
+| `aegis:summarization` | `orchestrate/abilities/summarization.md` |
+| `aegis:task-decomposition` | `implementation-planner/abilities/decomposition.md` |
+| `aegis:test-analysis` | `test-driven-development/abilities/coverage-analysis.md` |
+| `aegis:two-stage-review` | `code-review/abilities/two-stage.md` |
+| `aegis:typography-pairings` | `ui-design/abilities/typography.md` |
+| `aegis:ui-anti-pattern-rules` | `ui-design/abilities/anti-patterns.md` |
+| `aegis:ux-reasoning-rules` | `ui-design/abilities/ux-reasoning.md` |
+
+`aegis:skill-router-gate` was deleted outright — the SessionStart bootstrap already performs that routing.
+
 ## [v0.2.1] — 2026-07-20
 
 - **`kind:` is retired.** No host ever recognised the field, the projector already discarded it, and a surface's kind is stated by the directory it lives in. Removed from all 123 canonical surfaces plus the language fragments and template bodies, dropped from the schema, and now rejected by the `FRONTMATTER` rule so it cannot drift back. It survives only where it is a live discriminator — hook, statusline, and template JSON.

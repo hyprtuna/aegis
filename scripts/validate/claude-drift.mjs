@@ -10,6 +10,7 @@
 // in-memory, which is unsafe here because project.mjs executes its CLI on import.
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { skillScopes } from "../lib/skill-scopes.mjs";
 
 export const id = "CLAUDE_DRIFT";
 
@@ -20,8 +21,30 @@ export function run(ctx) {
 
   const claudeRoot = join(REPO, "adapters/claude");
 
+  // Which generated paths count as a skill is derived from the live buckets, never a
+  // literal. A hardcoded alternation here silently stops matching when a bucket is
+  // renamed or dissolved — and a non-matching path is skipped, not flagged, so the
+  // frontmatter allowlist below would pass vacuously over an entire bucket.
+  // …and an EMPTY scope list is the sharpest form of that failure: the alternation
+  // collapses to `(?:)`, which matches nothing, so every generated SKILL.md is skipped
+  // and the whole allowlist passes having checked zero files. `skillScopes` documents
+  // returning [] when skills/ is absent, so guard it explicitly rather than trusting
+  // that it always finds something.
+  const scopes = skillScopes(REPO);
+  if (scopes.length === 0) {
+    errors.push(
+      "CLAUDE_DRIFT found no skill buckets under skills/ — the generated-skill frontmatter " +
+        "allowlist would pass vacuously over every projected skill. Check skills/ layout and " +
+        "scripts/lib/skill-scopes.mjs.",
+    );
+    return { errors, warnings };
+  }
+  const genSkillRe = new RegExp(
+    `^adapters/claude/skills/(?:${scopes.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})/[^/]+/SKILL\\.md$`,
+  );
+
   // D1. Skill count + name parity per scope.
-  for (const scope of ["core", "languages", "workflows"]) {
+  for (const scope of skillScopes(REPO)) {
     const canonScope = join(REPO, "skills", scope);
     const genScope = join(claudeRoot, "skills", scope);
     const canonNames = new Set();
@@ -205,7 +228,7 @@ export function run(ctx) {
       }
 
       // Frontmatter key allowlist applies to generated SKILL.md, agents/*.md, commands/*.md.
-      const isGenSkill = /^adapters\/claude\/skills\/(?:core|languages|workflows)\/[^/]+\/SKILL\.md$/.test(rel);
+      const isGenSkill = genSkillRe.test(rel);
       const isGenAgent = /^adapters\/claude\/agents\/[^/]+\.md$/.test(rel) && base !== "AGENTS.md" && base !== "CLAUDE.md";
       const isGenCommand = /^adapters\/claude\/commands\/[^/]+\.md$/.test(rel) && base !== "AGENTS.md" && base !== "CLAUDE.md";
       if (!isGenSkill && !isGenAgent && !isGenCommand) continue;

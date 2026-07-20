@@ -128,7 +128,7 @@ the one-line above. The HARD-GATE lifts only after the user's explicit approval 
 After the user has explicitly approved the spec, the next step in the chain is
 `aegis:implementation-planner`. Hand the approved spec path to implementation-planner and let it produce the
 phased implementation plan. Do not skip implementation-planner in favor of inline planning,
-even for "small" specs. The canonical chain is `brainstorm-spec → implementation-planner → subagent-execution → finishing-branch` — quality gates live in `subagent-execution`'s two-stage review cycles.
+even for "small" specs. The canonical chain is `brainstorm-spec → implementation-planner → orchestrate → finishing-branch` — quality gates live in the `orchestrate` skill's `subagent-execution` fragment.
 
 ---
 
@@ -141,3 +141,14 @@ Run this three-check pass on the spec you wrote before emitting the handshake. A
 - [ ] **Scope check** — covers only what was asked. Anything beyond the request is in `## Out of Scope` or removed — no silent scope creep.
 
 Also confirm: the spec is self-contained (a reader who hasn't seen the conversation can understand it); `## Open Questions` is present (`- (none)` if empty); and, for the Structured-spec format, the checks in `abilities/structured-spec-extras.md` are satisfied.
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| An under-specified request needing intent exploration first | [`abilities/exploring-intent.md`](./abilities/exploring-intent.md) |
+| Recording a non-trivial architectural decision durably | [`abilities/adr.md`](./abilities/adr.md) |
+| Surfacing and elevating implicit assumptions | [`abilities/assumptions-surfacer.md`](./abilities/assumptions-surfacer.md) |
+| The full per-step process and assumption taxonomy | [`abilities/process-steps.md`](./abilities/process-steps.md) |
+| The AskUserQuestion payloads for location + format | [`abilities/question-payloads.md`](./abilities/question-payloads.md) |
+| The structured decisions-block grammar | [`abilities/structured-spec-extras.md`](./abilities/structured-spec-extras.md) |

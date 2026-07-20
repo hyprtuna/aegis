@@ -53,14 +53,31 @@ export function run(ctx) {
   const errors = [];
   const warnings = [];
 
+  // Fragments live at ANY depth under a skill's abilities/ tree, not just depth 1 — a parent
+  // skill may group them (develop/abilities/languages/<lang>/<practice>.md). The former
+  // `abilities/[^/]+\.md$` pattern covered the flat layout only and silently dropped every
+  // nested fragment out of scope, which is the shape the corpus is moving to.
+  const abilityTree = /^skills\/[^/]+\/[^/]+\/abilities\/.+\.md$/;
   const targets = files.filter((p) => {
     const r = rel(p);
     return (
       /^skills\/[^/]+\/[^/]+\/SKILL\.md$/.test(r) ||
-      /^skills\/[^/]+\/[^/]+\/abilities\/[^/]+\.md$/.test(r) ||
+      abilityTree.test(r) ||
       (/^agents\/[^/]+\.md$/.test(r) && !/AGENTS|CLAUDE/.test(r))
     );
   });
+
+  // Vacuity guard: this rule scans prose, so a zero-file subject set produces zero warnings
+  // and looks identical to a clean corpus. Aegis always ships skills and agents; an empty
+  // target set means the path patterns above drifted from the tree, not that all is well.
+  if (targets.length === 0) {
+    errors.push(
+      "TOOL_NAME_LEAK matched no SKILL.md, abilities/ fragment, or agent file — " +
+        "the layout changed and this check is now vacuous. Update the path patterns in " +
+        "scripts/validate/tool-name-leak.mjs.",
+    );
+    return { errors, warnings };
+  }
 
   for (const f of targets) {
     const body = ctx.stripFences(ctx.read(f));

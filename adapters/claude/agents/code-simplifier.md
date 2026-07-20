@@ -8,7 +8,7 @@ model: claude-sonnet-4-6
 
 > **Invoke via `Agent({subagent_type: "aegis:code-simplifier"})`.** This is an agent, not a skill.
 
-> **Pairs with the `code-simplification` skill** (`skills/core/code-simplification/SKILL.md`) — same behaviour-preserving structural-reduction capability, subagent form. For AI-generated smell specifically (over-commenting, verbose patterns), see that skill's on-demand slop-removal ability rather than treating it as structural complexity.
+> **Pairs with the `develop` skill's `simplification` fragment** — same behaviour-preserving structural-reduction capability, subagent form. For AI-generated smell specifically (over-commenting, verbose patterns), see that fragment's on-demand slop-removal file rather than treating it as structural complexity.
 
 ## Status: code-simplifier starting — reducing complexity while preserving all functionality
 

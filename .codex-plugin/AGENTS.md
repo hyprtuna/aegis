@@ -337,8 +337,8 @@ narrow:
 ## When to use
 
 - Any skill that produces a `${TEMPLATE:decisions}` block at runtime
-  (`design-exploration`, `implementation-planner`, `architecture-decision-record`,
-  `framework-selection`, `brainstorm-spec`, …).
+  (`brainstorm-spec` and its `exploring-intent` / `adr` fragments,
+  `implementation-planner`, `research`'s `framework-comparison` fragment, …).
 - Any agent that consumes a decision prompt rendered by such a skill.
 
 ## Auto-mode contract
@@ -446,7 +446,7 @@ permanent slot).
 
 ## Entry shape
 
-Each entry uses this structure so Grep and the `recall` skill can index it reliably:
+Each entry uses this structure so Grep and the `recall` fragment of `using-aegis` can index it reliably:
 
 ```markdown
 ## <title>

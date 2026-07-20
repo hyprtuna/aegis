@@ -14,7 +14,7 @@ Generated from `manifest/capabilities.json`. See [capability-matrix.md](capabili
 
 | Capability | Claude Code | OpenCode | Codex | Cursor | Zed |
 |---|---|---|---|---|---|
-| `skill-paths-activation` | ✅ supported | ⛔ gap | ⛔ gap | ⛔ gap | — n/a |
+| `skill-paths-activation` | ⛔ gap | ⛔ gap | ⛔ gap | ⛔ gap | — n/a |
 | `skill-agent-auto-dispatch` | ✅ supported | 🟡 partial | ⛔ gap | — n/a | — n/a |
 | `skill-disallowed-tools` | ✅ supported | ⛔ gap | ⛔ gap | — n/a | — n/a |
 | `agent-tools-allowlist` | ✅ supported | ✅ supported | ⛔ gap | — n/a | — n/a |

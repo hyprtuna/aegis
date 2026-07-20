@@ -93,7 +93,8 @@ was removed once found to be bogus — see the *Warn-then-error rollout* note ab
 
 Module: `scripts/validate/tool-name-leak.mjs`.
 
-Lints skill bodies (`skills/**/SKILL.md`, `skills/**/abilities/*.md`) and
+Lints skill bodies (`skills/**/SKILL.md`, every fragment under a
+`skills/**/abilities/` tree at any depth) and
 `agents/*.md` for host-specific tool names: `Read`, `Edit`, `Bash`, `Grep`,
 `Glob`, `Task`, `TodoWrite`, `WebFetch`, `WebSearch`. Fenced code blocks are
 stripped first — linting inside code fences produces too many false positives.
@@ -105,6 +106,22 @@ seconds on the full tree.
 
 **Remediation:** prefer host-neutral phrasing — "read the file", "run the
 command", "search the code", "dispatch a subagent", and so on.
+
+A zero-file subject set is a hard error, not a pass: this rule scans prose, so
+"no files matched" and "no leaks found" are otherwise the same clean output.
+
+### `FRONTMATTER` (abilities half) — Iron Law 4 fragment frontmatter
+
+Module: `scripts/validate/frontmatter.mjs`.
+
+Beyond the canonical-surface keys catalogued above, the rule asserts Iron Law 4
+on fragments: a file under a `skills/**/abilities/` tree carries **no
+frontmatter, or at most `name` and `description`**. A fragment is not a
+registered skill, and one carrying `visibility:`/`platforms:` reads like a
+registrable surface to anyone skimming it. Warn-only; graduates to hard-fail a
+release later. Also warns when no fragments match at all.
+
+**Remediation:** delete the extra keys from the fragment's frontmatter.
 
 ### `AGENT_NAME_COLLISION` — cross-surface name collisions
 
@@ -139,7 +156,7 @@ that a skill over 100 lines produces **exactly one** size warning, not two.
 exceeded 100 lines when this rule landed; hard-failing immediately would break the
 build. Progressive disclosure restructures them a few at a
 time into a lean `SKILL.md` plus `references/`/`abilities/` overflow — an early
-pass split the four largest (`sdd-workflow`, `two-stage-review`,
+pass split the four largest (the `spec-first` and `two-stage` fragments,
 `verification`, `using-git-worktrees`); the remaining ~25 are the documented
 warn-only backlog. The cap graduates to **hard-fail** once that backlog is
 cleared, following the usual warn→error graduation convention.
@@ -164,8 +181,8 @@ body-length cap moved out of this module to `skill-size.mjs` — see
 
 Module: `scripts/validate/bucket-readme.mjs`.
 
-Every skill bucket (`skills/core`, `skills/languages`, `skills/workflows`) and
-every template family (`templates/html`, `templates/markdown`, `templates/json`)
+Every skill bucket (discovered from the filesystem via `scripts/lib/skill-scopes.mjs`, never
+re-enumerated here) and every template family (`templates/html`, `templates/markdown`, `templates/json`)
 that exists must contain a `README.md` that mentions every shipping child. Skill
 children are subdirectories holding a `SKILL.md`; template-family children are
 the base stems of shipping template files (the `.template.json` config companion
@@ -218,7 +235,7 @@ warn → error convention.
 **Graduation precondition (do NOT skip):** the current heuristic keys on the
 `## Output` / `## Deliverables` / `## Structured Output` heading alone, which
 over-flags producers whose "output" is an *ephemeral completion report* (e.g.
-`mcp-builder`, `ultra-worker`, `skill-selection`, `verification`) rather than a
+`mcp-builder`, `ultra-worker`, `verification`) rather than a
 durable written artifact — ~25 warn-only hits today, several of them false
 positives against the rule's own narrow definition. Before this rule graduates
 to hard-fail, the heuristic MUST be narrowed (require a write/handoff verb, a

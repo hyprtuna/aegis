@@ -24,7 +24,7 @@ Aegis is a CLI-free, plugin-first, agentic AI development system. It carries Anv
 | Abilities | `skills/<name>/abilities/<ability>.md` | On-demand fragments owned by a parent skill. NOT registered. |
 | Agents | `agents/<name>.md` | First-class doers that orchestrate skills and workflows. |
 | Commands | `commands/<name>.md` | User-facing workflow entry-points (capped ~15). |
-| Rules | `rules/<name>.md` and `skills/languages/<lang>/rules/*.md` | Short always-loaded guidance. |
+| Rules | `rules/<name>.md` and `skills/core/develop/abilities/languages/<lang>/rules/*.md` | Short always-loaded guidance. |
 | Hooks | `hooks/<event>.md` (intent) + `.claude-plugin/hooks/...` (impl) | Deferred initially; launch ships SessionStart for Claude only. |
 | Templates | `templates/{markdown,json,html,prompts,...}` | Reusable output skeletons. |
 | Adapters | `adapters/<host>/projection.md` | Projection notes + gap docs. NO content duplication. |
@@ -46,10 +46,8 @@ aegis/
 │   └── schemas/aegis-surface.schema.json
 ├── skills/
 │   ├── core/<name>/SKILL.md        # universal
-│   ├── languages/<lang>-developer/
-│   │   ├── SKILL.md
-│   │   ├── abilities/<ability>.md  # fragments
-│   │   └── rules/{coding-style,patterns,security,testing}.md
+│   │   └── abilities/…             # fragments (e.g. develop/abilities/languages/<lang>.md
+│   │                               #   + <lang>/ practice files and rules/ overlay)
 │   └── workflows/<workflow>/
 │       ├── SKILL.md
 │       └── abilities/<step>.md

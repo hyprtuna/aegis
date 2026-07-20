@@ -12,6 +12,10 @@ review-response starting — addressing each review finding with action or reaso
 > `code-review` skill (the instrument). `review-response` handles the feedback that
 > `code-review` emits; it does not perform reviewing itself.
 
+**REQUIRED BACKGROUND:** this skill consumes review findings, so it presupposes a completed review —
+normally `aegis:code-review`. If you have no findings in hand, run that first; there is nothing here
+to respond to otherwise.
+
 Verify before implementing. Technical correctness over social comfort.
 
 ## Forbidden Responses
@@ -128,6 +132,12 @@ For each review finding, respond with:
 **Action**: [What you did or why you didn't]
 **Diff**: [Show the change if applicable]
 ```
+
+## REQUIRED SUB-SKILL: verification
+
+Addressing findings changes code, so the change needs fresh evidence before anyone calls it done.
+Hand off to `aegis:verification` and run its gate over the edits you just made. A disposition for
+every finding is not the same as a green build.
 
 ## Done
 review-response done — all review findings addressed (fixed, pushed back, or deferred with reasoning); status: DONE

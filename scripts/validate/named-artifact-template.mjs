@@ -25,7 +25,9 @@
 
 export const id = "NAMED_ARTIFACT_TEMPLATE";
 
-const SKILL_SCOPES = ["core", "languages", "workflows"];
+// The bucket segment is matched structurally (`[^/]+`) rather than against an enumerated
+// bucket list. An enumerated copy of that list lived in a dozen files; dissolving a bucket
+// left the stale copies matching nothing, and a rule that matches nothing passes silently.
 
 // A named-artifact emission signal: a section heading that introduces a durable
 // structured deliverable. Conservative — disciplines whose "output" is inline
@@ -36,7 +38,7 @@ export function run(ctx) {
   const { files, rel } = ctx;
   const warnings = [];
 
-  const skillRe = new RegExp(`^skills/(${SKILL_SCOPES.join("|")})/[^/]+/SKILL\\.md$`);
+  const skillRe = new RegExp(`^skills/[^/]+/[^/]+/SKILL\\.md$`);
   const agentRe = /^agents\/[^/]+\.md$/;
 
   const producers = files.filter((p) => {

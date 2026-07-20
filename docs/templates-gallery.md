@@ -40,7 +40,7 @@ exception; the other 19 are zero-JS.
   file-by-file tour with code, review-focus callouts, test plan, staged rollout.
 - Slots: `title`, `pr.number`, `summary`, `changes[]`, `testPlan[]` (+ 8
   optional).
-- Producer: `finishing-branch` and `github-workflow` skills.
+- Producer: the `finishing-branch` skill and the `git-workflow` skill's `github` fragment.
 - Siblings: Markdown.
 
 ## Plan
@@ -90,7 +90,7 @@ exception; the other 19 are zero-JS.
 - Concept explainer for research/learning: an intuition lead, plain-prose
   mechanics, a worked example, and a further-reading sidebar.
 - Slots: `concept`, `intuition`, `mechanics`, `example` (+ 3 optional).
-- Producer: `learning` skill.
+- Producer: the `codebase-onboarding` skill's `explaining` fragment.
 - Siblings: Markdown (default), JSON.
 
 ### code-understanding
@@ -99,7 +99,7 @@ exception; the other 19 are zero-JS.
   call-sequence with collapsible source snippets, and a sidebar of key
   components and related references.
 - Slots: `title`, `question`, `callSequence[]`, `components[]` (+ optional refs).
-- Producer: `codebase-mapping` skill and `code-explorer` agent.
+- Producer: the `codebase-onboarding` skill's `mapping` fragment and the `code-explorer` agent.
 - Siblings: Markdown (default), JSON.
 
 ## Exploration
@@ -126,7 +126,7 @@ exception; the other 19 are zero-JS.
 - Design-system reference: color swatches, a type scale, a spacing ruler, and a
   core-component gallery rendered from shared tokens.
 - Slots: `title`, `swatches`, `typeScale`, `spacing`, `components` (+ 1 optional).
-- Producer: `design-system-generation` skill.
+- Producer: the `ui-design` skill's `design-systems` fragment.
 - Siblings: JSON.
 
 ### component-variants

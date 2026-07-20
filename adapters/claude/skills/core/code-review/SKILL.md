@@ -16,7 +16,7 @@ code-reviewer starting — reviewing code changes with severity-graded findings 
 
 > **Review-cluster role: instrument.** `code-review` is the instrument that *performs* a
 > review — it produces the severity-graded findings. The review *workflows* —
-> `review-requesting`, `review-response`, and `two-stage-review` — call this skill rather than
+> `review-response`, plus this skill's own `abilities/requesting.md` and `abilities/two-stage.md` fragments — call this body rather than
 > re-implement reviewing. When you need findings, this is the skill; when you need to request,
 > respond to, or orchestrate reviews, reach for one of those workflows.
 
@@ -92,5 +92,25 @@ Two semantic review passes are available as sibling prompt files, dispatched via
 
 Both prompts are read-only — they emit findings and never edit code.
 
+## REQUIRED SUB-SKILL: review-response
+
+Reviewing produces findings; it does not act on them. Once the findings are reported, hand off to
+`aegis:review-response`, which verifies each one before implementing and pushes back on the ones
+that are wrong. Do not start editing code from inside this skill — the review instrument stays
+read-only, and answering your own findings here loses the verify-before-implement discipline.
+
 ## Done
 code-reviewer done — all findings reported with severity tags and file:line references; status: DONE
+
+## Fragments
+
+Load one when you reach the work it governs; do not force-load with an `@`-style directive.
+
+| When to load | Fragment |
+|---|---|
+| Assembling context and dispatching a reviewer on a change | [`abilities/requesting.md`](./abilities/requesting.md) |
+| Sequencing spec-compliance then code-quality as two gated passes | [`abilities/two-stage.md`](./abilities/two-stage.md) |
+| Hunting silent failures, swallowed errors, and misleading fallbacks | [`abilities/silent-failures.md`](./abilities/silent-failures.md) |
+| Naming a structural smell precisely | [`abilities/fowler-code-smells.md`](./abilities/fowler-code-smells.md) |
+| Judging whether a comment earns its place | [`abilities/comment-analyzer.md`](./abilities/comment-analyzer.md) |
+| Reviewing type design and illegal-state representability | [`abilities/type-design-analyzer.md`](./abilities/type-design-analyzer.md) |

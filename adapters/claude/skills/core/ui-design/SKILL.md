@@ -7,27 +7,28 @@ description: 'Use when designing UI/UX surfaces — visual hierarchy, spacing, c
 
 # UI/UX Designer
 
-**Announce:** I'm using the ui-design skill to craft a visually distinctive, accessible, and functionally clear interface. I'll coordinate color, typography, and style decisions from the sub-skills, then synthesise them into a unified design recommendation.
+**Announce:** I'm using the ui-design skill to craft a visually distinctive, accessible, and functionally clear interface. I'll coordinate color, typography, and style decisions from the construction fragments, then synthesise them into a unified design recommendation.
 
 ## Coordinator role
 
-This skill coordinates three specialist sub-skills, each invoked in declared order before this body runs:
+This skill coordinates three construction fragments. Read them in this order before synthesising,
+because each constrains the next:
 
-1. **color-palette-design** — WCAG-AA role-based palette with dark-mode derivation
-2. **typography-pairings** — display/body font pairings by industry and style mood
-3. **style-selection** — named visual style family (Brutalist, Soft UI, Glassmorphism, etc.)
+1. **`abilities/color.md`** — WCAG-AA role-based palette with dark-mode derivation
+2. **`abilities/typography.md`** — display/body font pairings by industry and style mood
+3. **`abilities/style-families.md`** — named visual style family (Brutalist, Soft UI, Glassmorphism, etc.)
 
-Their outputs are available in the `<sub-skill-outputs>` block in your context. Use them as the foundation for the unified design recommendation below.
+Their outputs are the foundation for the unified design recommendation below.
 
-## Synthesising sub-skill outputs
+## Synthesising the fragment outputs
 
-When `<sub-skill-outputs>` is present in context, integrate the results:
+Integrate the three construction passes:
 
-- **Color**: take the role-based palette from `color-palette-design` (primary, secondary, CTA, background, text, border, semantic tokens).
-- **Typography**: take the display/body pairing and modular scale from `typography-pairings`.
-- **Style**: take the named style family and component language from `style-selection` — let it govern spacing, border-radius, shadow depth, and interaction style.
+- **Color**: take the role-based palette from `abilities/color.md` (primary, secondary, CTA, background, text, border, semantic tokens).
+- **Typography**: take the display/body pairing and modular scale from `abilities/typography.md`.
+- **Style**: take the named style family and component language from `abilities/style-families.md` — let it govern spacing, border-radius, shadow depth, and interaction style.
 
-If sub-skill outputs are absent (direct invocation without sub-skills), make your own colour, typography, and style decisions using the design principles below.
+For a quick audit that does not warrant the full construction pass, make your own colour, typography, and style decisions using the design principles below.
 
 ## Unified design recommendation
 
@@ -47,9 +48,9 @@ This skill is the producer for the `visual-exploration` template kind — there 
 
 Each direction's notes carry the synthesised design decisions:
 
-- **Palette** — role-based palette tokens from `color-palette-design`, or derived.
-- **Typography** — display/body pairing and modular scale from `typography-pairings`, or derived.
-- **Style** — named style family and component language from `style-selection`, or derived.
+- **Palette** — role-based palette tokens from `abilities/color.md`, or derived.
+- **Typography** — display/body pairing and modular scale from `abilities/typography.md`, or derived.
+- **Style** — named style family and component language from `abilities/style-families.md`, or derived.
 - **Component decisions** — each component with spacing, border-radius, shadow, interaction state.
 - **Accessibility checklist** — WCAG AA contrast pairs confirmed; keyboard nav; focus indicators; reduced-motion.
 
@@ -135,11 +136,17 @@ Before implementing a UI feature, produce a brief design contract:
 - Run Lighthouse accessibility audit after implementation
 - **Verify the rendered output empirically.** Confirm the design against what the host can actually render — a browser, a screenshot tool, or a measurement — not against the source alone. A screenshot you did not read back is not verification. Detector or lint output is defect evidence only; passing it never proves the work is done.
 
-## See also — sub-skills
+## Fragments
 
-The `ui-design` audit flags issues; the sub-skills help you construct a system that doesn't produce those issues in the first place.
+The `ui-design` audit flags issues; the fragments below help you construct a system that doesn't
+produce those issues in the first place. Read one when you reach the work it governs — do not pull
+the whole tree into context up front, and do not force-load with an `@`-style directive.
 
-- [`style-selection`](../style-selection/SKILL.md) — pick a named visual style by industry.
-- [`color-palette-design`](../color-palette-design/SKILL.md) — construct a WCAG-AA palette with dark-mode derivation.
-- [`typography-pairings`](../typography-pairings/SKILL.md) — display/body pairings by industry; avoid the Inter-only default.
-- [`ux-reasoning-rules`](../ux-reasoning-rules/SKILL.md) — 25 high-leverage UX rules as a review checklist.
+| When to load | Fragment |
+|---|---|
+| Picking a named visual style by industry | [`abilities/style-families.md`](./abilities/style-families.md) |
+| Constructing a WCAG-AA palette with dark-mode derivation | [`abilities/color.md`](./abilities/color.md) |
+| Choosing display/body pairings; avoiding the Inter-only default | [`abilities/typography.md`](./abilities/typography.md) |
+| Emitting tokens + component defaults as a design system | [`abilities/design-systems.md`](./abilities/design-systems.md) |
+| Flagging UI anti-patterns in an edit (15-rule catalog) | [`abilities/anti-patterns.md`](./abilities/anti-patterns.md) |
+| Running the 25-rule UX review checklist | [`abilities/ux-reasoning.md`](./abilities/ux-reasoning.md) |

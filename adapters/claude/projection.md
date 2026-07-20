@@ -33,7 +33,7 @@ exception, not hand-copied canonical.
 
 | Aegis canonical | Claude native path | Notes |
 |---|---|---|
-| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,languages,workflows}/` | An earlier release repointed this to the generated tree. `skills` lists bucket roots, not the 82 per-skill dirs — Claude scans each entry one level deep for `<name>/SKILL.md` and *adds* to the default scan, so per-skill paths landed one level too deep and registered zero. |
+| `skills/<scope>/<name>/SKILL.md` | **Generated** `adapters/claude/skills/<scope>/<name>/SKILL.md`; `plugin.json` `skills` lists the **bucket roots** `./adapters/claude/skills/{core,workflows}/` | An earlier release repointed this to the generated tree. Bucket roots are a **choice, not a constraint** — one entry per bucket instead of one per skill. See "Why bucket roots, not per-skill paths" below; the earlier claim that per-skill paths "registered zero" is not supported by the evidence and has been corrected. |
 | Marketplace | **Generated** `.claude-plugin/marketplace.json` (string `source: "./"`) | Claude's own marketplace, separate from Codex's `.agents/plugins/marketplace.json` (object source). Claude rejects the object form. Lets `/plugin marketplace add <repo>` + `/plugin install aegis@aegis` work. |
 | `agents/<name>.md` | **Generated** `adapters/claude/agents/<name>.md`, via `plugin.json` `agents: ["./adapters/claude/agents/"]` | The `agents` key replaces the default root scan; carries injected `tools:`. |
 | `commands/<name>.md` | **Generated** `adapters/claude/commands/<name>.md`, via `plugin.json` `commands: ["./adapters/claude/commands/<name>.md", …]` | Projected with flattened Claude-native frontmatter (`description` + `argument-hint`; canonical `name`/`visibility`/`platforms`/`x-*` dropped). Declaring `commands` replaces the default `./commands/` scan. Before this, the raw canonical files were default-scanned and listed but **not invokable** (`/aegis:<cmd>` → "Unknown command"). |
@@ -62,7 +62,7 @@ adapters/claude/
 2. Provider-tagged prose: keep `<claude>…</claude>` blocks, strip `<opencode>…</opencode>` and any other host's blocks.
 3. **Re-inject the Invoke-via blockquote (Claude-only).** Canonical bodies are host-neutral — they no longer carry the `> **Invoke via …**` blockquote. The projector rebuilds it from `x-claude.primitiveHint` (`skill` → `Skill({skill: "aegis:<name>"})`, `agent` → `Agent({subagent_type: "aegis:<name>"})`) and PREPENDS it to the Claude body. Surfaces without `primitiveHint` get nothing; OpenCode/Codex/Cursor/Zed get nothing. `primitiveHint` is consumed here, never emitted into generated frontmatter.
 4. Frontmatter: start from the canonical 4 fields → map `visibility: internal` → native `user-invocable: false` (**skills only**, see below), drop `visibility`/`platforms`/`source` (not Claude-native) → flatten `x-claude.*` into native keys (`x-claude.paths` → `paths:`, `x-claude.agent` → `agent:`, `x-claude.disallowed-tools` → `disallowedTools:`) and strip the whole `x-claude`/`x-opencode` block → resolve the `model` alias via `manifest/models.json` → for agents, inject `tools:`/`disallowedTools:` from `manifest/permissions.json` (never from frontmatter).
-5. Copy `abilities/`, `references/`, **and `rules/`** siblings verbatim so a SKILL.md's relative links (e.g. `python-developer`'s `rules/` sibling) resolve in the generated tree.
+5. Copy `abilities/`, `references/`, **and `rules/`** siblings verbatim — walking subdirectories — so a SKILL.md's relative links (e.g. `develop`'s `abilities/languages/<lang>/rules/` overlay) resolve in the generated tree.
 6. Atomic emit (`*.tmp` → `atomicReplace`).
 
 ### `visibility: internal` → `user-invocable: false` (and why not `disable-model-invocation`)
@@ -98,16 +98,17 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 
 ## Plugin Manifest Mapping
 
-`.claude-plugin/plugin.json` declares `name`, `version`, `description`, `author`, `license`, `keywords`, the SessionStart hook, and `skills` (repointed to the generated tree; one entry per **scope bucket root**, not per skill — Claude scans each entry one level deep for `<name>/SKILL.md`), `agents` (pointing at the generated agents dir), `commands` (file-path array, generated tree), `userConfig`, and `dependencies`. Background monitors are **opt-in** and NOT declared in the default `plugin.json` (see Background Monitors). Declaring an `agents` key **replaces** the default root `agents/` scan (per `references/claude-code-docs/docs/plugins-reference.md:600`), so canonical `agents/*.md` is no longer double-registered — the generated tree is the single discovered surface.
+`.claude-plugin/plugin.json` declares `name`, `version`, `description`, `author`, `license`, `keywords`, the SessionStart hook, and `skills` (repointed to the generated tree; one entry per **scope bucket root**, not per skill — a listed directory is scanned for `<name>/SKILL.md` per `references/claude-code-docs/docs/plugins-reference.md:521`. Per-skill paths are equally valid; see "Why bucket roots, not per-skill paths"), `agents` (pointing at the generated agents dir), `commands` (file-path array, generated tree), `userConfig`, and `dependencies`. Background monitors are **opt-in** and NOT declared in the default `plugin.json` (see Background Monitors). Declaring an `agents` key **replaces** the default root `agents/` scan (per `references/claude-code-docs/docs/plugins-reference.md:600`), so canonical `agents/*.md` is no longer double-registered — the generated tree is the single discovered surface.
 
 ```jsonc
 {
   "name": "aegis",
   "version": "0.0.5",
-  "skills": ["./adapters/claude/skills/core/", "./adapters/claude/skills/languages/", "./adapters/claude/skills/workflows/"],
+  // one entry per skill bucket; the list is generated from filesystem discovery,
+  // not hand-maintained (see scripts/lib/skill-scopes.mjs)
+  "skills": ["./adapters/claude/skills/core/"],
   "agents": ["./adapters/claude/agents/"],
-  "userConfig": { "preferredLanguageOverlay": { "type": "string", "default": "" },
-                  "telemetryOptIn": { "type": "boolean", "default": false } },
+  "userConfig": { "telemetryOptIn": { "type": "boolean", "default": false } },
   "dependencies": [],
   "hooks": {
     "SessionStart": [
@@ -120,11 +121,44 @@ The generated frontmatter may carry Claude-native keys the canonical files must 
 }
 ```
 
+### Why bucket roots, not per-skill paths
+
+`skills` lists the scope bucket roots. This is an **entry-count preference — one line per bucket
+instead of one per skill — not a limitation of the host.** Per-skill directory paths work.
+
+A previous version of this document claimed the opposite: that per-skill paths "landed one level too
+deep and registered zero". That claim is retracted. It is contradicted by two independent sources:
+
+- `references/claude-code-docs/docs/plugins-reference.md:633` documents the per-skill-directory case
+  directly — "When a skill path points to a directory that contains a `SKILL.md` directly […] the
+  frontmatter `name` field in `SKILL.md` determines the skill's invocation name."
+- `references/skills/.claude-plugin/plugin.json` (the mattpocock skills plugin) ships **20 per-skill
+  directory paths** — `./skills/engineering/tdd`, `./skills/productivity/handoff`, and so on —
+  against 38 `SKILL.md` files on disk. A shipping plugin does not list 20 paths that register zero.
+
+Both shapes are supported: a listed directory containing `<name>/SKILL.md` subdirectories (bucket
+root, what Aegis uses), and a listed directory containing `SKILL.md` directly (per-skill).
+
+**Two things we do not claim.** Aegis's entries carry a trailing slash
+(`./adapters/claude/skills/core/`) where mattpocock's do not (`./skills/engineering/tdd`). Nothing in
+the reference docs assigns the slash any meaning, and no test here has isolated it — it is an
+observed difference, not an explanation. And we cannot reconstruct what the earlier release actually
+observed; whatever it was, the stated cause does not follow from it.
+
+**Why this correction is worth the words.** The retracted claim did not merely misstate a mechanism —
+it recorded a working option as broken. A projection note is where future work checks what is
+possible, so a false impossibility there rules out an option indefinitely, and silently: nobody
+re-tests something the docs say was already tried and failed. The relevant constraint is real but
+different, and is stated where it applies: Aegis's marketplace entry uses `source: "./"`, which
+resolves to the marketplace root, so per `plugins-reference.md:623` declaring specific subdirectories
+**replaces** the default `skills/` scan rather than adding to it. That is what keeps canonical
+`skills/` from being double-registered alongside the generated tree — and it holds for either shape.
+
 ## userConfig Install Prompts
 
 `plugin.json` declares a `userConfig` block prompted at enable time:
 
-- `preferredLanguageOverlay` (string, default `""`) — default language overlay skill to bias toward (e.g. `python-developer`).
+- *(removed)* `preferredLanguageOverlay` — prompted at install and consumed by nothing, so it was dropped rather than left as a dead prompt. `develop` selects language fragments from the task's actual files; when there is no file signal it asks. Re-adding it requires a `<claude>` prose fork in `develop/SKILL.md` that the Codex and OpenCode projectors do not yet strip.
 - `telemetryOptIn` (boolean, default `false`) — opt-in for anonymous usage telemetry.
 
 Values flow into `${USER_CONFIG_*}` substitutions exposed to skills and to monitor commands (`${user_config.*}`). This is **Claude-only** (DH7); OpenCode/Codex/Cursor/Zed have no equivalent and carry a `gap` row in `manifest/capabilities.json`.
@@ -149,7 +183,7 @@ A Claude plugin monitor runs a command as a persistent background process; every
 
 So Aegis's cost watcher **tails the active session transcript JSONL** best-effort: they locate `~/.claude/projects/<slug>/` from `${CLAUDE_PROJECT_DIR}`, pick the most-recently-modified `*.jsonl`, `tail -F` it, parse `usage`/cost fields from assistant lines, and print one warning line per crossed threshold band. This couples to an **undocumented, unstable transcript location and shape** that may change across Claude Code versions.
 
-**The failure mode is benign and advisory:** if the transcript can't be found or the format shifts, the watcher stays **silent — it never emits false data.** This is not a silent-failure-discipline violation (no hidden incorrect behaviour in a correctness path); it is an advisory aid that degrades to no-op, and the coupling is documented here. Note also that the cost figure is a **token-derived ESTIMATE, not the actual bill.** The `background-monitors` capability stays `claude: supported` for the *mechanism*; the transcript coupling is the documented caveat. Other hosts have no monitor primitive (`gap`).
+**The failure mode is benign and advisory:** if the transcript can't be found or the format shifts, the watcher stays **silent — it never emits false data.** This is not a silent-failure violation (no hidden incorrect behaviour in a correctness path); it is an advisory aid that degrades to no-op, and the coupling is documented here. Note also that the cost figure is a **token-derived ESTIMATE, not the actual bill.** The `background-monitors` capability stays `claude: supported` for the *mechanism*; the transcript coupling is the documented caveat. Other hosts have no monitor primitive (`gap`).
 
 ## Plugin Dependencies Skeleton
 
@@ -254,17 +288,43 @@ or Edit. Memory does NOT go on read-only reviewers (`code-reviewer`, `code-quali
 Its generated Claude frontmatter carries `memory: project`; OpenCode/Codex copies do not.
 
 **Discipline:** `rules/memory-discipline.md` — observation taxonomy + curation + secret-scan gate.
-**Retrieval:** `skills/core/recall` — 3-layer Read+Grep workflow over `MEMORY.md`, no MCP.
+**Retrieval:** `skills/core/using-aegis/abilities/recall.md` — 3-layer Read+Grep workflow over `MEMORY.md`, no MCP.
 
 ## Unsupported (Documented Gaps)
 
 | Canonical concept | Claude native? | Strategy |
 |---|---|---|
-| Per-language overlays as runtime-conditional | Yes — `paths:` glob | **Supported** via `x-claude.paths` → native `paths:` (generated tree). |
+| Per-language overlays as runtime-conditional | Yes — `paths:` glob | **Gap** — the projector still carries `x-claude.paths`, but no shipped skill declares it. See below. |
 | Statusline | Yes (`settings.json.statusLine`) | **Supported** — see Statuslines below. |
 | Output styles | Yes (Claude-only) | Aegis stays format-neutral; not projected. |
 | MCP servers | Yes | `gap` in `manifest/capabilities.json`; no MCP servers shipped from the plugin yet. |
 | Memory decay / last-referenced scoring | No native primitive | Deferred — needs a store. If pursued, agent-maintained annotations in MEMORY.md (never a DB). |
+
+### Skill paths activation: unused (honest gap)
+
+Aegis ships **no** skill declaring `x-claude.paths`, so nothing auto-activates on a file match.
+This is a deliberate trade-off, and a regression against the previous release — state it plainly
+rather than letting the capability table imply otherwise.
+
+**What was lost.** Each per-language skill used to carry its own glob (`go-developer` had
+`paths: ["**/*.go"]`), so opening a Go file pulled Go guidance in unprompted. Folding those
+overlays into `develop` removed the surfaces that carried the globs. The user must now reach for
+`develop`, which then selects the language fragments the task touches.
+
+**Why the obvious fix is worse.** Re-declaring a union of language globs on `develop` looks
+equivalent but is not: per the Claude Code reference, `paths` *limits* activation — "Claude loads
+the skill automatically only when working with files matching the patterns". A union glob would
+make `develop` auto-activate **only** for the listed extensions and hide it from automatic
+selection for general development and for every language not in the union. That trades a narrow
+regression for a broader one, on Aegis's single most general skill.
+
+**What was gained.** One entry point with explicit multi-fragment selection: a task spanning
+TypeScript, React, and Django loads all three fragments from one skill, where the old model needed
+three separately-activating skills that could not see each other.
+
+**If revisited:** the honest fix is per-language activation without per-language skills, which
+needs a host primitive Aegis does not have today (a glob that *adds* context rather than gating a
+whole skill). Do not paper over it with a union glob on `develop`.
 
 ## Statuslines (revamped for the Tier-2 HUD)
 

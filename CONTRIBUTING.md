@@ -35,7 +35,7 @@ Validation requires Node 20+ only. No Bun, no TypeScript, no npm install for use
 - Abilities: `skills/<scope>/<name>/abilities/<ability>.md`. Plain markdown, optional minimal frontmatter.
 - Agents: `agents/<kebab-name>.md`.
 - Commands: `commands/<kebab-name>.md`.
-- Rules: `rules/<kebab-name>.md` (universal); `skills/languages/<lang>/rules/{coding-style,patterns,security,testing}.md` (per-language).
+- Rules: `rules/<kebab-name>.md` (universal); `skills/core/develop/abilities/languages/<lang>/rules/{coding-style,patterns,security,testing}.md` (per-language).
 - Templates: `templates/{markdown,json,html,prompts}/<domain>/<name>.md`.
 
 ## Frontmatter

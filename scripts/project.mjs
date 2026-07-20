@@ -12,10 +12,12 @@
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, statSync, renameSync, copyFileSync } from "node:fs";
 import { join, basename } from "node:path";
+import { skillScopes } from "./lib/skill-scopes.mjs";
 import { fileURLToPath } from "node:url";
 import { atomicWrite } from "./lib/atomic-write.mjs";
 import { generateClaudeHooksBlock, hookTreeKeepSet } from "./lib/hook-projection.mjs";
 import { SUBAGENT_PRIMITIVE_KEYS, validateSubagentPrimitive, assertIsolationWritable } from "./lib/subagent-primitives.mjs";
+import { SKILL_SIBLING_DIRS } from "./lib/skill-siblings.mjs";
 
 const PKG_VERSION = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -362,24 +364,47 @@ function prefixAegis(name) {
   return AEGIS_PREFIX + name;
 }
 
-// Shallow-copy every *.md file in src to dst (no recursion, no transformation).
-// Used to project abilities/ and references/ siblings verbatim alongside Codex
-// SKILL.md emissions.
-function copyDirShallow(src, dst, pattern = /\.md$/) {
+// Copy every *.md file under src to dst, WALKING SUBDIRECTORIES, no transformation.
+// Used to project the SKILL_SIBLING_DIRS folders verbatim alongside both the Claude
+// and the Codex SKILL.md emissions.
+//
+// This walks. The previous version did not, and could not: it tested the filename
+// pattern (`/\.md$/`) against every entry name BEFORE stat-ing it, so a directory —
+// which never ends in `.md` — was skipped at the pattern check and never reached the
+// isFile() test below it. Adding recursion after that test would have been dead code.
+// Hence the order here: stat first, recurse into directories, and apply the filename
+// pattern to FILES only.
+//
+// Why it matters: fragments live in subdirectories under a skill
+// (`abilities/<topic>/<x>.md`). Without the walk they are silently absent from every
+// generated tree while the projector still exits 0 and the gate still passes — the
+// content is gone and nothing says so.
+// `host` is required: fragments carry `${TEMPLATE:<kind>}` directives just as
+// SKILL.md bodies do, and the resolution differs per host (Codex points at the
+// bundled path, Claude inlines small markdown). Copying them verbatim would ship
+// a raw token to the user; the assertNoTemplateTokens backstop turns that into a
+// hard projection failure rather than letting it through.
+function copyFragmentTree(src, dst, host, pattern = /\.md$/) {
+  if (!host) throw new Error("copyFragmentTree: host is required to resolve ${TEMPLATE} directives");
   if (!existsSync(src)) return 0;
   mkdirSync(dst, { recursive: true });
   let copied = 0;
   for (const entry of readdirSync(src)) {
-    if (!pattern.test(entry)) continue;
-    const srcFile = join(src, entry);
+    const srcPath = join(src, entry);
     let st;
     try {
-      st = statSync(srcFile);
+      st = statSync(srcPath);
     } catch {
       continue;
     }
+    if (st.isDirectory()) {
+      copied += copyFragmentTree(srcPath, join(dst, entry), host, pattern);
+      continue;
+    }
     if (!st.isFile()) continue;
-    copyFileSync(srcFile, join(dst, entry));
+    if (!pattern.test(entry)) continue;
+    const body = readFileSync(srcPath, "utf8");
+    writeFileSync(join(dst, entry), resolveTemplateDirectives(body, { host }), "utf8");
     copied++;
   }
   return copied;
@@ -668,17 +693,23 @@ function projectCodex() {
     const outDir = join(skillsTmpRoot, finalName);
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, "SKILL.md"), out, "utf8");
-    // Project sibling abilities/ and references/ folders verbatim. Per Iron
-    // Law 4, abilities are on-demand fragments — minimal/no frontmatter,
-    // copied as-is so the relative links inside SKILL.md resolve on Codex.
+    // Project the sibling fragment folders verbatim. Per Iron Law 4, abilities are
+    // on-demand fragments — minimal/no frontmatter, copied as-is so the relative
+    // links inside SKILL.md resolve on Codex.
+    //
+    // The folder list comes from SKILL_SIBLING_DIRS, the same constant the Claude
+    // path uses. It was previously spelled out here as `abilities` + `references`
+    // only, against the Claude path's `abilities` + `references` + `rules`, which
+    // is how 28 language rules/*.md files shipped to Claude and to nowhere else.
     if (canonicalDir) {
-      copyDirShallow(join(canonicalDir, "abilities"), join(outDir, "abilities"));
-      copyDirShallow(join(canonicalDir, "references"), join(outDir, "references"));
+      for (const sib of SKILL_SIBLING_DIRS) {
+        copyFragmentTree(join(canonicalDir, sib), join(outDir, sib), "codex");
+      }
     }
   }
 
   function projectCodexSkills() {
-    const scopes = ["core", "languages", "workflows"];
+    const scopes = skillScopes(REPO);
     const emitted = new Map(); // finalName → originating canonical path
     let count = 0;
     for (const scope of scopes) {
@@ -1126,7 +1157,7 @@ function projectClaude(hookIntents) {
   const emittedCommands = []; // name
 
   // ── Skills ────────────────────────────────────────────────────────────────
-  const scopes = ["core", "languages", "workflows"];
+  const scopes = skillScopes(REPO);
   for (const scope of scopes) {
     const scopeDir = join(REPO, "skills", scope);
     if (!existsSync(scopeDir)) continue;
@@ -1159,8 +1190,9 @@ function projectClaude(hookIntents) {
       // resolve in the generated tree. abilities/ + references/ per DH6; rules/
       // is an existing sibling that python-developer's SKILL.md links to
       // relatively, so it rides along under the same "copy siblings verbatim" rule.
-      for (const sib of ["abilities", "references", "rules"]) {
-        copyDirShallow(join(skillDir, sib), join(outDir, sib));
+      // The folder list is shared with the Codex path — see SKILL_SIBLING_DIRS.
+      for (const sib of SKILL_SIBLING_DIRS) {
+        copyFragmentTree(join(skillDir, sib), join(outDir, sib), "claude");
       }
 
       emittedSkills.push({ scope, name: fm.name });
@@ -1182,7 +1214,7 @@ function projectClaude(hookIntents) {
     const name = fm.name || basename(file, ".md");
 
     // A4: validate x-claude.skills — every listed skill name must resolve to a real
-    // canonical skill (skills/{core,languages,workflows}/<name>/SKILL.md). Fail-fast
+    // canonical skill (skills/<bucket>/<name>/SKILL.md). Fail-fast
     // on an unknown name so typos are caught at projection, not silently dropped.
     const xcSkills = fm["x-claude"]?.skills;
     if (Array.isArray(xcSkills)) {
@@ -1190,7 +1222,7 @@ function projectClaude(hookIntents) {
         if (!canonicalSkillNames.has(skillName)) {
           throw new Error(
             `agents/${file}: x-claude.skills references '${skillName}', which is not a ` +
-              `canonical skill (no skills/{core,languages,workflows}/${skillName}/SKILL.md). ` +
+              `canonical skill (no skills/<bucket>/${skillName}/SKILL.md). ` +
               `Fix the skill name or create the missing skill.`,
           );
         }
@@ -1315,9 +1347,9 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
   const existing = JSON.parse(readFileSync(pluginPath, "utf8"));
 
   // skills: the distinct BUCKET ROOTS (./adapters/claude/skills/<scope>/), in
-  // emission order (core, languages, workflows). Claude scans each `skills` array
+  // emission order (bucket names, discovered). Claude scans each `skills` array
   // entry ONE LEVEL DEEP for <name>/SKILL.md and ADDS them to the default `skills/`
-  // scan (plugins-reference #path-behavior-rules). Listing the individual 82 skill
+  // scan (plugins-reference #path-behavior-rules). Listing the individual per-skill
   // dirs made Claude look for `<skill>/<name>/SKILL.md` (one level too deep) so
   // ZERO registered. Bucket roots resolve to <name>/SKILL.md at depth 1,
   // so all skills load. Order-preserving dedup — new buckets flow through
@@ -1353,13 +1385,14 @@ function regeneratePluginJson(emittedSkills, emittedAgents, emittedCommands, hoo
 
   // userConfig. Schema per plugins-reference.md:550 requires
   // type/title/description; default is optional. Keep it minimal.
+  // `preferredLanguageOverlay` was removed here: it was prompted at install and read by
+  // nothing — no skill body, no hook, no projector substitution. Only ever declare an option
+  // some shipped surface actually consumes. Re-adding it means wiring the tie-break into
+  // `develop/SKILL.md` via `${user_config.preferredLanguageOverlay}`, which Claude substitutes
+  // into skill content but OpenCode and Codex do not — so it needs a provider-tagged prose
+  // fork that the Codex and OpenCode projectors do not yet strip (they emit `<claude>` blocks
+  // verbatim). Do that first, or the token and the raw tag ship to those hosts.
   const userConfig = {
-    preferredLanguageOverlay: {
-      type: "string",
-      title: "Preferred language overlay",
-      description: "Default language overlay skill to bias toward (e.g. python-developer). Empty for none.",
-      default: "",
-    },
     telemetryOptIn: {
       type: "boolean",
       title: "Telemetry opt-in",

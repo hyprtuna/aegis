@@ -9,7 +9,7 @@ disallowedTools: [Edit, Write]
 
 > **Invoke via `Agent({subagent_type: "aegis:researcher"})`.** This is an agent, not a skill.
 
-> **Pairs with the `research` skill** (`skills/core/research/SKILL.md`) — same options/trade-offs/recommendation capability; skill = inline form, this agent = subagent form. Distinct from `deep-diving` (traces one data-flow, no options).
+> **Pairs with the `research` skill** (`skills/core/research/SKILL.md`) — same options/trade-offs/recommendation capability; skill = inline form, this agent = subagent form. Distinct from `codebase-onboarding`'s `deep-dive` fragment (traces one data-flow, no options).
 >
 > **Forward-note:** to be renamed `research`; do **not** rename now.
 

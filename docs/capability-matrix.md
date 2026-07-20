@@ -7,7 +7,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 
 | Capability | Claude Code | OpenCode | Codex | Cursor | Zed |
 |---|---|---|---|---|---|
-| **Skill paths glob activation**<br/><sub>skill-paths-activation</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md#paths` | ⛔ gap<br/>`adapters/opencode/projection.md#claude-only-capabilities-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | — n/a |
+| **Skill paths glob activation**<br/><sub>skill-paths-activation</sub> | ⛔ gap<br/>`adapters/claude/projection.md#skill-paths-activation-unused-honest-gap` | ⛔ gap<br/>`adapters/opencode/projection.md#claude-only-capabilities-documented-gaps` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | ⛔ gap | — n/a |
 | **Skill agent auto-dispatch**<br/><sub>skill-agent-auto-dispatch</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md#run-skills-in-a-subagent` | 🟡 partial<br/>`adapters/opencode/projection.md#what-opencode-will-load` | ⛔ gap<br/>`adapters/codex/projection.md#surfaces--verification` | — n/a | — n/a |
 | **Skill disallowed-tools frontmatter**<br/><sub>skill-disallowed-tools</sub> | ✅ supported<br/>`references/claude-code-docs/docs/skills.md:225` | ⛔ gap<br/>`adapters/opencode/projection.md#constraints-vu-marked` | ⛔ gap<br/>`adapters/codex/projection.md#honest-gaps` | — n/a | — n/a |
 | **Agent tools allowlist permissions**<br/><sub>agent-tools-allowlist</sub> | ✅ supported<br/>`references/claude-code-docs/docs/sub-agents.md:315` | ✅ supported<br/>`adapters/opencode/projection.md#constraints-vu-marked` | ⛔ gap<br/>`adapters/codex/projection.md#surfaces--verification` | — n/a | — n/a |
@@ -32,7 +32,7 @@ Legend: ✅ supported · 🟡 partial · ⛔ gap · — n/a. Evidence cites a fi
 
 *Category: frontmatter*
 
-A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter; replaces manual language-overlay routing.
+A skill auto-activates when an edited file matches a declared glob. Authored canonically as x-claude.paths and projected to Claude-native paths: frontmatter. Claude Code supports it; Aegis currently ships no skill that declares it.
 
 ### Skill agent auto-dispatch (`skill-agent-auto-dispatch`)
 
@@ -56,7 +56,7 @@ An agent declares a tools: allowlist (or disallowedTools: denylist) restricting 
 
 *Category: manifest*
 
-Plugin manifest declares user-configurable values prompted at enable time (e.g. preferredLanguageOverlay, telemetryOptIn). Values flow into ${USER_CONFIG_*} substitutions exposed to skills.
+Plugin manifest declares user-configurable values prompted at enable time (e.g. telemetryOptIn). Values are substitutable as ${user_config.KEY} in skill and agent content on Claude.
 
 ### Plugin defaultEnabled flag (`plugin-default-enabled`)
 
@@ -122,7 +122,7 @@ Portable hook intent pair: captures decision/test anchors before compaction and 
 
 *Category: hooks*
 
-Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the aegis-doctor skill. No counterpart on other hosts.
+Portable hook intent: Claude InstructionsLoaded command hook reporting loaded-rule count and silent drops, consumed by the using-aegis skill's health-check fragment. No counterpart on other hosts.
 
 ### MCP servers (`mcp-servers`)
 
@@ -134,4 +134,4 @@ Model Context Protocol server entries. Claude/OpenCode/Cursor/Zed load native MC
 
 *Category: frontmatter*
 
-x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall skill. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/recall for the 3-layer retrieval workflow.
+x-claude.memory: <scope> (user|project|local) projects to native memory: in the generated Claude agent frontmatter. Claude auto-injects the first 200 lines/25 KB of MEMORY.md into the subagent system prompt and auto-enables Read/Write/Edit (cc-docs sub-agents.md §453-490). Non-Claude hosts have no native equivalent; fallback is a plain .aegis-memory/MEMORY.md read by the host-neutral recall fragment of using-aegis. Decay/cross-session ranking deferred. See rules/memory-discipline.md for the observation taxonomy and skills/core/using-aegis/abilities/recall.md for the 3-layer retrieval workflow.

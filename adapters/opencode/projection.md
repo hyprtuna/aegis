@@ -7,7 +7,7 @@
 - **Plugin file:** `.opencode/plugins/aegis.js` — plain ESM JS, no build step (~100 lines).
 - **Distribution:** OpenCode's native git-spec; users add `"plugin": ["aegis@git+https://github.com/.../aegis.git"]` to `opencode.json`. Mirrors Superpowers' pattern.
 - **Install instructions:** `.opencode/INSTALL.md` (agent-readable) tells an AI agent how to edit the user's `opencode.json`. NO install script Aegis runs.
-- **Skill discovery:** Plugin `config(cfg)` pushes 3 absolute paths into `cfg.skills.paths` (`skills/core`, `skills/languages`, `skills/workflows`).
+- **Skill discovery:** Plugin `config(cfg)` pushes one absolute path per skill bucket into `cfg.skills.paths`. The bucket list is derived from the filesystem at boot (any directory under `skills/` holding at least one `<name>/SKILL.md`) rather than enumerated in the plugin, so dissolving or adding a bucket needs no edit — and cannot leave a deleted directory registered. Today that resolves to `skills/core` alone; the plugin warns loudly if it resolves to nothing.
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
 - **Bootstrap (static review):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once and memoized (`aegis.js:50,73,85`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`BOOTSTRAP_MARKER`, `aegis.js:39`; guard at `aegis.js:221-224`) and injects into the **first USER message** (selected at `aegis.js:216`, injected at `aegis.js:226-227`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This satisfies the superpowers-audit recommendations by static review of the shipped source; no live OpenCode run has been performed.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.
@@ -72,7 +72,7 @@ OpenCode has no native subagent `memory` primitive equivalent to Claude's `memor
 field. `x-claude.memory` is NOT emitted into `.opencode/agents/*.md`.
 
 **Fallback:** use a plain `.aegis-memory/MEMORY.md` file at the project root as the cross-host
-memory store. The `recall` skill's Layer 1 (Grep) and Layer 3 (Read) work identically on
+memory store. The `recall` fragment's Layer 1 (Grep) and Layer 3 (Read) work identically on
 OpenCode — only Layer 2 (Claude's 200-line auto-injection) is absent. Start with Layer 1 on this host.
 
 **Decay:** real decay / last-referenced scoring needs a store — deferred. Honest gap.
@@ -86,7 +86,7 @@ OpenCode — only Layer 2 (Claude's 200-line auto-injection) is absent. Start wi
 | UserPromptSubmit / Notification / Stop / SubagentStop | No direct counterpart | Documented gap; consider session.idle / chat.messages.transform alternatives. |
 | `.claude/settings.json` permissions schema | Different shape | Project as `permission` block in `opencode.json`. |
 | `@rules/<file>.md` agent hotlinks | No `@`-include resolution | Three skeptical agents (`code-reviewer`, `code-quality-reviewer`, `doc-verifier`) reference `@rules/skeptical-stance.md` for Claude auto-inheritance; OpenCode ships the literal `@rules/...` as prose. Each agent retains a one-line inline stance summary so the doctrine survives. Honest gap, not a silent drop. |
-| `x-claude.memory` / native subagent memory | No native primitive | Fallback: `.aegis-memory/MEMORY.md` read by the `recall` skill (Read+Grep, host-neutral). Auto-injection and persistent-dir wiring are Claude-only. Decay deferred. |
+| `x-claude.memory` / native subagent memory | No native primitive | Fallback: `.aegis-memory/MEMORY.md` read by the `recall` fragment (Read+Grep, host-neutral). Auto-injection and persistent-dir wiring are Claude-only. Decay deferred. |
 | Canonical `visibility: internal` (hide a surface from the user-facing menu) | **No** — OpenCode recognizes exactly `name`, `description`, `license`, `compatibility`, `metadata` and states "unknown frontmatter fields are ignored" (`references/opencode-docs/docs/official/skills.md:48`). The only visibility lever is a config-level `permission` deny, which blocks invocation outright rather than hiding a listing. | **Gap — not projected.** Claude maps this to native `user-invocable: false`; OpenCode has no per-skill equivalent, so the 8 internal skills stay listed like any other. A `permission` deny is NOT an acceptable substitute: it would sever parent→child dispatch (`default-feature` → `implementation-planner`), the same defect that rules out `disable-model-invocation` on Claude. Declared and inert here, deliberately. |
 | Native subagent execution-profile fields (`effort`, `maxTurns`, `background`, `isolation`) | No native primitive | Claude-plugin-only (cc-docs sub-agents.md, plugins-reference.md). OpenCode has no per-agent equivalent, so they are not projected here (they live only in the Claude agent tree). |
 
@@ -152,7 +152,7 @@ No host-scriptable status row. OpenCode's TUI titlebar and bottom prompt area ar
 
 ## Dynamic workflows (gap)
 
-Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): the model writes a JS orchestration script and a background runtime fans it out across dozens-to-hundreds of subagents, saving reusable scripts to `.claude/workflows/`. This is not a plugin extension point — Aegis cannot ship, declare, or project it, and no equivalent exists on this host. The portable substitute is the `orchestration` skill (≤5-wave `Task()` fan-out with in-session synthesis), which runs identically everywhere but does not reach the hundreds-of-agents, context-isolated, resumable regime. For very large audits/migrations on this host, the ≤5-wave skill is the ceiling.
+Claude Code's dynamic workflows are a host-resident built-in (`Workflow` tool): the model writes a JS orchestration script and a background runtime fans it out across dozens-to-hundreds of subagents, saving reusable scripts to `.claude/workflows/`. This is not a plugin extension point — Aegis cannot ship, declare, or project it, and no equivalent exists on this host. The portable substitute is the `orchestrate` skill (≤5-wave `Task()` fan-out with in-session synthesis), which runs identically everywhere but does not reach the hundreds-of-agents, context-isolated, resumable regime. For very large audits/migrations on this host, the ≤5-wave skill is the ceiling.
 
 ## Agent Permissions
 

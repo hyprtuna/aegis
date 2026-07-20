@@ -1,6 +1,6 @@
 ---
 name: skill
-description: Activate a named skill explicitly. Bypasses skill-selection; use when you know exactly which skill you want.
+description: Activate a named skill explicitly. Bypasses automatic skill routing; use when you know exactly which skill you want.
 visibility: user
 platforms: [claude, opencode, codex, cursor, zed]
 x-claude:
@@ -9,7 +9,7 @@ x-claude:
 
 Invoke the named skill directly.
 
-Bypasses skill-selection routing; useful when you already know which skill you want.
+Bypasses automatic skill routing; useful when you already know which skill you want.
 
 Accepts a bare `<slug>` or qualified `<pack>:<slug>`. The bundled namespace is `aegis`, so `aegis:code-review` is equivalent to bare `code-review` when no third-party pack collides on the same slug.
 

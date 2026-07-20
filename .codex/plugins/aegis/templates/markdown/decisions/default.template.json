@@ -4,6 +4,6 @@
   "family": "markdown",
   "version": "0.1.0",
   "source": "hand-authored",
-  "description": "Canonical four-part decision shape (D-NN format) plus a Locked/Deferred/Discretionary tri-partition, consumed by design-exploration, architecture-decision-record, framework-selection, and implementation-planner. Static skeleton — the D-NN block and tri-partition subsections are filled verbatim, no mustache-lite slots.",
+  "description": "Canonical four-part decision shape (D-NN format) plus a Locked/Deferred/Discretionary tri-partition, consumed by brainstorm-spec (and its exploring-intent / adr fragments), research's framework-comparison fragment, and implementation-planner. Static skeleton — the D-NN block and tri-partition subsections are filled verbatim, no mustache-lite slots.",
   "slots": []
 }

@@ -48,7 +48,7 @@ Replace `hyprtuna/aegis.git` with the actual git remote.
 
 Restart OpenCode. The plugin runs at session start and:
 
-1. Registers all 82 Aegis skills (core, language overlays, workflows) via `config.skills.paths`.
+1. Registers all 63 Aegis skills (core, workflows) via `config.skills.paths`.
 2. Registers the 17 Aegis agents inline via `config.agent.aegis-<name>` (reads each `.opencode/agents/<name>.md`, parses frontmatter, inlines the body as the agent's `prompt`).
 3. Registers the 6 Aegis commands inline via `config.command.aegis-<name>` (same pattern, body becomes the command `template`).
 4. Injects the `using-aegis` SKILL body into the first user message of each session, guarded by `<!-- aegis:bootstrap -->`.

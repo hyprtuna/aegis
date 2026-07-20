@@ -12,7 +12,7 @@ The surface is intentionally flexible while host plugin tooling evolves — ther
 
 ## What you get
 
-- **82 skills** — reusable capabilities spanning universal workflows, language overlays, and process guidance.
+- **20 skills** — reusable capabilities spanning universal workflows, language practice, and process guidance. Specialist material rides along as 126 abilities — on-demand fragments under a parent skill rather than separate entries in the listing — plus 28 language-rule files carrying the per-language rule overlays. 154 fragment files in total.
 - **17 agents** — first-class doers invoked via the host's Task tool.
 - **6 commands** — slash-command workflow entry-points.
 - **18 rules** — always-loaded iron-law guidance.

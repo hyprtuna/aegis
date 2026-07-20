@@ -16,7 +16,7 @@ Every completion claim requires fresh, observable proof. No exceptions.
 
 This skill activates at the end of any task that produces a deliverable — before any "done",
 "tests pass", "build succeeds", or "it works" claim. If you used `test-driven-development`,
-`feature-developer`, `debugging`, or `ultra-worker`, run the gate before declaring completion.
+`develop`, `debugging`, or `orchestrate`, run the gate before declaring completion.
 
 The full 5-step gate (IDENTIFY → RUN → READ → VERIFY → CLAIM), the GOOD/BAD example, the
 claims-requiring-verification table, the red-flag and rationalization tables, and the output
@@ -58,6 +58,12 @@ Per-step detail, the command examples, and the claims table are in `abilities/ga
 - **Catching a red-flag thought** ("should work", "probably fine", "I already checked earlier")?
   → that is the signal to run the gate. See the red-flag and rationalization tables in the ability.
 - **Reporting results?** → use the `## Verification` block format (one block per claim) from the ability.
+
+## REQUIRED SUB-SKILL: finishing-branch
+
+Once the gate is green and the claim is backed by fresh output, the work is ready to land. Hand off
+to `aegis:finishing-branch` to decide between merge, PR, keep, or discard. Verification is the last
+quality gate before that decision, not the end of the chain.
 
 ## Done
 verification done — verification gates executed with fresh evidence; status: DONE

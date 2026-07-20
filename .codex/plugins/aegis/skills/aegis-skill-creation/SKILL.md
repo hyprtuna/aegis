@@ -9,7 +9,7 @@ You scaffold a new skill folder following Aegis conventions; read existing skill
 
 ## Process
 
-1. Gather `name` (kebab-case verb-noun), one-line `description`, `visibility`, target `platforms`, and which folder family (`core/`, `languages/<lang>-developer/`, `workflows/`).
+1. Gather `name` (kebab-case verb-noun), one-line `description`, `visibility`, target `platforms`, and which folder family (`core/`, `workflows/`).
 2. **Classify the baseline failure first** (see "Match the Form to the Failure" below) — the failure type drives the body's form.
 3. Pick the closest existing skill in the same family as a structural template; read its `SKILL.md`.
 4. Create the folder `skills/<family>/<name>/` and write `SKILL.md` inside it. Every skill is a folder; abilities go in `abilities/<x>.md` (no frontmatter, not registered).
@@ -30,9 +30,9 @@ Aegis uses lean 4-field frontmatter. Only these fields and namespaced extras are
 
 When needed, append:
 - `source: anvil:<path>` — on migrated items only.
-- `x-claude:`, `x-opencode:`, `x-aegis:` — namespaced extras (`argument-hint`, `primitiveHint`, `pipeline`, `intensity`).
+- `x-claude:`, `x-opencode:`, `x-aegis:` — namespaced extras (`argument-hint`, `primitiveHint`, `intensity`).
 
-See `skills/AGENTS.md` for the full composition block (`x-aegis.pipeline`) and intensity level (`x-aegis.intensity`) conventions. Do not re-invent them here.
+See `skills/AGENTS.md` for the intensity-level (`x-aegis.intensity`) convention and for how to chain a skill to its successor in prose. Do not re-invent them here.
 
 ## Body Structure
 
@@ -98,3 +98,10 @@ After writing the skill:
 4. Verify the body has a Process section.
 5. Run `node scripts/validate-structure.mjs` — must be clean.
 6. Run `node scripts/project.mjs` — commit canonical + generated adapter copies together.
+
+## Fragments
+
+| When to load | Fragment |
+|---|---|
+| Deciding whether a session's workflow is worth a skill at all | [`abilities/extraction.md`](./abilities/extraction.md) |
+| The authoring doctrine — leading words, the disclosure ladder, drift modes | [`abilities/authoring-doctrine.md`](./abilities/authoring-doctrine.md) |

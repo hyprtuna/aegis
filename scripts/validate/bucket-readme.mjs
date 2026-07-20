@@ -1,6 +1,6 @@
 // bucket-readme.mjs — A6: bucket / template-family README coverage.
 //
-// Every skill bucket (skills/core, skills/languages, skills/workflows) and every
+// Every skill bucket (skills/core — buckets are discovered, not hardcoded) and every
 // template family (templates/html, templates/markdown, templates/json) that
 // EXISTS must contain a README.md that mentions every shipping child surface.
 //
@@ -16,10 +16,13 @@
 // is "mentioned" if its name appears anywhere in the README text. Warn-only.
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { skillScopes } from "../lib/skill-scopes.mjs";
 
 export const id = "BUCKET_README_MISSING";
 
-const SKILL_BUCKETS = ["skills/core", "skills/languages", "skills/workflows"];
+// Derived, not enumerated — a hardcoded bucket list goes stale silently when a bucket is
+// added or dissolved, and this rule is warn-only + existence-gated, so it degrades quietly.
+const skillBuckets = (REPO) => skillScopes(REPO).map((s) => `skills/${s}`);
 const TEMPLATE_FAMILIES = ["templates/html", "templates/markdown", "templates/json"];
 
 function isDir(p) {
@@ -79,7 +82,7 @@ export function run(ctx) {
   const errors = [];
   const warnings = [];
 
-  for (const relBucket of SKILL_BUCKETS) {
+  for (const relBucket of skillBuckets(ctx.REPO)) {
     const abs = join(ctx.REPO, relBucket);
     if (!isDir(abs)) continue;
     checkBucket(ctx, relBucket, skillChildren(abs), warnings);
