@@ -8,7 +8,7 @@ platforms: [claude, opencode]
 
 # Pre-Compact Capture
 
-Compaction rewrites the conversation into a shorter summary. The summary is lossy: decisions made mid-session, the exact names of tests that must pass, and the task anchors the agent is working toward can all fall out. This hook fires before that rewrite (Claude `PreCompact`, OpenCode `session.compacting` phase `pre`) to capture those anchors first.
+Compaction rewrites the conversation into a shorter summary. The summary is lossy: decisions made mid-session, the exact names of tests that must pass, and the task anchors the agent is working toward can all fall out. This hook fires before that rewrite (Claude `PreCompact`, OpenCode `experimental.session.compacting`) to capture those anchors first.
 
 ## Intent
 
@@ -21,7 +21,7 @@ Compaction rewrites the conversation into a shorter summary. The summary is loss
 | Host | File | Status |
 |---|---|---|
 | Claude Code | `.claude-plugin/hooks/pre-compact.sh` | supported |
-| OpenCode | `.opencode/plugins/aegis.js` (session.compacting, phase pre) | partial (no-op placeholder) |
+| OpenCode | `.opencode/plugins/aegis.js` (`experimental.session.compacting`) | partial (registered; no-op handler body) |
 | Codex | — | gap — `plugin_hooks` removed (codex-cli 0.144.6); no plugin-shipped hook can fire |
 | Cursor | N/A (no hook contract) | — |
 | Zed | N/A (no hook contract) | — |

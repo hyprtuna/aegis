@@ -116,7 +116,7 @@ Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis
 
 *Category: hooks*
 
-Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection); OpenCode binds the pair to experimental.session.compacting but the generated region is a no-op placeholder — phase dispatch deferred until the unverified contract is confirmed.
+Portable hook intent pair: captures decision/test anchors before compaction and restores them after. Claude PreCompact/PostCompact command hooks (full projection). On OpenCode only pre-compact has a home — it binds the flat dotted key experimental.session.compacting, which fires once before compaction; post-compact is Claude-only because OpenCode exposes no post-compaction context-injection hook. The registered pre-compact handler body is a deliberate no-op placeholder (no durable anchor store).
 
 ### InstructionsLoaded hook (`instructions-loaded-hook`)
 

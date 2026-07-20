@@ -22,7 +22,7 @@ Aegis's SessionStart hook fires when an agent host opens a session, clears conte
 | Host | File | Coverage |
 |---|---|---|
 | Claude Code | `.claude-plugin/hooks/session-start.sh` | supported |
-| OpenCode | `.opencode/plugins/aegis.js` (chat.messages.transform) | supported |
+| OpenCode | `.opencode/plugins/aegis.js` (`experimental.chat.messages.transform`) | supported |
 | Codex | — | gap — `plugin_hooks` removed (codex-cli 0.144.6); no plugin-shipped hook can fire |
 | Cursor | N/A (no hook contract) | gap |
 | Zed | N/A (no hook contract) | gap |

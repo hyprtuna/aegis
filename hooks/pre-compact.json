@@ -15,7 +15,7 @@
     "command": ".claude-plugin/hooks/pre-compact.sh"
   },
   "x-opencode": {
-    "event": "session.compacting",
+    "event": "experimental.session.compacting",
     "phase": "pre",
     "handler": "compaction"
   }

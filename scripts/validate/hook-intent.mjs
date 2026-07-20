@@ -32,7 +32,16 @@ const CLAUDE_EVENTS = new Set([
   "SessionStart", "PreToolUse", "UserPromptSubmit", "PreCompact", "PostCompact",
   "InstructionsLoaded", "FileChanged", "CwdChanged",
 ]);
-const OPENCODE_EVENTS = new Set(["session.start", "session.compacting", "chat.messages.transform"]);
+// OpenCode hook keys. These are LITERAL flat dotted property names on the Hooks
+// interface — verified against the installed @opencode-ai/plugin type contract
+// (dist/index.d.ts, OpenCode 1.18.3). A nested object binding declares a different
+// property and is silently never invoked, so the canonical value is the exact key
+// string the projector emits.
+const OPENCODE_EVENTS = new Set([
+  "experimental.chat.messages.transform",
+  "experimental.session.compacting",
+]);
+const OPENCODE_COMPACTING = "experimental.session.compacting";
 // Codex hook events (verified against codex 0.141.0).
 const CODEX_EVENTS = new Set([
   "SessionStart", "SubagentStart", "PreToolUse", "PermissionRequest", "PostToolUse",
@@ -176,8 +185,12 @@ export function run(ctx) {
       } else {
         if (!OPENCODE_EVENTS.has(xo.event)) errors.push(`${where}: x-opencode.event "${xo.event}" not in allowed enum`);
         if (typeof xo.handler !== "string" || !xo.handler) errors.push(`${where}: x-opencode.handler must be a non-empty string`);
-        if (xo.event === "session.compacting" && xo.phase !== "pre" && xo.phase !== "post") {
-          errors.push(`${where}: x-opencode.event session.compacting requires phase pre|post`);
+        if (xo.event === OPENCODE_COMPACTING && xo.phase !== "pre") {
+          errors.push(
+            `${where}: x-opencode.event ${OPENCODE_COMPACTING} requires phase "pre" — ` +
+              "OpenCode fires this hook before compaction starts and exposes no " +
+              "post-compaction context-injection hook, so a post binding would never fire",
+          );
         }
       }
     }
@@ -222,6 +235,27 @@ export function run(ctx) {
   const intentKinds = new Set(intents.map((i) => i.intent));
   if (intentKinds.has("pre-compact") !== intentKinds.has("post-compact")) {
     errors.push(`hooks/: compaction hooks must ship as a pre-compact ⇔ post-compact pair (D9)`);
+  }
+
+  // ── OpenCode key uniqueness ──────────────────────────────────────────────────
+  // The projector emits one object literal keyed by x-opencode.event. Two intents
+  // claiming the same key means one silently overwrites the other at parse time —
+  // no error, no warning, one dead hook. Reject it here instead.
+  const byOpencodeKey = new Map();
+  for (const intent of intents) {
+    const key = intent["x-opencode"]?.event;
+    if (!key || !Array.isArray(intent.platforms) || !intent.platforms.includes("opencode")) continue;
+    if (!byOpencodeKey.has(key)) byOpencodeKey.set(key, []);
+    byOpencodeKey.get(key).push(intent.name);
+  }
+  for (const [key, names] of byOpencodeKey) {
+    if (names.length > 1) {
+      errors.push(
+        `hooks/: intents ${names.join(", ")} all bind x-opencode.event "${key}" — ` +
+          "the generated handler object is a JS object literal, so a duplicate key " +
+          "silently wins and the others never fire. One intent per OpenCode key.",
+      );
+    }
   }
 
   // ── plugin.json drift (D6) ───────────────────────────────────────────────────

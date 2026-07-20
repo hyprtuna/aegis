@@ -160,13 +160,13 @@
       "properties": {
         "event": {
           "type": "string",
-          "enum": ["session.start", "session.compacting", "chat.messages.transform"],
-          "description": "OpenCode hook event (D2)."
+          "enum": ["experimental.chat.messages.transform", "experimental.session.compacting"],
+          "description": "OpenCode hook key. This is the LITERAL, flat, dotted property name OpenCode resolves the handler by — verified against the installed @opencode-ai/plugin type contract (dist/index.d.ts, OpenCode 1.18.3), where every one of these is declared as a quoted dotted key on the Hooks interface. A nested object binding (experimental: { session: { compacting } }) declares a different property and is never invoked, so the value here is emitted verbatim as the generated key string."
         },
         "phase": {
           "type": "string",
-          "enum": ["pre", "post"],
-          "description": "Compaction phase (required when event is 'session.compacting')."
+          "enum": ["pre"],
+          "description": "Compaction phase (required when event is 'experimental.session.compacting'). Only 'pre' is expressible: OpenCode's compacting hook fires before compaction starts, and OpenCode exposes no post-compaction hook that can inject context."
         },
         "handler": {
           "type": "string",
@@ -176,7 +176,7 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "event": { "const": "session.compacting" } } },
+          "if": { "properties": { "event": { "const": "experimental.session.compacting" } } },
           "then": { "required": ["phase"] }
         }
       ]

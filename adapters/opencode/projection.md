@@ -56,7 +56,7 @@ Aegis can use option 7 to point at canonical `skills/` directly OR option 5 to m
 `.opencode/plugins/aegis.js` should:
 - Use `config(cfg)` loader hook to push `skills.paths` pointing at the canonical `skills/`.
 - Register `experimental.chat.messages.transform` for bootstrap injection (idempotency marker pattern from Anvil's `src/opencode-plugin/index.ts`).
-- Map portable hook intents to OpenCode event names.
+- Map portable hook intents to OpenCode hook keys — as flat dotted string keys on the returned object, never nested (see the hook capability matrix).
 
 ## Constraints (V/U marked)
 
@@ -92,29 +92,57 @@ OpenCode — only Layer 2 (Claude's 200-line auto-injection) is absent. Start wi
 ## Hook capability matrix
 
 OpenCode has no Claude-style hook-JSON config and no LLM-evaluated hook primitive,
-so only the bootstrap and compaction intents have an OpenCode home. The compaction
-pair binds to `experimental.session.compacting` — whose field shape **is now
-documented** (`opencode-docs/docs/18-plugins.md:329-333`): `input { sessionID }` →
-`output { context: string[], prompt?: string }` (D8 corrected). The REAL
-gap is that OpenCode's `session.compacting` is a **single combined hook** with no
-`phase` parameter — it fires once per compaction event, before the LLM summarises
-the context. Aegis's canonical model exposes distinct `pre-compact` / `post-compact`
-intents (pre = inject guidance before summarisation; post = react after). A correct
-projection would require either (a) treating `session.compacting` as `pre-compact`
-only and accepting that `post-compact` has no OpenCode home, or (b) deferring both
-until this pre/post semantics gap is resolved. Current stance: the generated
-`AEGIS:HOOKS-GEN` region in `.opencode/plugins/aegis.js` remains a **no-op
-placeholder** (`const aegisCompaction = async (_input, _output) => {}`), phase
-dispatch is deferred, and the OpenCode rows stay `partial`. The canonical
-`pre-compact` / `post-compact` intents project **fully to Claude** (`PreCompact` /
-`PostCompact` command hooks). Every judgment hook and every Claude-only lifecycle
-event is a `gap` — documented here, never silently dropped.
+so only the bootstrap and pre-compaction intents have an OpenCode home.
+
+**Handler registration shape (verified).** OpenCode resolves plugin handlers by
+**literal, flat, dotted string key**. This is settled against the installed
+`@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3), whose
+`Hooks` interface declares `"experimental.chat.messages.transform"`,
+`"experimental.session.compacting"`, `"experimental.chat.system.transform"` and
+`"experimental.compaction.autocontinue"` as quoted dotted properties. Only
+`event`, `config`, `tool`, `auth` and `provider` are plain/nested members. A
+nested object literal — `experimental: { session: { compacting } }` — therefore
+declares a *different* property than `"experimental.session.compacting"`, and a
+handler bound that way is registered, shipped, and **never invoked, with no
+error**. The generated `AEGIS:HOOKS-GEN` region in `.opencode/plugins/aegis.js`
+emits the flat keys; the key strings come verbatim from canonical
+`hooks/*.json` `x-opencode.event`, so canonical and generated cannot disagree.
+`HOOK_INTENT` hard-fails on an out-of-enum key and on two intents binding the
+same key (in a JS object literal a duplicate key silently wins).
+
+**Compaction is one hook, not two.** OpenCode's `experimental.session.compacting`
+fires **once, before compaction starts** — `input { sessionID }` →
+`output { context: string[], prompt?: string }` (shape confirmed by the same
+`.d.ts` and by `opencode-docs/docs/18-plugins.md:329-333`). Aegis's canonical model
+exposes distinct `pre-compact` / `post-compact` intents. Only `pre-compact` maps:
+it binds `experimental.session.compacting`. **`post-compact` has no OpenCode
+home** and no longer claims one — `platforms` is now `["claude"]`. The nearest
+candidate, `experimental.compaction.autocontinue`, fires after compaction but its
+output is only `{ enabled: boolean }`; it can suppress the synthetic continue turn
+and cannot re-surface anchors, so it cannot express the `post-compact` semantic.
+Declared gap, not a silent drop.
+
+The registered `pre-compact` handler body is a deliberate **no-op placeholder**
+(`const aegisCompaction = async (_input, _output) => {}`): anchor capture needs
+durable cross-turn state the plugin has no store for. The binding is real and the
+row stays `partial` for that reason — not because the registration is broken.
+Both compaction intents project **fully to Claude** (`PreCompact` / `PostCompact`
+command hooks). Every judgment hook and every Claude-only lifecycle event is a
+`gap` — documented here, never silently dropped.
+
+**Verified vs unverified.** Verified: the type contract above; and that the plugin
+factory returns exactly `config`, `"experimental.session.compacting"`,
+`"experimental.chat.messages.transform"` with no nested `experimental` member, that
+the bootstrap handler injects the marker-guarded body into the first user message,
+and that a second call does not double-inject (in-process assertions in
+`scripts/test-projection.mjs`). **Not** verified: a live OpenCode run. No
+end-to-end invocation against a running host has been performed for this change.
 
 | Intent / name | Status | OpenCode binding | Notes |
 |---|---|---|---|
-| `session-start` | supported | `chat.messages.transform` (bootstrap) | Existing bootstrap transform. `experimental.chat.messages.transform` is a **verified-real** OpenCode hook (`opencode-docs/docs/18-plugins.md:317`) — a prior audit false-positive; do not re-flag. |
-| `pre-compact` | partial | `session.compacting` | Shape verified (D8): `input {sessionID}` → `output {context:string[], prompt?}`. Real gap: no `phase` param — single hook, no pre/post split. No-op placeholder; phase dispatch deferred. Full projection on Claude only. |
-| `post-compact` | partial | `session.compacting` | Same combined hook; no `phase` param means `post-compact` has no distinct OpenCode home. No-op placeholder; deferred. Full projection on Claude only. |
+| `session-start` | supported | `experimental.chat.messages.transform` | Bootstrap transform. A **verified-real** OpenCode hook — declared in `@opencode-ai/plugin` `dist/index.d.ts:258` and documented at `opencode-docs/docs/18-plugins.md:317`. A prior audit false-positive; do not re-flag. |
+| `pre-compact` | partial | `experimental.session.compacting` | Registered as a flat dotted key. Shape verified: `input {sessionID}` → `output {context:string[], prompt?}`. Fires once, pre-compaction. Handler body is a deliberate no-op placeholder (no durable store); full projection on Claude only. |
+| `post-compact` | gap | — | OpenCode has no post-compaction context-injection hook. `experimental.session.compacting` is pre-only; `experimental.compaction.autocontinue` returns only `{enabled}`. Intent is Claude-only (`platforms: ["claude"]`). |
 | `instructions-loaded` | gap | — | No `InstructionsLoaded` counterpart. |
 
 ## Statuslines
@@ -188,7 +216,9 @@ synthetic "continue" user message that OpenCode injects after compaction to rest
 
 **Evaluation:** Aegis has no use case requiring suppression of the autocontinue turn — the intent is
 compaction guidance injection (a `pre-compact` concern), not turn-skipping. Building this now would
-be adopting an API without a real requirement. Deferred until a concrete need emerges.
+be adopting an API without a real requirement. Deferred until a concrete need emerges. It is also
+**not** a home for `post-compact`: its output is `{enabled: boolean}` only, so it cannot re-surface
+captured anchors — see the hook capability matrix above.
 
 ### `permission.ask` runtime hook — DEFER
 

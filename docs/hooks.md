@@ -119,11 +119,25 @@ compaction and instructions intents are all `command` dispatch.
 
 ```jsonc
 "x-opencode": {
-  "event": "session.compacting",  // session.start | session.compacting | chat.messages.transform
-  "phase": "pre",                 // required when event=session.compacting (pre|post)
-  "handler": "aegisCompaction"    // handler in .opencode/plugins/aegis.js
+  "event": "experimental.session.compacting", // experimental.session.compacting
+                                              // | experimental.chat.messages.transform
+  "phase": "pre",                             // required when event is the compacting hook; "pre" only
+  "handler": "compaction"                     // handler in .opencode/plugins/aegis.js
 }
 ```
+
+`event` is the **literal flat dotted key** OpenCode resolves the handler by — it is
+declared as a quoted dotted property on the `Hooks` interface of the installed
+`@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3). The
+projector emits it verbatim into `.opencode/plugins/aegis.js`. Binding it as a
+nested object instead declares a different property, and the handler is registered
+but never invoked with no error, so `HOOK_INTENT` hard-fails an out-of-enum key —
+and hard-fails two intents binding the same key, since a duplicate key in the
+generated object literal silently wins.
+
+Only `pre` is a valid `phase`: the compacting hook fires before compaction starts,
+and OpenCode exposes no post-compaction context-injection hook. `post-compact` is
+therefore Claude-only — see `adapters/opencode/projection.md`.
 
 OpenCode has no LLM-evaluated hook primitive, so `prompt`/`agent` Claude judgment
 hooks have no OpenCode counterpart — they would ship Claude-only and be listed

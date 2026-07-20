@@ -32,11 +32,13 @@ The folder is **flat**: `hooks/<name>.json` (+ optional `hooks/<name>.md`). The 
     "command": ".claude-plugin/hooks/session-start.sh"
   },
   "x-opencode": {                        // required when platforms ⊇ opencode
-    "event": "chat.messages.transform",
+    "event": "experimental.chat.messages.transform",
     "handler": "bootstrap"
   }
 }
 ```
+
+`x-opencode.event` is the **literal flat dotted hook key** OpenCode resolves the handler by — verified against the installed `@opencode-ai/plugin` type contract (`dist/index.d.ts`, OpenCode 1.18.3), where every one of these is declared as a quoted dotted property on the `Hooks` interface. The projector emits the value verbatim as the generated key string. A nested binding (`experimental: { session: { compacting } }`) declares a *different* property, so the handler is registered and never invoked — with no error. Two intents may not bind the same key: the generated handler object is a JS object literal, where a duplicate key silently wins and the loser never fires. Both rules are `HOOK_INTENT` hard-fails.
 
 `prompt`/`agent` dispatch carry `x-claude.prompt` (+ optional `model`) — **not** an agent-name (D4). `command` dispatch carries `x-claude.command` under `.claude-plugin/hooks/`.
 
