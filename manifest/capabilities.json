@@ -8,7 +8,7 @@
       "category": "frontmatter",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/skills.md#paths", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "gap" },
         "zed": { "status": "n/a" }
@@ -60,7 +60,7 @@
       "category": "manifest",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/plugins-reference.md:528", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "n/a" },
         "zed": { "status": "n/a" }
@@ -86,7 +86,7 @@
       "category": "runtime",
       "hosts": {
         "claude": { "status": "supported", "evidence": "references/claude-code-docs/docs/plugins-reference.md:273", "since": "v0.0.5" },
-        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#unsupported-documented-gaps" },
+        "opencode": { "status": "gap", "evidence": "adapters/opencode/projection.md#claude-only-capabilities-documented-gaps" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#honest-gaps" },
         "cursor": { "status": "n/a" },
         "zed": { "status": "n/a" }
@@ -176,7 +176,7 @@
       "description": "Lifecycle hook fired on session startup/clear/compact, used to deliver the Aegis bootstrap pointer (additionalContext) since no plugin-root CLAUDE.md is loaded.",
       "category": "hooks",
       "hosts": {
-        "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json:99", "since": "v0.0.1" },
+        "claude": { "status": "supported", "evidence": ".claude-plugin/plugin.json", "since": "v0.0.1" },
         "opencode": { "status": "partial", "evidence": "adapters/opencode/projection.md#approach-locked-decisions", "since": "v0.0.2" },
         "codex": { "status": "gap", "evidence": "adapters/codex/projection.md#hook-capability-matrix" },
         "cursor": { "status": "gap", "evidence": "adapters/cursor/projection.md#what-cursor-will-load" },

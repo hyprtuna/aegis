@@ -258,6 +258,31 @@ export function run(ctx) {
     }
   }
 
+  // ── Claude hook-script orphans ───────────────────────────────────────────────
+  // Every file under .claude-plugin/hooks/ must be referenced by some intent's
+  // x-claude.command. A script left behind by a deleted intent still ships inside
+  // the plugin and is reachable by anything that discovers the directory by
+  // convention, while nothing in canonical mentions it any more. The projector
+  // prunes these; this rule is the tripwire for a projector that was never re-run.
+  const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
+  if (existsSync(claudeHooksDir)) {
+    const referenced = new Set();
+    for (const intent of intents) {
+      const xc = intent["x-claude"];
+      if (xc && xc.dispatch === "command" && typeof xc.command === "string") {
+        referenced.add(xc.command.split("/").pop());
+      }
+    }
+    for (const entry of readdirSync(claudeHooksDir).sort()) {
+      if (referenced.has(entry)) continue;
+      errors.push(
+        `.claude-plugin/hooks/${entry}: orphaned — no hooks/*.json intent references it ` +
+          "via x-claude.command. A hook either ships (an intent binds it) or is deleted " +
+          "outright; run `node scripts/project.mjs` to prune it.",
+      );
+    }
+  }
+
   // ── plugin.json drift (D6) ───────────────────────────────────────────────────
   const pluginPath = join(REPO, ".claude-plugin", "plugin.json");
   if (existsSync(pluginPath)) {

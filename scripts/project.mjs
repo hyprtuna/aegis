@@ -1703,9 +1703,17 @@ function stampHookContent(content, commentToken, version) {
   return lines.join("\n");
 }
 
-// Stamp every projected command hook. The file list is DERIVED from the canonical
-// intents (every x-claude.dispatch:"command" command path), so a new .sh/.mjs hook
-// auto-stamps with no hardcoded list to maintain.
+// Stamp every projected command hook, then prune anything in
+// `.claude-plugin/hooks/` no live intent references. The file list is DERIVED from
+// the canonical intents (every x-claude.dispatch:"command" command path), so a new
+// .sh/.mjs hook auto-stamps with no hardcoded list to maintain.
+//
+// The prune mirrors projectCodexHooks(): a hook either ships (some hooks/*.json
+// binds it via x-claude.command) or it is gone. Stamping alone is not enough —
+// deleting an intent left its script on disk, shipped inside the plugin and
+// reachable by anything that discovers the directory by convention, while nothing
+// in canonical mentioned it any more. `HOOK_INTENT` hard-fails on the same
+// condition, so an orphan cannot survive a projector that was never re-run.
 function projectHooks(intents) {
   const HOOK_FILES = hookFilesFromIntents(intents ?? []);
   let stamped = 0;
@@ -1719,6 +1727,16 @@ function projectHooks(intents) {
       stamped++; // count only hooks actually (re)written
     }
   }
+
+  const claudeHooksDir = join(REPO, ".claude-plugin", "hooks");
+  if (existsSync(claudeHooksDir)) {
+    const expected = new Set(HOOK_FILES.map((p) => basename(p)));
+    for (const entry of readdirSync(claudeHooksDir)) {
+      if (expected.has(entry)) continue;
+      rmSync(join(claudeHooksDir, entry), { recursive: true, force: true });
+    }
+  }
+
   return stamped;
 }
 

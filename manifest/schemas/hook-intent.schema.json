@@ -74,7 +74,8 @@
       }
     },
     "x-claude": { "$ref": "#/$defs/xClaude" },
-    "x-opencode": { "$ref": "#/$defs/xOpencode" }
+    "x-opencode": { "$ref": "#/$defs/xOpencode" },
+    "x-codex": { "$ref": "#/$defs/xCodex" }
   },
   "$defs": {
     "xClaude": {
@@ -180,6 +181,50 @@
           "then": { "required": ["phase"] }
         }
       ]
+    },
+    "xCodex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "dispatch"],
+      "description": "Codex binding. Required when `platforms` includes 'codex'. No canonical intent binds 'codex' today — Codex's `[features] plugin_hooks` is removed, so a plugin-shipped hook cannot fire (see adapters/codex/projection.md). This $def exists so the re-enable path the projector keeps live (filterCodexHookIntents / projectCodexHooks) is expressible: without it, an intent declaring 'codex' would satisfy the HOOK_INTENT validator's x-codex requirement but be rejected by this schema's additionalProperties:false.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": [
+            "SessionStart",
+            "SubagentStart",
+            "PreToolUse",
+            "PermissionRequest",
+            "PostToolUse",
+            "PreCompact",
+            "PostCompact",
+            "UserPromptSubmit",
+            "SubagentStop",
+            "Stop"
+          ],
+          "description": "Codex hook event (verified against codex 0.141.0). Mirrors the CODEX_EVENTS enum in scripts/validate/hook-intent.mjs."
+        },
+        "matcher": {
+          "type": "string",
+          "description": "Optional Codex matcher string. Omitted, the hook fires on any tool — Codex accepts a matcher-less hook group."
+        },
+        "dispatch": {
+          "type": "string",
+          "enum": ["command", "prompt", "agent"],
+          "description": "Hook dispatch type. Only 'command' has a projector path today (projectCodexHooks emits type:'command' entries)."
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to the hook script as it ships inside the Codex plugin (required when dispatch is 'command'). The projector bundles the sibling x-claude.command script under .codex/plugins/aegis/hooks/ using this path's basename."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "dispatch": { "const": "command" } } },
+          "then": { "required": ["command"] }
+        }
+      ]
     }
   },
   "allOf": [
@@ -190,6 +235,10 @@
     {
       "if": { "properties": { "platforms": { "contains": { "const": "opencode" } } } },
       "then": { "required": ["x-opencode"] }
+    },
+    {
+      "if": { "properties": { "platforms": { "contains": { "const": "codex" } } } },
+      "then": { "required": ["x-codex"] }
     },
     {
       "if": { "properties": { "intent": { "const": "prompt-type" } } },

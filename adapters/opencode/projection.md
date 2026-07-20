@@ -9,7 +9,7 @@
 - **Install instructions:** `.opencode/INSTALL.md` (agent-readable) tells an AI agent how to edit the user's `opencode.json`. NO install script Aegis runs.
 - **Skill discovery:** Plugin `config(cfg)` pushes 3 absolute paths into `cfg.skills.paths` (`skills/core`, `skills/languages`, `skills/workflows`).
 - **Bootstrap:** `experimental.chat.messages.transform` injects the `using-aegis` SKILL body into the first user message, guarded by `<!-- aegis:bootstrap -->`. The bootstrap embeds the iron-law rules.
-- **Bootstrap (verified):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once at plugin-factory init (`aegis.js:50,128`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`aegis.js:176-179`) and injects into the **first USER message** (`aegis.js:171`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This confirms the superpowers-audit recommendations were already satisfied.
+- **Bootstrap (static review):** `.opencode/plugins/aegis.js` caches the parsed `using-aegis` bootstrap at module level — computed once and memoized (`aegis.js:50,73,85`), not per turn. It guards against double-injection with the `<!-- aegis:bootstrap -->` marker (`BOOTSTRAP_MARKER`, `aegis.js:39`; guard at `aegis.js:221-224`) and injects into the **first USER message** (selected at `aegis.js:216`, injected at `aegis.js:226-227`), not a system message — avoiding per-turn token bloat and the multi-system-message breakage some models exhibit. This satisfies the superpowers-audit recommendations by static review of the shipped source; no live OpenCode run has been performed.
 - **Agents:** Generated `.opencode/agents/<name>.md` with `mode: subagent` for 17, `mode: primary` for `orchestrator`.
 - **Commands:** Generated `.opencode/commands/<name>.md`. `argument-hint` is a Claude-only command field (not documented for OpenCode's `config.command`) and is intentionally NOT promoted here (v0.1.3) — it stays only on the Claude command carrier.
 - **Rules:** Embedded in bootstrap text, NOT via `cfg.instructions[]` (per Superpowers' tested approach; avoids per-turn token cost).
@@ -185,7 +185,7 @@ agent can resolve at runtime. On both Codex and OpenCode, Q2 may still offer
 HTML (the option set is index-driven, not host-gated), but the runtime `Read`
 of the template body has no resolvable path today.
 
-## Unsupported (Documented Gaps)
+## Claude-Only Capabilities (Documented Gaps)
 
 The following capabilities are **Claude-only** and have no OpenCode equivalent. Each is a `gap`/`partial`/`n-a` row in [`manifest/capabilities.json`](../../manifest/capabilities.json) — the source of truth; this list must not contradict it.
 
@@ -206,7 +206,13 @@ Model aliases (`manifest/models.json`) and provider-tagged prose (`<opencode>…
 
 Three OpenCode experimental features were evaluated for adoption. Each has a documented API shape in
 `opencode-docs/docs/18-plugins.md`; the evaluation criterion is: clean + low-risk + statically-verifiable
-AND confirmed by docs. We have no OpenCode CLI for runtime verification.
+AND confirmed by docs.
+
+**Verification state.** An OpenCode CLI **is** available (1.18.3) — it is the same install whose
+`@opencode-ai/plugin` type contract is this adapter's primary static evidence. What is missing is a
+**live run**: no end-to-end invocation against a running host has been performed for any of the three
+decisions below. So the constraint is availability of *evidence from execution*, not availability of a
+host. Each DEFER below states its own surviving justification; none rests on "no CLI exists".
 
 ### `experimental.compaction.autocontinue` — DEFER
 
@@ -219,6 +225,9 @@ compaction guidance injection (a `pre-compact` concern), not turn-skipping. Buil
 be adopting an API without a real requirement. Deferred until a concrete need emerges. It is also
 **not** a home for `post-compact`: its output is `{enabled: boolean}` only, so it cannot re-surface
 captured anchors — see the hook capability matrix above.
+
+This DEFER rests on absence of a requirement and on the documented output shape, neither of which a
+live run would change. Unaffected by the verification state above.
 
 ### `permission.ask` runtime hook — DEFER
 
@@ -234,9 +243,14 @@ at runtime. However: (1) the docs do not show the full `input` shape for Bash pe
 no documented field confirming the command string is accessible; (2) any implementation would execute
 unverified logic on a live permission decision; (3) the existing `config(cfg)` deny block is already
 best-effort by design (documented, not silently dropped). Honest-gaps discipline: a runtime security
-hook built against an under-documented input shape and with no runtime testing path would be worse than
-the current documented caveat. DEFER. Re-evaluate when docs show the full Permission input shape and
-a test path exists.
+hook built against an under-documented input shape would be worse than the current documented caveat.
+DEFER on the input-shape gap alone.
+
+**Re-openable.** The "no test path" half of the original rationale is withdrawn — an OpenCode 1.18.3
+install is present, so the Permission input shape is discoverable from the installed
+`@opencode-ai/plugin` types or a live probe rather than from docs alone. Re-evaluate as soon as
+someone reads that shape out of the installed contract; if the Bash command string turns out to be
+exposed, objection (1) dissolves and this should be reconsidered on its merits.
 
 ### `experimental.chat.system.transform` — DEFER
 
@@ -245,14 +259,24 @@ a test path exists.
 the system prompt, which is a cleaner channel than the current user-message bootstrap inject.
 
 **Evaluation:** The current bootstrap via `experimental.chat.messages.transform` (user-message inject
-with `<!-- aegis:bootstrap -->` idempotency guard) is verified and working. Switching
-channels is a behavioral change with real risk: (1) the current approach is battle-tested and
-explicitly confirmed per-audit; (2) system prompt injection via this hook may
-interact differently with multi-turn context, compaction, or per-model system-prompt handling;
-(3) the current approach deliberately targets the FIRST USER MESSAGE to avoid per-turn token bloat —
-a system-transform hook would need equivalent deduplication logic to avoid adding Aegis bootstrap on
-every turn. A blind switch without controlled testing would be reckless. DEFER pending a controlled
-A/B validation on a non-primary session, not a production swap.
+with `<!-- aegis:bootstrap -->` idempotency guard) was **just corrected in this release**: the handler
+had been registered under a nested `experimental` object key, which OpenCode never resolves, so it was
+shipped and never invoked. It is now registered under the flat dotted key the `@opencode-ai/plugin`
+type contract declares. That channel is verified by static review and in-process assertions
+(`scripts/test-projection.mjs`) only — it has **not** been live-run verified, and it has no track
+record to lean on.
+
+So this is not a defer-because-the-incumbent-is-proven. It defers on the two grounds that survive:
+(1) system-prompt injection via this hook may interact differently with multi-turn context,
+compaction, or per-model system-prompt handling; (2) the messages-transform approach deliberately
+targets the FIRST USER MESSAGE to avoid per-turn token bloat — a system-transform hook would need
+equivalent deduplication logic to avoid re-injecting the bootstrap every turn. Swapping an unproven
+channel for a second unproven channel adds risk without retiring any.
+
+**Re-openable.** The incumbent's freshly-corrected, unexercised state is itself a reason to revisit:
+once a live run establishes how the messages-transform channel actually behaves, that same run is the
+natural place to A/B the system-transform alternative. DEFER pending controlled A/B validation on a
+non-primary session, not a production swap.
 
 ## Early Plan
 
