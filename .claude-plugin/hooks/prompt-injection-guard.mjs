@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// aegis-hook-version: 0.1.4
+// aegis-hook-version: 0.1.5
 // prompt-injection-guard.mjs — Aegis advisory PreToolUse prompt-injection scanner.
 //
 // WHY THIS EXISTS: when a tool pulls in
