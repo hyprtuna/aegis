@@ -30,6 +30,15 @@ deny() {
   exit 0
 }
 
+# `ask` surfaces the normal permission prompt and hands the decision to the user
+# (hooks.md: "prompts the user to confirm"). Used for workflow *preference* — a
+# choice the user is entitled to make per call — never for a safety invariant.
+# Safety invariants use deny(), which fires ahead of any permission mode.
+ask() {
+  jq -n --arg r "$1" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}'
+  exit 0
+}
+
 # jq is a documented Aegis dependency (statuslines, monitors). If it is missing we
 # cannot inspect the call; allow (defense-in-depth: the per-agent tools allowlist
 # is the primary boundary and is enforced by the host regardless). NOT silent — we
@@ -91,16 +100,31 @@ case "$TOOL" in
       deny "Aegis: piping a download into a shell is denied (plugin.deny)."
     fi
 
-    # ---- protected-branch git guard --------------------------------------------
-    # Block commit/push to protected branches and destructive git ops. Config
-    # (protected branches, op flags, override env/marker) is read from
-    # plugin.gitGuard in the manifest, falling back to safe defaults so a missing
-    # or malformed config NEVER crashes the session (fail open). Mirrors hr-dev's
-    # git-guard: regex classification, auditable override, "do not work around"
-    # messaging. Only commands that actually invoke git are inspected.
-    # Best-effort limit: branch resolution uses the tool-call cwd,
-    # so `git -C <other-repo> commit/push` is classified by op but NOT branch-checked
-    # against the -C target. Defense-in-depth, not a sandbox; documented as a gap.
+    # ---- git guard ---------------------------------------------------------------
+    # Two kinds of rule, two different decisions:
+    #
+    #   deny — destructive ops (force-push, hard reset, working-tree restore/checkout
+    #          discards, `clean -f`). Irreversible regardless of anyone's branching
+    #          model, so the decision is not the user's to make per call. Carries the
+    #          auditable override.
+    #   ask  — pushing to an explicitly-named protected branch. Workflow *preference*:
+    #          trunk-based development is a legitimate model, so the user confirms per
+    #          call instead of being blocked. No override needed — being asked IS the
+    #          escape. The judgment `ask` cannot express (when the trunk is the right
+    #          target, how a team gets a real hard block) lives in
+    #          `rules/protected-branch-discipline.md`.
+    #
+    # Every check reads the destination out of the COMMAND. Nothing resolves the
+    # current branch: the tool-call cwd is the session directory, not the directory
+    # the command actually runs in, so a branch resolved from it is wrong in any
+    # multi-worktree repo. Checks that needed it (bare push, commit-on-protected) are
+    # deliberately absent, and `cd` is NOT parsed out of the command to substitute —
+    # that would reason about the command's text instead of its effect.
+    #
+    # Config (protected branches, override env/marker) is read from plugin.gitGuard in
+    # the manifest, falling back to safe defaults so a missing or malformed config
+    # NEVER crashes the session (fail open). Only commands that actually invoke git
+    # are inspected. Defense-in-depth, not a sandbox.
     if printf '%s' "$CMD" | grep -Eq '(^|[[:space:];&|(])git([[:space:]]|$)'; then
       # Override config (defaults if manifest is absent/unreadable).
       GUARD_ENV="AEGIS_ALLOW_GIT_GUARD"
@@ -125,32 +149,7 @@ case "$TOOL" in
         deny "Aegis git guard: $1 The user must explicitly approve this; do not work around this guard. STOP and ask the user. To proceed once approved, re-run with ${GUARD_ENV}=1 prefixed, or append '${GUARD_MARKER}' to the command."
       }
 
-      # Protected-branch list (default main/master). Build an alternation regex.
-      PROT_RE='main|master'
-      if [ -f "$PLUGIN_DENY" ]; then
-        pl="$(jq -r '.plugin.gitGuard.protectedBranches // [] | join("|")' "$PLUGIN_DENY" 2>/dev/null)"
-        [ -n "$pl" ] && [ "$pl" != "null" ] && PROT_RE="$pl"
-      fi
-      # Match a branch name against the protected set (strip refs/heads/ and origin/).
-      is_protected() {
-        b="$1"; b="${b#refs/heads/}"; b="${b#origin/}"
-        [ -n "$b" ] || return 1
-        printf '%s' "$b" | grep -Eq "^(${PROT_RE})(/.*)?$"
-      }
-      # Resolve the current branch (best-effort; empty on any failure → not
-      # protected). Honors the optional `cwd` from the tool-call JSON, matching
-      # the host contract, so the branch is resolved in the agent's working dir.
-      GIT_CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // ""' 2>/dev/null)"
-      cur_branch() {
-        if [ -n "$GIT_CWD" ] && [ -d "$GIT_CWD" ]; then
-          git -C "$GIT_CWD" rev-parse --abbrev-ref HEAD 2>/dev/null
-        else
-          git rev-parse --abbrev-ref HEAD 2>/dev/null
-        fi
-      }
-
-      is_push=false;  printf '%s' "$CMD" | grep -Eq '\bgit[[:space:]]+push\b'   && is_push=true
-      is_commit=false; printf '%s' "$CMD" | grep -Eq '\bgit[[:space:]]+commit\b' && is_commit=true
+      is_push=false; printf '%s' "$CMD" | grep -Eq '\bgit[[:space:]]+push\b' && is_push=true
 
       # Force push.
       if [ "$is_push" = true ] && printf '%s' "$CMD" | grep -Eq '(--force-with-lease\b|--force\b|(^|[[:space:]])-[A-Za-z]*f([A-Za-z]*)?([[:space:]]|$))'; then
@@ -180,21 +179,33 @@ case "$TOOL" in
         git_deny "'git clean -f' deletes untracked files."
       fi
 
-      # Commit on a protected branch.
-      if [ "$is_commit" = true ]; then
-        if is_protected "$(cur_branch)"; then
-          git_deny "commit on protected branch '$(cur_branch)'. Work on a feature/ticket branch instead."
-        fi
-      fi
-
-      # Push to a protected branch (named refspec destination, or bare push while
-      # the current branch is protected, e.g. `git push origin HEAD:main`).
+      # ---- protected-branch push -> ask (never deny) ----
+      # Reached only after every destructive check above has passed, so a
+      # destructive push to a protected branch (`git push --force origin main`)
+      # is DENIED on the force, not softened to a prompt. Order is load-bearing.
+      #
+      # Scoped to a destination NAMED IN THE COMMAND (`git push origin main`,
+      # `git push origin HEAD:main`). A bare `git push` targets the current
+      # branch, which this hook cannot soundly resolve, so it is not checked.
       if [ "$is_push" = true ]; then
+        # Protected-branch list (default main/master). Build an alternation regex.
+        PROT_RE='main|master'
+        if [ -f "$PLUGIN_DENY" ]; then
+          pl="$(jq -r '.plugin.gitGuard.protectedBranches // [] | join("|")' "$PLUGIN_DENY" 2>/dev/null)"
+          [ -n "$pl" ] && [ "$pl" != "null" ] && PROT_RE="$pl"
+        fi
+        # Match a branch name against the protected set (strip refs/heads/ and origin/).
+        is_protected() {
+          b="$1"; b="${b#refs/heads/}"; b="${b#origin/}"
+          [ -n "$b" ] || return 1
+          printf '%s' "$b" | grep -Eq "^(${PROT_RE})(/.*)?$"
+        }
+
         # Evaluate EACH `git push` invocation against its OWN refspecs. Scanning
         # a single unbounded `${CMD#*git*push}` fails in both directions:
         #   - reading to end-of-string misreads a downstream token as this push's
         #     destination (`git push origin feat && gh pr create --base main`
-        #     → false "protected branch" deny on a feature branch);
+        #     → false prompt on a feature branch);
         #   - bounding the scan to only the FIRST push hides every later one
         #     (`git push origin feat && git push origin main` → main slips through).
         # So split on shell control operators / redirections / comments, then run
@@ -210,7 +221,6 @@ case "$TOOL" in
           printf '%s' "$seg" | grep -Eq '\bgit[[:space:]]+push\b' || continue
           after="${seg#*git*push}"
 
-          named_protected=false
           for tok in $after; do
             case "$tok" in
               -*) continue ;;
@@ -219,27 +229,10 @@ case "$TOOL" in
             case "$dest" in
               *:*) dest="${dest##*:}" ;;
             esac
-            if is_protected "$dest"; then named_protected=true; break; fi
+            if is_protected "$dest"; then
+              ask "Aegis: this pushes directly to '${dest}', a shared branch others build on. If that is where this change belongs — a trunk-based workflow, a hotfix, a version bump — approve it. If it should be reviewed first, decline and push a branch instead."
+            fi
           done
-          if [ "$named_protected" = true ]; then
-            git_deny "push to a protected branch (${PROT_RE})."
-          fi
-
-          # No protected destination named in this segment. A bare push (no
-          # positional refspec other than the remote) pushes the current branch
-          # — deny if it is protected.
-          has_refspec=false
-          # skip the remote (first positional) then look for a branch refspec
-          first_positional_seen=false
-          for tok in $after; do
-            case "$tok" in -*) continue ;; esac
-            if [ "$first_positional_seen" = false ]; then first_positional_seen=true; continue; fi
-            [ "$tok" = "HEAD" ] && continue
-            has_refspec=true
-          done
-          if [ "$has_refspec" = false ] && is_protected "$(cur_branch)"; then
-            git_deny "push of protected branch '$(cur_branch)'."
-          fi
         done
       fi
     fi

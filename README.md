@@ -15,7 +15,7 @@ The surface is intentionally flexible while host plugin tooling evolves — ther
 - **82 skills** — reusable capabilities spanning universal workflows, language overlays, and process guidance.
 - **17 agents** — first-class doers invoked via the host's Task tool.
 - **6 commands** — slash-command workflow entry-points.
-- **17 rules** — always-loaded iron-law guidance.
+- **18 rules** — always-loaded iron-law guidance.
 - **3 hooks** — portable hook intents with per-host implementations.
 - **73 templates** — output skeletons: 22 HTML plus Markdown and JSON siblings; 70 carry slot manifests.
 - **9 statusline presets** — ready-to-use status line configurations.

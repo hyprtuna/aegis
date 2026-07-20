@@ -4,38 +4,29 @@
 // manifest/permissions.json plugin.deny[] at runtime (decisions.md D5 correction).
 // Dependency-free; spawns the hook with crafted PreToolUse stdin and asserts the
 // permissionDecision. Requires bash + jq (documented Aegis deps).
+//
+// THREE outcomes are asserted, not two:
+//   deny  — safety invariant; not the user's call.
+//   ask   — workflow preference; the user confirms per call.
+//   allow — hook has no opinion (no output at all).
+// A case that flips between ask and deny is a real behavioral change, so the
+// harness must never collapse the two into "blocked".
 
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 const HOOK = join(REPO, ".claude-plugin", "hooks", "pre-tool-use-deny.sh");
 
-// Throwaway git repos for current-branch-dependent git-guard cases (commit /
-// bare-push on a protected vs. feature branch). Created on a known branch so the
-// hook's `git rev-parse --abbrev-ref HEAD` (resolved via the tool-call `cwd`)
-// is deterministic regardless of the branch this test runs on.
-function makeRepo(branch) {
-  const dir = mkdtempSync(join(tmpdir(), "aegis-gitguard-"));
-  const run = (c) => execFileSync("bash", ["-c", c], { cwd: dir, stdio: "ignore" });
-  run("git init -q");
-  run(`git checkout -q -b ${branch}`);
-  run("git config user.email t@t.t && git config user.name t");
-  run("git commit -q --allow-empty -m seed");
-  return dir;
+// Parse the hook's stdout into one of the three outcomes. Absence of output is
+// "allow" (exit 0, no decision → normal permission flow continues).
+function decisionOf(out) {
+  const m = /"permissionDecision"\s*:\s*"(deny|ask|allow)"/.exec(out);
+  return m ? m[1] : "allow";
 }
-const MAIN_REPO = makeRepo("main");
-const FEATURE_REPO = makeRepo("feat/x");
-process.on("exit", () => {
-  for (const d of [MAIN_REPO, FEATURE_REPO]) {
-    try { rmSync(d, { recursive: true, force: true }); } catch {}
-  }
-});
 
-// label, tool-call JSON, expected decision ("deny" | "allow")
+// label, tool-call JSON, expected decision ("deny" | "ask" | "allow")
 const CASES = [
   // secret-file reads → deny
   ["Read .env", { tool_name: "Read", tool_input: { file_path: `${REPO}/.env` } }, "deny"],
@@ -62,11 +53,7 @@ const CASES = [
   ["curl -o (no pipe)", { tool_name: "Bash", tool_input: { command: "curl https://example.com -o out.json" } }, "allow"],
   ["npm test", { tool_name: "Bash", tool_input: { command: "npm test" } }, "allow"],
   ["Grep", { tool_name: "Grep", tool_input: { pattern: "x" } }, "allow"],
-  // ---- protected-branch git guard ----
-  // protected-branch push (named destination, branch-independent) → deny
-  ["push origin main", { tool_name: "Bash", tool_input: { command: "git push origin main" } }, "deny"],
-  ["push HEAD:main", { tool_name: "Bash", tool_input: { command: "git push origin HEAD:main" } }, "deny"],
-  ["push origin master", { tool_name: "Bash", tool_input: { command: "git push origin master" } }, "deny"],
+  // ---- destructive git-ops guard ----
   // destructive ops (branch-independent) → deny
   ["push --force", { tool_name: "Bash", tool_input: { command: "git push --force origin feat/x" } }, "deny"],
   ["push -f", { tool_name: "Bash", tool_input: { command: "git push -f" } }, "deny"],
@@ -77,39 +64,51 @@ const CASES = [
   ["checkout -- path", { tool_name: "Bash", tool_input: { command: "git checkout -- src/index.js" } }, "deny"],
   ["checkout .", { tool_name: "Bash", tool_input: { command: "git checkout ." } }, "deny"],
   ["clean -fdx", { tool_name: "Bash", tool_input: { command: "git clean -fdx" } }, "deny"],
-  // current-branch-dependent (cwd resolves the branch) → deny on protected
-  ["commit on main", { tool_name: "Bash", tool_input: { command: 'git commit -m "x"' }, cwd: MAIN_REPO }, "deny"],
-  ["bare push on main", { tool_name: "Bash", tool_input: { command: "git push" }, cwd: MAIN_REPO }, "deny"],
-  ["push origin (on main)", { tool_name: "Bash", tool_input: { command: "git push origin" }, cwd: MAIN_REPO }, "deny"],
+  // ...destructive ops are still caught in a compound command, at any position.
+  ["push feat && push --force", { tool_name: "Bash", tool_input: { command: "git push origin feat/x && git push --force origin feat/y" } }, "deny"],
+  ["npm test && reset --hard", { tool_name: "Bash", tool_input: { command: "npm test && git reset --hard HEAD~1" } }, "deny"],
+  ["clean -fdx | tee", { tool_name: "Bash", tool_input: { command: "git clean -fdx | tee clean.log" } }, "deny"],
   // override paths → allow
-  ["override env", { tool_name: "Bash", tool_input: { command: "AEGIS_ALLOW_GIT_GUARD=1 git push origin main" } }, "allow"],
+  ["override env", { tool_name: "Bash", tool_input: { command: "AEGIS_ALLOW_GIT_GUARD=1 git reset --hard HEAD~1" } }, "allow"],
   ["override marker", { tool_name: "Bash", tool_input: { command: "git push --force # aegis:allow-git" } }, "allow"],
   // legitimate git → allow
-  ["commit on feature", { tool_name: "Bash", tool_input: { command: 'git commit -m "x"' }, cwd: FEATURE_REPO }, "allow"],
-  ["bare push on feature", { tool_name: "Bash", tool_input: { command: "git push" }, cwd: FEATURE_REPO }, "allow"],
-  ["push origin feat/x", { tool_name: "Bash", tool_input: { command: "git push origin feat/x" }, cwd: FEATURE_REPO }, "allow"],
+  ["push origin feat/x", { tool_name: "Bash", tool_input: { command: "git push origin feat/x" } }, "allow"],
   ["git status", { tool_name: "Bash", tool_input: { command: "git status" } }, "allow"],
   ["git log", { tool_name: "Bash", tool_input: { command: "git log --oneline -5" } }, "allow"],
-  ["git checkout branch", { tool_name: "Bash", tool_input: { command: "git checkout feat/x" }, cwd: FEATURE_REPO }, "allow"],
-  ["git pull", { tool_name: "Bash", tool_input: { command: "git pull" }, cwd: FEATURE_REPO }, "allow"],
+  ["git checkout branch", { tool_name: "Bash", tool_input: { command: "git checkout feat/x" } }, "allow"],
+  ["git pull", { tool_name: "Bash", tool_input: { command: "git pull" } }, "allow"],
   ["restore --staged (unstage)", { tool_name: "Bash", tool_input: { command: "git restore --staged f" } }, "allow"],
+  // ---- protected-branch push -> ask ----
+  // Destination named in the command. Workflow preference, so the user confirms
+  // per call; never denied.
+  ["push origin main", { tool_name: "Bash", tool_input: { command: "git push origin main" } }, "ask"],
+  ["push origin master", { tool_name: "Bash", tool_input: { command: "git push origin master" } }, "ask"],
+  ["push HEAD:main", { tool_name: "Bash", tool_input: { command: "git push origin HEAD:main" } }, "ask"],
+  ["push refs/heads/main", { tool_name: "Bash", tool_input: { command: "git push origin refs/heads/main" } }, "ask"],
+  // ...but destructive beats preference: the force check runs FIRST, so a forced
+  // push to a protected branch is DENIED, not softened into a prompt.
+  ["push --force origin main", { tool_name: "Bash", tool_input: { command: "git push --force origin main" } }, "deny"],
+  ["push -f origin master", { tool_name: "Bash", tool_input: { command: "git push -f origin master" } }, "deny"],
+  // A later push to a protected branch in a compound command is still caught.
+  ["push feat && push main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x && git push origin main" } }, "ask"],
+  ["push main && npm test", { tool_name: "Bash", tool_input: { command: "git push origin main && npm test" } }, "ask"],
+  // ---- checks that needed the current branch are GONE ----
+  // A bare push targets the current branch, which the hook cannot soundly resolve
+  // (the tool-call cwd is the session dir, not the command's dir). Not checked.
+  ["bare push", { tool_name: "Bash", tool_input: { command: "git push" } }, "allow"],
+  ["push origin (no refspec)", { tool_name: "Bash", tool_input: { command: "git push origin" } }, "allow"],
+  // A commit is local and reversible; the guardrail belongs on the push. This case
+  // is the reproduction of the worktree false positive — it must NOT prompt.
+  ["git commit", { tool_name: "Bash", tool_input: { command: 'git commit -m "x"' } }, "allow"],
+  ["commit inside a worktree", { tool_name: "Bash", tool_input: { command: 'cd .worktrees/release-v1.2.3 && git commit -m "x"' } }, "allow"],
+  // Non-protected destinations are silent.
   ["push origin develop", { tool_name: "Bash", tool_input: { command: "git push origin develop" } }, "allow"],
-  // ---- compound commands: each `git push` is scanned against its OWN refspecs ----
-  // A downstream mention of a protected branch is NOT this push's destination.
-  // Regression: these produced a false "push to a protected branch" deny, which is
-  // what made the guard look like it mis-parsed `+N` sub-release branch names.
+  // Compound commands mentioning the trunk downstream are NOT this push's target.
   ["push feat && gh pr --base main", { tool_name: "Bash", tool_input: { command: "git push origin release/v1.2.3+1 && gh pr create --base main" } }, "allow"],
   ["push feat; checkout main", { tool_name: "Bash", tool_input: { command: "git push origin release/v1.2.3+1; git checkout main" } }, "allow"],
   ["push feat # comment re main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x # rebase onto main later" } }, "allow"],
   ["push feat && echo main", { tool_name: "Bash", tool_input: { command: 'git push origin feat/x && echo "now on main"' } }, "allow"],
   ["push +N sub-release branch", { tool_name: "Bash", tool_input: { command: "git push -u origin release/v1.2.3+1" } }, "allow"],
-  // ...but a LATER push in the same command must still be caught. Regression: bounding
-  // the scan to the first `git push` let the second one through entirely.
-  ["push feat && push main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x && git push origin main" } }, "deny"],
-  ["push feat; push main", { tool_name: "Bash", tool_input: { command: "git push origin feat/x; git push origin master" } }, "deny"],
-  // ...and a protected destination followed by a tail must still be caught.
-  ["push main && npm test", { tool_name: "Bash", tool_input: { command: "git push origin main && npm test" } }, "deny"],
-  ["push main | tee", { tool_name: "Bash", tool_input: { command: "git push origin main | tee push.log" } }, "deny"],
 ];
 
 // KNOWN GAPS (defense-in-depth limits, documented for v0.0.6). This layer is a
@@ -136,7 +135,7 @@ for (const [label, input, expect] of CASES) {
   } catch (e) {
     out = e.stdout?.toString() ?? "";
   }
-  const got = /"permissionDecision"\s*:\s*"deny"/.test(out) ? "deny" : "allow";
+  const got = decisionOf(out);
   if (got === expect) {
     passed++;
   } else {
@@ -160,10 +159,17 @@ for (const [label, input, expect] of KNOWN_GAPS) {
   } catch (e) {
     out = e.stdout?.toString() ?? "";
   }
-  const got = /"permissionDecision"\s*:\s*"deny"/.test(out) ? "deny" : "allow";
+  const got = decisionOf(out);
   if (got !== expect) gapNotes++;
   console.log(`  known-gap [${got}] ${label} (v0.0.6 hardening candidate)`);
 }
 
-console.log(`deny-hook: ${passed} passed, ${failed} failed (of ${CASES.length}); ${KNOWN_GAPS.length} documented known-gaps`);
+const byOutcome = { allow: 0, ask: 0, deny: 0 };
+for (const [, , expect] of CASES) byOutcome[expect]++;
+
+console.log(
+  `deny-hook: ${passed} passed, ${failed} failed (of ${CASES.length}) ` +
+    `[allow ${byOutcome.allow} / ask ${byOutcome.ask} / deny ${byOutcome.deny}]; ` +
+    `${KNOWN_GAPS.length} documented known-gaps`,
+);
 process.exit(failed === 0 ? 0 : 1);
